@@ -82,9 +82,12 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
     return 'dot dot--green';
   }
 
+  const showMot = company !== 'pit';
+  const gridMod = company==='all' ? 'dash-grid--3' : (showMot ? 'dash-grid--2' : 'dash-grid--1');
+
   return(
     <div>
-      <div className={`dash-grid ${company==='all' ? 'dash-grid--3' : 'dash-grid--2'}`}>
+      <div className={`dash-grid ${gridMod}`}>
 
         <div className="dash-sec">
           <div className="dash-sec-label">Visão Geral</div>
@@ -114,26 +117,28 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
           </div>
         </div>
 
-        <div className="dash-sec">
-          <div className="dash-sec-label">
-            <span>Motoristas</span>
-            {isAdmin && (
-              <button className="meta-btn" onClick={changeMeta} title="Definir meta de disponíveis">
-                Meta
-              </button>
-            )}
-          </div>
-          <div className={`stat stat--click ${motoristasAccent}`} onClick={()=>onNav('motoristas')}>
-            <div className={`stat-n ${motoristasNumColor}`}>
-              {disponiveis}
-              {meta>0 && <span className="stat-n-sub"> / {meta}</span>}
+        {showMot && (
+          <div className="dash-sec">
+            <div className="dash-sec-label">
+              <span>Motoristas</span>
+              {isAdmin && (
+                <button className="meta-btn" onClick={changeMeta} title="Definir meta de disponíveis">
+                  Meta
+                </button>
+              )}
             </div>
-            <div className="stat-l">Disponíveis</div>
-            <div className="stat-s">
-              {meta>0 ? (metaOk ? 'meta atingida' : `faltam ${faltam}`) : `de ${motoristas.length} motoristas`}
+            <div className={`stat stat--click ${motoristasAccent}`} onClick={()=>onNav('motoristas')}>
+              <div className={`stat-n ${motoristasNumColor}`}>
+                {disponiveis}
+                {meta>0 && <span className="stat-n-sub"> / {meta}</span>}
+              </div>
+              <div className="stat-l">Disponíveis</div>
+              <div className="stat-s">
+                {meta>0 ? (metaOk ? 'meta atingida' : `faltam ${faltam}`) : `de ${motoristas.length} motoristas`}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {company==='all' && (
           <div className="dash-sec">

@@ -220,13 +220,29 @@ function AusenciasTab({emp,absences,readOnly,user,onSaveAbsence,onDelAbsence,onA
   );
 }
 
-function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive,user,evals,onSaveEval,onDelEval,absences,onSaveAbsence,onDelAbsence,onAudit,ferias}){
+function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive,user,evals,onSaveEval,onDelEval,absences,onSaveAbsence,onDelAbsence,onAudit,ferias,onRenameId}){
   const [tab,setTab]=useState('info');
   const [showEvalModal,setShowEvalModal]=useState(false);
   const [ef,setEf]=useState({type:'',date:new Date().toISOString().split('T')[0],notes:'',nextAction:'',nextDate:''});
   const [empPdfHtml,setEmpPdfHtml]=React.useState(null);
   const [showShare,setShowShare]=React.useState(false);
   const [copied,setCopied]=React.useState(false);
+  const [idEdit,setIdEdit]=useState(false);
+  const [idVal,setIdVal]=useState('');
+  const [idErr,setIdErr]=useState(null);
+  const [idSaving,setIdSaving]=useState(false);
+  useEffect(()=>{ setIdEdit(false); setIdErr(null); },[emp.id, emp.company]);
+  async function commitId(value){
+    if(idSaving) return;
+    const v=String(value??idVal).trim();
+    if(!v){ setIdErr({msg:'O n.º não pode ficar vazio'}); return; }
+    if(v===emp.id){ setIdEdit(false); setIdErr(null); return; }
+    setIdSaving(true);
+    const r=await onRenameId(v);
+    setIdSaving(false);
+    if(r.ok){ setIdEdit(false); setIdErr(null); }
+    else setIdErr({msg:r.error, suggestion:r.suggestion});
+  }
   const myEvals=evals.filter(e=>e.empId===emp.id&&e.empCompany===emp.company).sort((a,b)=>b.date.localeCompare(a.date));
   const nm=nextMed(emp);
   const nd=nextDiut(emp);
@@ -369,9 +385,52 @@ function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive
     <div style={{display:'flex',flexDirection:'column',height:'100%'}}>
       <div style={{display:'flex',alignItems:'center',gap:'12px',marginBottom:'12px',flexShrink:0}}>
         <div className="av" style={{width:50,height:50,background:COMP_COLORS[emp.company]||'#1a0d0d',fontSize:18}}>{initials(emp.name)}</div>
-        <div style={{flex:1}}>
-          <div style={{fontWeight:700,fontSize:17}}>{emp.name}</div>
-          <div style={{fontSize:12,color:'var(--muted)'}}>{emp.role} · {emp.company} · #{emp.id}</div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+            <div style={{fontWeight:700,fontSize:17}}>{emp.name}</div>
+            {(()=>{
+              const co=COMP_COLORS[emp.company]||'#1a0d0d';
+              const canEdit=!readOnly && typeof onRenameId==='function';
+              if(idEdit){
+                return (
+                  <span className="emp-id-pill is-editing" style={{color:co}}>
+                    <span className="emp-id-pill__lbl">N.º</span>
+                    <input
+                      className="emp-id-pill__input"
+                      autoFocus
+                      value={idVal}
+                      disabled={idSaving}
+                      onChange={e=>{setIdVal(e.target.value);if(idErr)setIdErr(null);}}
+                      onKeyDown={e=>{
+                        if(e.key==='Enter') commitId();
+                        else if(e.key==='Escape'){ setIdEdit(false); setIdErr(null); }
+                      }}/>
+                  </span>
+                );
+              }
+              return (
+                <span
+                  className={`emp-id-pill${canEdit?' is-editable':''}`}
+                  style={{color:co}}
+                  title={canEdit?'Clica para alterar (n.º ligado à 4Miga)':'N.º do colaborador'}
+                  onClick={canEdit?()=>{setIdVal(emp.id||'');setIdEdit(true);setIdErr(null);}:undefined}>
+                  <span className="emp-id-pill__lbl">N.º</span>
+                  <span className="emp-id-pill__num">{emp.id||'—'}</span>
+                </span>
+              );
+            })()}
+            {idErr && (
+              <span className="emp-id-err">
+                {idErr.msg}
+                {idErr.suggestion && (
+                  <button className="emp-id-err__btn" onClick={()=>commitId(idErr.suggestion)}>
+                    usar #{idErr.suggestion}
+                  </button>
+                )}
+              </span>
+            )}
+          </div>
+          <div style={{fontSize:12,color:'var(--muted)',marginTop:2}}>{emp.role} · {emp.company}</div>
           <div style={{display:'flex',gap:5,marginTop:3,flexWrap:'wrap'}}>
             <Chip label={emp.contractStatus} type={emp.contractStatus==='Ativo'?'green':emp.contractStatus?.includes('baixa')?'orange':'gr'}/>
             {(()=>{
@@ -518,11 +577,22 @@ function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive
   );
 }
 
-function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval,onDelEval,absences,onSaveAbsence,onDelAbsence,initSel,ferias}){
+function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval,onDelEval,absences,onSaveAbsence,onDelAbsence,initSel,ferias,onRenameId}){
   const {employees=[],inactive=[]}=data;
   const [search,setSearch]=useState('');
   const [sf,setSf]=useState('all');
-  const [sel,setSel]=useState(initSel||null);
+  // initSel pode vir de outro ecrã só com {id, company}, é preciso ir
+  // buscar o registo completo senão a ficha abre vazia.
+  const hydrate=(s)=>{
+    if(!s) return null;
+    if(s.name) return s;
+    const src=s.goToArchive?inactive:employees;
+    return src.find(e=>e.id===s.id&&e.company===s.company)
+        || employees.find(e=>e.id===s.id&&e.company===s.company)
+        || inactive.find(e=>e.id===s.id&&e.company===s.company)
+        || s;
+  };
+  const [sel,setSel]=useState(()=>hydrate(initSel));
   const [showForm,setShowForm]=useState(false);
   const [editEmp,setEditEmp]=useState(null);
   const [archive,setArchive]=useState(initSel?.goToArchive||false);
@@ -542,12 +612,14 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
   useEffect(()=>{
     if(!initSel) return;
     if(initSel.id === sel?.id && initSel.company === sel?.company) return;
-    setSel(initSel);
+    setSel(hydrate(initSel));
     if(initSel.goToArchive) setArchive(true);
   },[initSel?.id, initSel?.company, initSel?.goToArchive]);
 
   const compMap={'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
   const todayStr=new Date().toISOString().split('T')[0];
+  const empCount=filterEmps(employees, company).length;
+  const inactCount=filterEmps(inactive, company).length;
   const filtered=useMemo(()=>{
     let l=filterEmps(archive?inactive:employees, company);
     if(sf==='baixa')   l=l.filter(e=>(e.availability||'').toLowerCase()==='baixa');
@@ -608,8 +680,8 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
       <div className="card emp-list">
         <div style={{padding:'10px',borderBottom:'1px solid var(--border)'}}>
           <div style={{display:'flex',gap:6,marginBottom:7}}>
-            <button className={`btn btn-sm ${!archive?'bp':'bs'}`} onClick={()=>{setArchive(false);setSel(null);}}>Activos ({employees.length})</button>
-            <button className={`btn btn-sm ${archive?'bp':'bs'}`} onClick={()=>{setArchive(true);setSel(null);}}>Inativos ({inactive.length})</button>
+            <button className={`btn btn-sm ${!archive?'bp':'bs'}`} onClick={()=>{setArchive(false);setSel(null);}}>Activos ({empCount})</button>
+            <button className={`btn btn-sm ${archive?'bp':'bs'}`} onClick={()=>{setArchive(true);setSel(null);}}>Inativos ({inactCount})</button>
             {!readOnly&&!archive&&<button className="btn bp btn-sm" style={{marginLeft:'auto'}} onClick={()=>{setEditEmp({id:'new'});setShowForm(true);}}>+</button>}
           </div>
           <input className="fi" style={{marginBottom:6}} placeholder="Nome, NIF, n.º..." value={search} onChange={e=>setSearch(e.target.value)}/>
@@ -642,6 +714,14 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
         {!sel?<div className="empty" style={{paddingTop:70}}>Seleccione um colaborador</div>:
         <>{isMobile&&<button className="btn bs btn-sm" style={{marginBottom:8,display:'flex',alignItems:'center',gap:4}} onClick={()=>setSel(null)}>← Voltar</button>}
         <EmpDetail emp={sel} readOnly={readOnly} isInactive={archive} user={user} evals={evals} onSaveEval={onSaveEval} onDelEval={onDelEval} absences={absences} onSaveAbsence={onSaveAbsence} onDelAbsence={onDelAbsence} onAudit={onAudit} ferias={ferias}
+          onRenameId={async(newId)=>{
+            if(!onRenameId) return {ok:false,error:'Sem permissões'};
+            const r = await onRenameId(sel.id, sel.company, newId);
+            if(r.ok && String(newId).trim() && String(newId).trim()!==sel.id){
+              setSel({...sel, id:String(newId).trim()});
+            }
+            return r;
+          }}
           onEdit={!readOnly?()=>{setEditEmp(sel);setShowForm(true);}:null}
           onDeactivate={!readOnly&&!archive?()=>setExitModal(sel):null}
           onReturn={!readOnly&&archive?()=>setReturnModal(sel):null}

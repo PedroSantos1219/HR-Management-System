@@ -14,6 +14,7 @@
 </head>
 <body>
 <div id="root"></div>
+<div class="corner-credit">Made in Roupeta, by Pikachu</div>
 <script>
 const SEED = {"employees":[],"inactive":[],"feriasYear":(new Date()).getFullYear(),"ferias":[],"feriasConfig":[],"absences":[]};
 </script>
@@ -432,6 +433,36 @@ function App(){
   async function audit(details, action='update'){
     if(!user) return;
     await appendAudit({user:user.name,role:user.role,action,details});
+  }
+
+  async function renameEmployeeId(oldId, company, newId){
+    oldId = String(oldId||'').trim();
+    newId = String(newId||'').trim();
+    if(!newId) return {ok:false, error:'O n.º não pode ficar vazio'};
+    if(newId === oldId) return {ok:true};
+    const all = [...(data?.employees||[]), ...(data?.inactive||[])];
+    const dup = all.find(e => String(e.id) === newId && !(String(e.id) === oldId && e.company === company));
+    if(dup){
+      const used = new Set(all.map(e => String(e.id)));
+      const nums = all.map(e => parseInt(e.id)).filter(n => !isNaN(n));
+      let next = (nums.length ? Math.max(...nums) : 0) + 1;
+      while(used.has(String(next))) next++;
+      return {ok:false, error:`N.º ${newId} já é do ${dup.name} (${dup.company})`, suggestion:String(next)};
+    }
+    const swap = e => (String(e.id)===oldId && e.company===company) ? {...e, id:newId} : e;
+    const newEmps = (data?.employees||[]).map(swap);
+    const newInact = (data?.inactive||[]).map(swap);
+    const swapRef = r => (String(r.empId)===oldId && r.empCompany===company) ? {...r, empId:newId} : r;
+    const newAbs = absences.map(swapRef);
+    const newEvals = evals.map(swapRef);
+    setAbsences(newAbs);
+    setEvals(newEvals);
+    const nd = {...data, employees:newEmps, inactive:newInact, absences:newAbs, evaluations:newEvals};
+    setData(nd);
+    try { await saveData(nd, user); } catch(e){ return {ok:false, error:'Falha a guardar: '+(e.message||e)}; }
+    try { await apiCall('rename_employee_id', {oldId, newId, company}); } catch(e){}
+    audit(`Alterou n.º do colaborador (${company}) de #${oldId} para #${newId}`, 'colaborador');
+    return {ok:true};
   }
 
   //o html2pdf gera um documento HTML standalone. A IA tá bombástica 
@@ -1208,15 +1239,22 @@ async function sharePdf(){
                 : (screen==='audit' || screen==='security_logs')
                   ? 'Os logs aplicam-se a todas as empresas'
                   : undefined;
+            const allPills = [
+              {k:'all',        l:'Todas',         c:'#1a0d0d'},
+              {k:'escritorio', l:'Escritório',    c:'#C0392B'},
+              {k:'roupeta',    l:'Roupeta',       c:'#9b2335'},
+              {k:'roupeta2',   l:'Roupeta II',    c:'#9b2335'},
+              {k:'arlize',     l:'Arlize',        c:'#1A5276'},
+              {k:'pit',        l:'Pit Evolution', c:'#4B5320'},
+            ];
+            // Pit não tem motoristas e Escritório é staff, não condução.
+            const pills = screen==='motoristas'
+              ? allPills.filter(p => !['escritorio','pit'].includes(p.k))
+              : allPills;
             return (
               <div className="co-pills" title={dTitle}
                    style={disabled?{opacity:.45,pointerEvents:'none'}:undefined}>
-                {[
-                  {k:'all',        l:'Todas',      c:'#1a0d0d'},
-                  {k:'roupeta',    l:'Roupeta',    c:'#9b2335'},
-                  {k:'roupeta2',   l:'Roupeta II', c:'#9b2335'},
-                  {k:'arlize',     l:'Arlize',     c:'#1A5276'},
-                ].map(({k,l,c})=>(
+                {pills.map(({k,l,c})=>(
                   <button key={k} onClick={()=>setCompany(k)}
                     className={`co-pill ${company===k?'active':''}`}
                     style={{'--pill-color':c}}
@@ -1243,7 +1281,7 @@ async function sharePdf(){
         <div className="content">
           {screen==='dashboard'&&<Dashboard data={data} company={company} ferias={ferias} feriasConfig={feriasConfig} onNav={navigate} user={user} onUpdate={updateData}/>}
           {screen==='motoristas'&&<MotoristasScreen data={data} company={company} onNav={navigate} ferias={ferias}/>}
-          {screen==='employees'&&<EmpScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} user={user} onAudit={audit} evals={evals} onSaveEval={saveEval} onDelEval={delEval} absences={absences} onSaveAbsence={saveAbsence} onDelAbsence={delAbsence} initSel={navTarget} ferias={ferias}/>}
+          {screen==='employees'&&<EmpScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} user={user} onAudit={audit} evals={evals} onSaveEval={saveEval} onDelEval={delEval} absences={absences} onSaveAbsence={saveAbsence} onDelAbsence={delAbsence} initSel={navTarget} ferias={ferias} onRenameId={renameEmployeeId}/>}
           {screen==='sef'&&<SefScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit} onNav={navigate}/>}
           {screen==='medicina'&&<MedScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit}/>}
           {screen==='diuturnidades'&&<DiutScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit}/>}

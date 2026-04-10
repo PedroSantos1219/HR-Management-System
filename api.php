@@ -487,6 +487,22 @@ try {
             respond(true, true);
             break;
 
+        case 'rename_employee_id':
+            $oldId = trim((string)($input['oldId'] ?? ''));
+            $newId = trim((string)($input['newId'] ?? ''));
+            $company = trim((string)($input['company'] ?? ''));
+            if ($oldId === '' || $newId === '' || $company === '') {
+                respond(false, null, 'Faltam dados (oldId, newId, company)');
+            }
+            if ($oldId === $newId) {
+                respond(true, ['affected' => 0]);
+            }
+            // OR IGNORE para nao rebentar se ja existir linha com o novo id.
+            $stmt = $db->prepare('UPDATE OR IGNORE employee_store SET emp_id = :new WHERE emp_id = :old AND emp_company = :co');
+            $stmt->execute([':new' => $newId, ':old' => $oldId, ':co' => $company]);
+            respond(true, ['affected' => $stmt->rowCount()]);
+            break;
+
         case 'check_session':
             // BD sem qualquer utilizador (instalação nova) → sinaliza o setup wizard.
             $userCount = (int)$db->query('SELECT COUNT(*) FROM users')->fetchColumn();
