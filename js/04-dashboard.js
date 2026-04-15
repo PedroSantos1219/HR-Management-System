@@ -71,7 +71,19 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
     motoristas: emps.filter(e=>e.role?.toLowerCase().includes('mot')).length,
   };
   const totalAlerts = alerts.sef.length+alerts.med.length+alerts.diut.length+alerts.cc.length+alerts.adr.length+alerts.cartas.length+alerts.contratos.length;
-  const byComp = Object.entries({'Roupeta':0,'Roupeta II':0,'Arlize':0,'Pit Evolution':0}).map(([n])=>({n, c:employees.filter(e=>e.company===n).length}));
+  // Pit é fábrica, por isso o equivalente aos motoristas são operários.
+  // Para o escritório da Pit conta-se só direção/admin/qualidade; os técnicos
+  // (que são a maioria) ficam no operário.
+  const officePit = e => /diretor|gerent|chef|admin|financ|contab|escrit|qualid/.test((e.role||'').toLowerCase());
+  const byComp = ['Roupeta','Roupeta II','Arlize','Pit Evolution'].map(name => {
+    const list = employees.filter(e => e.company === name);
+    const isPit = name === 'Pit Evolution';
+    const office = list.filter(isPit ? officePit : isOffice).length;
+    const field  = isPit
+      ? list.filter(e => !officePit(e)).length
+      : list.filter(e => /^mot/i.test(e.role||'')).length;
+    return { n: name, c: list.length, office, field, fieldLabel: isPit ? 'operários' : 'motoristas' };
+  });
 
   const motoristasAccent = meta>0 ? (metaOk?'stat--accent-green':'stat--accent-red') : 'stat--accent-blue';
   const motoristasNumColor = meta>0 ? (metaOk?'stat-n--green':'stat-n--red') : '';
@@ -148,6 +160,10 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
                 <div key={b.n} className="stat" style={{borderLeft:`3px solid ${COMP_COLORS[b.n]||'#999'}`}}>
                   <div className="stat-n" style={{color:COMP_COLORS[b.n]||'#999'}}>{b.c}</div>
                   <div className="stat-l">{b.n}</div>
+                  <div className="comp-mix">
+                    <span><b>{b.office}</b> escritório</span>
+                    <span><b>{b.field}</b> {b.fieldLabel}</span>
+                  </div>
                 </div>
               ))}
             </div>

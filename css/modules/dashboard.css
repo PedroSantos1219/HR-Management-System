@@ -10,6 +10,19 @@
 .dash-grid--2 { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
 .dash-grid--1 { grid-template-columns: 1fr; }
 
+/* Linha de quebra escritório/motoristas dentro das cards de "Por Empresa". */
+.comp-mix {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--border);
+}
+.comp-mix b { color: var(--text); font-weight: 700; }
+
 @media (max-width: 980px) {
   .dash-grid--3,
   .dash-grid--2 { grid-template-columns: 1fr; }
