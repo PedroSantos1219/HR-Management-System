@@ -161,8 +161,8 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
                   <div className="stat-n" style={{color:COMP_COLORS[b.n]||'#999'}}>{b.c}</div>
                   <div className="stat-l">{b.n}</div>
                   <div className="comp-mix">
-                    <span><b>{b.office}</b> escritório</span>
-                    <span><b>{b.field}</b> {b.fieldLabel}</span>
+                    <span className="comp-mix__cell"><b>{b.office}</b><em>escritório</em></span>
+                    <span className="comp-mix__cell"><b>{b.field}</b><em>{b.fieldLabel}</em></span>
                   </div>
                 </div>
               ))}
