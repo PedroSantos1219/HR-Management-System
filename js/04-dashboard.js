@@ -24,7 +24,7 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
   }
 
   const alerts=useMemo(()=>{
-    const sef=[],med=[],diut=[],cc=[],adr=[],cartas=[],contratos=[];
+    const sef=[],med=[],diut=[],cc=[],adr=[],cartas=[],contratos=[],efetivacao=[];
     emps.forEach(emp=>{
       const sd=daysTo(emp.sefExpiry); if(sd!==null&&sd<=60) sef.push({...emp,days:sd});
       const nm=nextMed(emp),md=daysTo(nm); if(md!==null&&md<=60) med.push({...emp,days:md,nextDate:nm});
@@ -38,6 +38,17 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
         const td = daysTo(emp.endDate);
         if(td !== null && td <= 90) contratos.push({...emp, days: td, nextDate: emp.endDate});
       }
+      // Aviso de conversão a Efetivo: 60 dias antes dos 2 anos de admissão
+      // (ou já a vermelho se ultrapassou), apenas para quem ainda não é Efetivo.
+      if((emp.contractEndDate||'').toLowerCase() !== 'efetivo' && emp.admissionDate){
+        const adm = new Date(emp.admissionDate);
+        if(!isNaN(adm)){
+          const twoY = new Date(adm); twoY.setFullYear(twoY.getFullYear()+2);
+          const ed = twoY.toISOString().split('T')[0];
+          const td = daysTo(ed);
+          if(td !== null && td <= 60) efetivacao.push({...emp, days: td, nextDate: ed});
+        }
+      }
       if(isDriver(emp)){
         const checks=[
           {field:'driverLicenseExpiry', label:'Carta', d:daysTo(emp.driverLicenseExpiry)},
@@ -50,7 +61,7 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
         }
       }
     });
-    return {sef,med,diut,cc,adr,cartas,contratos};
+    return {sef,med,diut,cc,adr,cartas,contratos,efetivacao};
   },[emps]);
 
   const feriasStats=useMemo(()=>{
@@ -70,7 +81,7 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
     seguro: emps.filter(e=>e.contractStatus?.toLowerCase().includes('seguro')).length,
     motoristas: emps.filter(e=>e.role?.toLowerCase().includes('mot')).length,
   };
-  const totalAlerts = alerts.sef.length+alerts.med.length+alerts.diut.length+alerts.cc.length+alerts.adr.length+alerts.cartas.length+alerts.contratos.length;
+  const totalAlerts = alerts.sef.length+alerts.med.length+alerts.diut.length+alerts.cc.length+alerts.adr.length+alerts.cartas.length+alerts.contratos.length+alerts.efetivacao.length;
   // Pit é fábrica, por isso o equivalente aos motoristas são operários.
   // Para o escritório da Pit conta-se só direção/admin/qualidade; os técnicos
   // (que são a maioria) ficam no operário.
@@ -181,6 +192,7 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
           {title:'Cartão de Cidadão',                 items:alerts.cc,        color:'var(--red-l)', tc:'var(--red)',  field:'ccExpiry',  screen:'employees'},
           {title:'ADR — Mercadorias Perigosas',       items:alerts.adr,       color:'#f5eef8',    tc:'#7D3C98',       field:'adrExpiry', screen:'cartas',        transportOnly:true},
           {title:'Contratos a Termo — fim próximo',   items:alerts.contratos, color:'#eef2ff',    tc:'#3730a3',       field:'nextDate',  screen:'contratos'},
+          {title:'Conversão a Efetivo — 2 anos',      items:alerts.efetivacao,color:'#fef0e0',    tc:'#9a3412',       field:'nextDate',  screen:'contratos'},
         ]
         .filter(c => !(c.transportOnly && company==='pit'))
         .map(({title,items,color,tc,field,screen,showDocType}) => {

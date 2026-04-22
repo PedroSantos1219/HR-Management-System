@@ -1173,7 +1173,7 @@ async function sharePdf(){
   return(
     <div className="app">
       <div className={`sb${sbOpen?" sb-open":""}`}>
-        <div className="sb-logo">
+        <div className="sb-logo" onClick={()=>navigate('dashboard')} title="Ir para o Dashboard" style={{cursor:'pointer'}}>
           <img src="css/assets/Logo-header.svg" alt="Transportes Roupeta" className="sb-logo-img"/>
           <div className="sb-logo-t">Gest&#xe3;o RH</div>
         </div>

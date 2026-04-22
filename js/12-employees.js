@@ -18,8 +18,31 @@ function SI({k,label,type='text',opts=null,span=false,ph=''}){
 }
 function EmpModal({emp,onSave,onClose,readOnly}){
   const isNew=!emp.id||emp.id==='new';
-  const [f,setF]=useState({id:'',app:'SIM',company:'Roupeta',name:'',role:'Mot. Veic. Pesados',contractStatus:'Ativo',admissionDate:'',contractEndDate:'Efetivo',birthplace:'',nationality:'Portuguesa',birthDate:'',personalPhone:'',email:'',companyPhone:'',ccNumber:'',ccExpiry:'',nif:'',niss:'',address:'',education:'',maritalStatus:'',incomeHolder:'1',dependents:'0',driverLicense:'',driverLicenseExpiry:'',camExpiry:'',tachographCardExpiry:'',adrExpiry:'',iban:'',baseSalary:'',diuturnidasCount:'0',lastMedicalConsult:'',sefExpiry:'',sefSentWhatsapp:false,medicalNotes:'',status:'active',...emp});
-  const set=(k,v)=>setF(p=>({...p,[k]:v}));
+  const [f,setF]=useState(()=>{
+    const init={id:'',app:'SIM',company:'Roupeta',name:'',role:'Mot. Veic. Pesados',contractStatus:'Ativo',admissionDate:'',contractEndDate:'Efetivo',trialEndDate:'',secondContractEnd:'',birthplace:'',nationality:'Portuguesa',birthDate:'',personalPhone:'',email:'',companyPhone:'',ccNumber:'',ccExpiry:'',nif:'',niss:'',address:'',education:'',maritalStatus:'',incomeHolder:'1',dependents:'0',driverLicense:'',driverLicenseExpiry:'',camExpiry:'',tachographCardExpiry:'',adrExpiry:'',iban:'',baseSalary:'',diuturnidasCount:'0',lastMedicalConsult:'',sefExpiry:'',sefSentWhatsapp:false,medicalNotes:'',status:'active',...emp};
+    // Para colaboradores antigos só com admissão preenchida, sugere o
+    // fim do período experimental (admissão + 90 dias).
+    if(init.admissionDate && !init.trialEndDate){
+      const d=new Date(init.admissionDate);
+      if(!isNaN(d)){ d.setDate(d.getDate()+90); init.trialEndDate=d.toISOString().split('T')[0]; }
+    }
+    return init;
+  });
+  const set=(k,v)=>{
+    setF(p=>{
+      const np={...p,[k]:v};
+      // Auto-preencher fim do período experimental (90 dias) quando se mete
+      // a data de admissão pela primeira vez. Continua editável.
+      if(k==='admissionDate' && v && !p.trialEndDate){
+        const d=new Date(v);
+        if(!isNaN(d)){
+          d.setDate(d.getDate()+90);
+          np.trialEndDate=d.toISOString().split('T')[0];
+        }
+      }
+      return np;
+    });
+  };
   return(
     <EmpFormCtx.Provider value={{form:f,set,readOnly}}>
     <div className="ov" onClick={e=>{if(e.target===e.currentTarget)onClose()}}>
@@ -36,6 +59,8 @@ function EmpModal({emp,onSave,onClose,readOnly}){
             <SI k="availability" label="Disponibilidade" opts={['','Disponível','Seguro','Baixa','Licença']}/>
             <SI k="admissionDate" label="Data Admissão" type="date"/>
             <SI k="contractEndDate" label="Tipo Contrato" opts={['Efetivo','Termo Certo','Indeterminado']}/>
+            <SI k="trialEndDate" label="Fim Período Experimental" type="date"/>
+            <SI k="secondContractEnd" label="Fim 2.º Contrato" type="date"/>
             <SI k="app" label="App (4Miga)" opts={['SIM','NÃO']}/>
           </div>
           <hr className="divider"/>
@@ -472,6 +497,8 @@ function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive
         {tab==='info'&&<div className="fg">
           <FV label="N.º Funcionário" val={emp.id}/><FV label="Empresa" val={emp.company}/>
           <FV label="Data Admissão" val={fmtDate(emp.admissionDate)}/>{emp.endDate&&<FV label="Data de Saída" val={fmtDate(emp.endDate)}/>}{emp.status==='inactive'&&emp.exitInitiative&&<FV label="Iniciativa de Saída" val={emp.exitInitiative}/>}{emp.status==='inactive'&&<FV label="Motivo de Saída" val={emp.exitReason||'—'}/>}{emp.readmissionDate&&<FV label="Data de Retorno" val={fmtDate(emp.readmissionDate)}/>}<FV label="Tipo Contrato" val={emp.contractEndDate}/>
+          {emp.trialEndDate&&<div className="field"><div className="fl">Fim P. Experimental</div><div className={`fv ${expClass(daysTo(emp.trialEndDate))}`}>{fmtDate(emp.trialEndDate)} <ExpiryChip date={emp.trialEndDate}/></div></div>}
+          {emp.secondContractEnd&&<div className="field"><div className="fl">Fim 2.º Contrato</div><div className={`fv ${expClass(daysTo(emp.secondContractEnd))}`}>{fmtDate(emp.secondContractEnd)} <ExpiryChip date={emp.secondContractEnd}/></div></div>}
           <FV label="Data Nascimento" val={fmtDate(emp.birthDate)}/><FV label="Idade" val={ageOf(emp.birthDate)?ageOf(emp.birthDate)+' anos':''}/>
           <FV label="Naturalidade" val={emp.birthplace}/><FV label="Nacionalidade" val={emp.nationality}/>
           <FV label="Estado Civil" val={emp.maritalStatus}/><FV label="Habilitações" val={emp.education}/>

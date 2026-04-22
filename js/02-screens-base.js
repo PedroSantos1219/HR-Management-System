@@ -297,7 +297,7 @@ function DiutScreen({data,company,onUpdate,readOnly,onAudit}){
                   <td style={{fontWeight:500}}>{emp.name}</td>
                   <td><Chip label={emp.company} type="gr"/></td>
                   <td>{fmtDate(emp.admissionDate)}</td>
-                  <td style={{textAlign:'center',fontWeight:700,fontSize:15}}>{yrs!==null?yrs+'a':''}</td>
+                  <td style={{textAlign:'center',fontWeight:700,fontSize:15}}>{yrs!==null?`${yrs} ${yrs===1?'ano':'anos'}`:''}</td>
                   <td style={{textAlign:'center',fontWeight:700,fontSize:16}}>{n}</td>
                   <td>{fmtDate(emp._nd)}</td>
                   <td>{d===null?'—':d<0?<span className="chip cr">Passou</span>:d<=45?<span className="chip co">{d}d</span>:<span className="chip cg">{d}d</span>}</td>

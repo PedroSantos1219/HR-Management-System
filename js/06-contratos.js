@@ -172,6 +172,48 @@ function ContratosScreen({data,company,onUpdate,readOnly,user,onAudit,onNav}){
             ))}
           </div>
 
+          {/* Marcos contratuais (experimental, 2.º contrato, efetivação) */}
+          {(()=>{
+            const trial = fullEmp.trialEndDate;
+            const sec   = fullEmp.secondContractEnd;
+            const adm   = fullEmp.admissionDate;
+            let efetivo = '';
+            if(adm){
+              const a=new Date(adm);
+              if(!isNaN(a)){ a.setFullYear(a.getFullYear()+2); efetivo=a.toISOString().split('T')[0]; }
+            }
+            const isEf=(fullEmp.contractEndDate||'').toLowerCase()==='efetivo';
+            const items=[
+              {l:'Período Experimental (90 dias)', d:trial, hint:'auto: admissão + 90 dias'},
+              {l:'Fim do 2.º Contrato',            d:sec,   hint:'quando aplicável'},
+              {l:'Limite p/ Efetivo (2 anos)',     d:efetivo, hint:isEf?'já é Efetivo':'admissão + 2 anos'},
+            ];
+            return (
+              <div style={{marginBottom:16}}>
+                <div style={{fontWeight:600,fontSize:14,marginBottom:10}}>Marcos Contratuais</div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:10}}>
+                  {items.map(it=>{
+                    const d=it.d?daysTo(it.d):null;
+                    const passed=d!==null && d<0;
+                    const close=d!==null && d>=0 && d<=60;
+                    const color = !it.d ? 'var(--muted)' : passed ? 'var(--red)' : close ? 'var(--orange)' : 'var(--green)';
+                    return (
+                      <div key={it.l} style={{background:'var(--card)',border:`1px solid var(--border)`,borderLeft:`3px solid ${color}`,borderRadius:10,padding:'10px 12px'}}>
+                        <div style={{fontSize:10,color:'var(--muted)',fontWeight:700,textTransform:'uppercase',letterSpacing:.5,marginBottom:4}}>{it.l}</div>
+                        <div style={{fontSize:15,fontWeight:700,color:color}}>{it.d?fmtDate(it.d):'—'}</div>
+                        <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>
+                          {it.d && d!==null
+                            ? (passed?`passou há ${-d} dia${-d===1?'':'s'}`:close?`faltam ${d} dia${d===1?'':'s'}`:`faltam ${d} dias`)
+                            : it.hint}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Histórico contratual */}
           <div style={{marginBottom:16}}>
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
