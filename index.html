@@ -206,6 +206,7 @@ function App(){
   const [data,setData]=useState(null);
   const [evals,setEvals]=useState([]);
   const [absences,setAbsences]=useState([]);
+  const [notes,setNotes]=useState([]);
   const [ferias,setFerias]=useState([]);
   const [feriasConfig,setFeriasConfig]=useState([]);
   const [sbOpen,setSbOpen]=useState(false);
@@ -251,6 +252,7 @@ function App(){
           setData(d||defaultData());
           setEvals(d?.evaluations||[]);
           setAbsences(d?.absences||[]);
+          setNotes(d?.notes||[]);
           setFerias(lf);
           setFeriasConfig(lfc);
         }
@@ -370,7 +372,7 @@ function App(){
   },[user]);
 
   async function updateData(d){
-    const nd={...d,evaluations:evals,absences:absences,ferias:ferias,feriasConfig:feriasConfig,feriasYear:new Date().getFullYear(),version:1};
+    const nd={...d,evaluations:evals,absences:absences,notes:notes,ferias:ferias,feriasConfig:feriasConfig,feriasYear:new Date().getFullYear(),version:1};
     setData(nd);
     await saveData(nd,user);
   }
@@ -386,6 +388,7 @@ function App(){
       setData(d || defaultData());
       setEvals(d?.evaluations || []);
       setAbsences(d?.absences || []);
+      setNotes(d?.notes || []);
       setFerias(d?.ferias || []);
       setFeriasConfig(d?.feriasConfig || []);
     }catch(e){ /* dados ficam como estavam — utilizador continua na app */ }
@@ -393,40 +396,54 @@ function App(){
   async function saveEval(ev){
     const ne=[...evals,ev];
     setEvals(ne);
-    const nd={...data,evaluations:ne,absences:absences,ferias:ferias,feriasConfig:feriasConfig};
+    const nd={...data,evaluations:ne,absences:absences,notes:notes,ferias:ferias,feriasConfig:feriasConfig};
     setData(nd);
     await saveData(nd,user);
   }
   async function delEval(id){
     const ne=evals.filter(e=>e.id!==id);
     setEvals(ne);
-    const nd={...data,evaluations:ne,absences:absences,ferias:ferias,feriasConfig:feriasConfig};
+    const nd={...data,evaluations:ne,absences:absences,notes:notes,ferias:ferias,feriasConfig:feriasConfig};
     setData(nd);
     await saveData(nd,user);
   }
   async function saveAbsence(ab){
     const na=[...absences,ab];
     setAbsences(na);
-    const nd={...data,evaluations:evals,absences:na,ferias:ferias,feriasConfig:feriasConfig};
+    const nd={...data,evaluations:evals,absences:na,notes:notes,ferias:ferias,feriasConfig:feriasConfig};
     setData(nd);
     await saveData(nd,user);
   }
   async function delAbsence(id){
     const na=absences.filter(a=>a.id!==id);
     setAbsences(na);
-    const nd={...data,evaluations:evals,absences:na,ferias:ferias,feriasConfig:feriasConfig};
+    const nd={...data,evaluations:evals,absences:na,notes:notes,ferias:ferias,feriasConfig:feriasConfig};
+    setData(nd);
+    await saveData(nd,user);
+  }
+  async function saveNote(note){
+    const nn=[...notes,note];
+    setNotes(nn);
+    const nd={...data,evaluations:evals,absences:absences,notes:nn,ferias:ferias,feriasConfig:feriasConfig};
+    setData(nd);
+    await saveData(nd,user);
+  }
+  async function delNote(id){
+    const nn=notes.filter(n=>n.id!==id);
+    setNotes(nn);
+    const nd={...data,evaluations:evals,absences:absences,notes:nn,ferias:ferias,feriasConfig:feriasConfig};
     setData(nd);
     await saveData(nd,user);
   }
   async function saveFerias(nf){
     setFerias(nf);
-    const nd={...data,evaluations:evals,absences:absences,ferias:nf,feriasConfig:feriasConfig,feriasYear:new Date().getFullYear()};
+    const nd={...data,evaluations:evals,absences:absences,notes:notes,ferias:nf,feriasConfig:feriasConfig,feriasYear:new Date().getFullYear()};
     setData(nd);
     await saveData(nd,user);
   }
   async function saveFeriasConfig(nc){
     setFeriasConfig(nc);
-    const nd={...data,evaluations:evals,absences:absences,ferias:ferias,feriasConfig:nc,feriasYear:new Date().getFullYear()};
+    const nd={...data,evaluations:evals,absences:absences,notes:notes,ferias:ferias,feriasConfig:nc,feriasYear:new Date().getFullYear()};
     setData(nd);
     await saveData(nd,user);
   }
@@ -1147,6 +1164,7 @@ async function sharePdf(){
     setData(d||defaultData());
     setEvals(d?.evaluations||[]);
     setAbsences(d?.absences||[]);
+    setNotes(d?.notes||[]);
     setFerias(lf);
     setFeriasConfig(lfc);
     setScreen('dashboard');
@@ -1231,14 +1249,12 @@ async function sharePdf(){
         <div className="topbar">
           {isMobile&&<button className="mob-menu-btn" onClick={()=>setSbOpen(o=>!o)} title="Menu" aria-label="Abrir menu">&#9776;</button>}
           {!['users','backups'].includes(screen)&&(()=>{
-            const disabled = ['relatorios','contratos','audit','security_logs'].includes(screen);
+            const disabled = ['relatorios','audit','security_logs'].includes(screen);
             const dTitle = screen==='relatorios'
               ? 'Use os filtros do módulo de Relatórios'
-              : screen==='contratos'
-                ? 'Use os filtros do módulo de Contratos'
-                : (screen==='audit' || screen==='security_logs')
-                  ? 'Os logs aplicam-se a todas as empresas'
-                  : undefined;
+              : (screen==='audit' || screen==='security_logs')
+                ? 'Os logs aplicam-se a todas as empresas'
+                : undefined;
             const allPills = [
               {k:'all',        l:'Todas',         c:'#1a0d0d'},
               {k:'escritorio', l:'Escritório',    c:'#C0392B'},
@@ -1281,7 +1297,7 @@ async function sharePdf(){
         <div className="content">
           {screen==='dashboard'&&<Dashboard data={data} company={company} ferias={ferias} feriasConfig={feriasConfig} onNav={navigate} user={user} onUpdate={updateData}/>}
           {screen==='motoristas'&&<MotoristasScreen data={data} company={company} onNav={navigate} ferias={ferias}/>}
-          {screen==='employees'&&<EmpScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} user={user} onAudit={audit} evals={evals} onSaveEval={saveEval} onDelEval={delEval} absences={absences} onSaveAbsence={saveAbsence} onDelAbsence={delAbsence} initSel={navTarget} ferias={ferias} onRenameId={renameEmployeeId}/>}
+          {screen==='employees'&&<EmpScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} user={user} onAudit={audit} evals={evals} onSaveEval={saveEval} onDelEval={delEval} absences={absences} onSaveAbsence={saveAbsence} onDelAbsence={delAbsence} notes={notes} onSaveNote={saveNote} onDelNote={delNote} initSel={navTarget} ferias={ferias} onRenameId={renameEmployeeId}/>}
           {screen==='sef'&&<SefScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit} onNav={navigate}/>}
           {screen==='medicina'&&<MedScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit}/>}
           {screen==='diuturnidades'&&<DiutScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit}/>}

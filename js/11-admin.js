@@ -122,7 +122,6 @@ function UserManagement({user: currentUser}){
             <tr key={u.id} style={{borderTop:'1px solid var(--border)'}}>
               <td style={{padding:'12px 14px'}}>
                 <div style={{fontWeight:600,fontSize:14}}>{u.username}</div>
-                {u.created_by&&<div style={{fontSize:11,color:'var(--muted)'}}>por {u.created_by}</div>}
               </td>
               <td style={{padding:'12px 14px',fontSize:13,color:'var(--muted)'}}>{u.email}</td>
               <td style={{padding:'12px 14px'}}>

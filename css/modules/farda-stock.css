@@ -73,3 +73,78 @@
   font-size: 13px;
   font-weight: 700;
 }
+
+/* Tabela principal de Controlo de Fardas */
+.farda-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.farda-th {
+  background: var(--bg);
+  padding: 10px 12px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--muted);
+  position: sticky;
+  top: 0;
+  border-bottom: 1px solid var(--border);
+}
+.farda-th--left { text-align: left; }
+.farda-th--icon { padding: 8px 6px; }
+
+.farda-row {
+  border-bottom: 1px solid var(--border);
+  transition: background .12s;
+}
+.farda-row:hover { background: var(--bg); }
+.farda-row:last-child { border-bottom: none; }
+.farda-td {
+  padding: 10px 12px;
+  vertical-align: middle;
+}
+.farda-td--cell {
+  text-align: center;
+  padding: 6px;
+}
+
+.farda-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+}
+.farda-mark.is-has {
+  background: rgba(29,106,57,.12);
+  color: var(--green);
+}
+.farda-mark.is-empty {
+  background: var(--bg);
+  color: var(--border);
+}
+
+.farda-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 5px 10px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-weight: 600;
+  color: var(--text);
+  transition: border-color .12s, color .12s;
+}
+.farda-toggle:has(input:checked) {
+  border-color: var(--orange);
+  color: var(--orange);
+  background: rgba(192,57,43,.04);
+}
+.farda-toggle input { accent-color: var(--orange); }

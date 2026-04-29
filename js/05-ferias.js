@@ -22,6 +22,7 @@ function FeriasScreen({data,ferias,feriasConfig,onSaveFerias,onSaveConfig,readOn
   const [cfgDirty,setCfgDirty]=React.useState(false);
   const [feriaPdfHtml,setFeriaPdfHtml]=React.useState(null);
   const [showFeriasShare,setShowFeriasShare]=React.useState(false);
+  const [view,setView]=React.useState('indice'); // 'indice' | 'mapa'
   React.useEffect(()=>{
     if(!showFeriasShare)return;
     const t=setTimeout(()=>document.addEventListener('click',()=>setShowFeriasShare(false),{once:true}),0);
@@ -110,6 +111,85 @@ function FeriasScreen({data,ferias,feriasConfig,onSaveFerias,onSaveConfig,readOn
     setCfgDirty(false);
   }
   function setCfgField(k,v){setCfgForm(x=>({...x,[k]:v}));setCfgDirty(true);}
+
+  function MapaView(){
+    const filtered=filterList(enriched).sort((a,b)=>{
+      if(a.company!==b.company) return COMP_ORDER.indexOf(a.company)-COMP_ORDER.indexOf(b.company);
+      return (a.name||'').localeCompare(b.name||'');
+    });
+    const MONTHS=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const yearStart=new Date(year,0,1);
+    const yearEnd=new Date(year,11,31);
+    const totalMs=yearEnd.getTime()-yearStart.getTime();
+    const pct=d=>{
+      const t=Math.max(yearStart.getTime(),Math.min(yearEnd.getTime(),d.getTime()));
+      return ((t-yearStart.getTime())/totalMs)*100;
+    };
+    const todayPct=(()=>{
+      const t=new Date();
+      if(t<yearStart||t>yearEnd) return null;
+      return pct(t);
+    })();
+
+    if(filtered.length===0){
+      return <div className="empty" style={{padding:40,textAlign:'center',color:'var(--muted)'}}>Sem colaboradores para mostrar.</div>;
+    }
+
+    return (
+      <div className="card" style={{padding:0,overflow:'hidden'}}>
+        <div style={{display:'flex',background:'var(--bg)',borderBottom:'1px solid var(--border)',position:'sticky',top:0,zIndex:2}}>
+          <div style={{width:220,padding:'10px 14px',fontSize:11,fontWeight:700,textTransform:'uppercase',color:'var(--muted)',letterSpacing:.5,borderRight:'1px solid var(--border)',flexShrink:0}}>Colaborador</div>
+          <div style={{flex:1,position:'relative',display:'flex'}}>
+            {MONTHS.map((m,i)=>(
+              <div key={i} style={{flex:1,padding:'10px 4px',fontSize:11,fontWeight:700,textAlign:'center',color:'var(--muted)',borderRight:i<11?'1px solid var(--border)':'none'}}>{m}</div>
+            ))}
+          </div>
+        </div>
+        <div style={{maxHeight:'calc(100vh - 260px)',overflowY:'auto'}}>
+          {filtered.map(emp=>{
+            const periods=empPeriods(emp.id,emp.company);
+            const used=emp.used;
+            const left=DIREITO_DIAS-used;
+            return (
+              <div key={emp.id+emp.company} style={{display:'flex',borderBottom:'1px solid var(--border)',minHeight:38,cursor:'pointer',transition:'background .1s'}}
+                onClick={()=>setSelEmp({id:emp.id,company:emp.company})}
+                onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
+                onMouseLeave={e=>e.currentTarget.style.background=''}>
+                <div style={{width:220,padding:'8px 14px',borderRight:'1px solid var(--border)',flexShrink:0,display:'flex',alignItems:'center',gap:8}}>
+                  <div style={{width:6,height:24,borderRadius:3,background:COMP_COLORS[emp.company]||'#999',flexShrink:0}}/>
+                  <div style={{minWidth:0,flex:1}}>
+                    <div style={{fontSize:13,fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{emp.name}</div>
+                    <div style={{fontSize:10,color:'var(--muted)'}}>{used}/{DIREITO_DIAS} usados · {left>=0?left+' por gozar':Math.abs(left)+' a mais'}</div>
+                  </div>
+                </div>
+                <div style={{flex:1,position:'relative',display:'flex'}}>
+                  {MONTHS.map((m,i)=>(
+                    <div key={i} style={{flex:1,borderRight:i<11?'1px solid var(--border)':'none'}}/>
+                  ))}
+                  {periods.map(p=>{
+                    const sd=new Date(p.startDate),ed=new Date(p.endDate);
+                    if(isNaN(sd)||isNaN(ed)||ed<yearStart||sd>yearEnd) return null;
+                    const l=pct(sd), r=pct(ed);
+                    const w=Math.max(.6, r-l);
+                    return (
+                      <div key={p.id}
+                        title={`${sd.toLocaleDateString('pt-PT')} → ${ed.toLocaleDateString('pt-PT')} · ${p.days||0} dias úteis${p.notes?'\n'+p.notes:''}`}
+                        style={{position:'absolute',top:7,bottom:7,left:l+'%',width:w+'%',background:COMP_COLORS[emp.company]||'#16a34a',borderRadius:4,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:10,fontWeight:700,overflow:'hidden',whiteSpace:'nowrap',padding:'0 4px'}}>
+                        {w>4 ? `${p.days||0}d` : ''}
+                      </div>
+                    );
+                  })}
+                  {todayPct!==null && (
+                    <div style={{position:'absolute',top:0,bottom:0,left:todayPct+'%',width:0,borderLeft:'2px dashed var(--blue)',pointerEvents:'none'}}/>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
   function IndiceView(){
     const filtered=filterList(enriched);
@@ -355,11 +435,17 @@ function FeriasScreen({data,ferias,feriasConfig,onSaveFerias,onSaveConfig,readOn
           <div style={{display:'flex',alignItems:'center',gap:6,background:'var(--blbg)',border:'1px solid var(--blue)',borderRadius:8,padding:'4px 14px'}}>
             <span style={{fontWeight:700,fontSize:14,color:'var(--blue)'}}>{year}</span>
           </div>
+          <div style={{display:'flex',gap:4,background:'#f1f5f9',padding:3,borderRadius:8}}>
+            <button onClick={()=>setView('indice')}
+              style={{padding:'4px 12px',fontSize:12,fontWeight:600,border:'none',borderRadius:6,cursor:'pointer',background:view==='indice'?'#fff':'transparent',color:view==='indice'?'var(--text)':'var(--muted)',boxShadow:view==='indice'?'0 1px 3px rgba(0,0,0,.08)':'none'}}>Tabela</button>
+            <button onClick={()=>setView('mapa')}
+              style={{padding:'4px 12px',fontSize:12,fontWeight:600,border:'none',borderRadius:6,cursor:'pointer',background:view==='mapa'?'#fff':'transparent',color:view==='mapa'?'var(--text)':'var(--muted)',boxShadow:view==='mapa'?'0 1px 3px rgba(0,0,0,.08)':'none'}}>Mapa</button>
+          </div>
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Pesquisar colaborador..." className="fi" style={{flex:1,minWidth:140,padding:'5px 10px'}}/>
         </div>
       )}
 
-      {selEmp?<EmpDetailView/>:<IndiceView/>}
+      {selEmp ? <EmpDetailView/> : (view==='mapa' ? <MapaView/> : <IndiceView/>)}
 
       {feriaPdfHtml!==null&&(()=>{
         const emp=enriched.find(e=>e.id===selEmp?.id&&e.company===selEmp?.company);

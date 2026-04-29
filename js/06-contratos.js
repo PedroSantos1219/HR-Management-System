@@ -7,9 +7,9 @@ function ContratosScreen({data,company,onUpdate,readOnly,user,onAudit,onNav}){
   const [form,setForm]=useState({admissionDate:'',exitDate:'',contractType:'Efetivo',baseSalary:'',exitReason:'',notes:''});
   const [formErr,setFormErr]=useState('');
   const [search,setSearch]=useState('');
+  const [timelineEmp,setTimelineEmp]=useState(null);
   const allEmps=data?.employees||[];
-  const CM={'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
-  const emps=company==='all'?allEmps:allEmps.filter(e=>e.company===CM[company]);
+  const emps=filterEmps(allEmps, company);
 
   function getHistory(emp){
     if(emp.contractHistory&&emp.contractHistory.length>0)return emp.contractHistory;
@@ -147,14 +147,30 @@ function ContratosScreen({data,company,onUpdate,readOnly,user,onAudit,onNav}){
       ):(
         <div>
           {/* Cabeçalho */}
-          <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16,flexWrap:'wrap'}}>
-            <button className="btn" style={{padding:'5px 14px'}} onClick={()=>setSelEmp(null)}>← Contratos</button>
-            <div style={{flex:1}}>
-              <div style={{fontWeight:700,fontSize:16}}>{fullEmp.name}</div>
-              <div style={{fontSize:12,color:'var(--muted)'}}>{fullEmp.role||'—'} · {fullEmp.company}</div>
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:18,flexWrap:'wrap'}}>
+            <div style={{display:'flex',alignItems:'center',gap:10,flex:1,minWidth:200}}>
+              <button className="btn-ghost" onClick={()=>setSelEmp(null)} title="Voltar à lista" style={{padding:'5px 6px'}}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <div style={{minWidth:0,flex:1}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                  <span style={{fontWeight:700,fontSize:16}}>{fullEmp.name}</span>
+                  <span style={{fontSize:12,fontWeight:700,padding:'2px 8px',borderRadius:6,background:'var(--bg)',color:'var(--muted)',border:'1px solid var(--border)',whiteSpace:'nowrap'}}>N.º {fullEmp.id}</span>
+                  <Chip label={fullEmp.contractStatus} type={fullEmp.contractStatus==='Ativo'?'green':fullEmp.contractStatus==='Inativo'?'red':'orange'}/>
+                </div>
+                <div style={{fontSize:12,color:'var(--muted)'}}>{fullEmp.role||'—'} · {fullEmp.company}</div>
+              </div>
             </div>
-            <Chip label={fullEmp.contractStatus} type={fullEmp.contractStatus==='Ativo'?'green':fullEmp.contractStatus==='Inativo'?'red':'orange'}/>
-            <button className="btn bp btn-sm" onClick={()=>onNav('ferias',{id:fullEmp.id,company:fullEmp.company})}>🏖 Ver Férias</button>
+            <div style={{display:'flex',gap:6,alignItems:'center',flexWrap:'wrap'}}>
+              <button className="btn-soft" onClick={()=>onNav('employees',{id:fullEmp.id,company:fullEmp.company})} title="Abrir ficha completa">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span>Ficha</span>
+              </button>
+              <button className="btn-soft" onClick={()=>onNav('ferias',{id:fullEmp.id,company:fullEmp.company})} title="Ver mapa de férias">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>Férias</span>
+              </button>
+            </div>
           </div>
 
           {/* Estatísticas */}
@@ -176,17 +192,19 @@ function ContratosScreen({data,company,onUpdate,readOnly,user,onAudit,onNav}){
           {(()=>{
             const trial = fullEmp.trialEndDate;
             const sec   = fullEmp.secondContractEnd;
-            const adm   = fullEmp.admissionDate;
-            let efetivo = '';
-            if(adm){
-              const a=new Date(adm);
-              if(!isNaN(a)){ a.setFullYear(a.getFullYear()+2); efetivo=a.toISOString().split('T')[0]; }
-            }
             const isEf=(fullEmp.contractEndDate||'').toLowerCase()==='efetivo';
+            // Início Efetivo = dia seguinte ao fim do 2.º contrato (se existir)
+            // ou, na ausência, dia seguinte ao fim do período experimental.
+            let efetivoIni = '';
+            const base = sec || trial;
+            if(base){
+              const a=new Date(base);
+              if(!isNaN(a)){ a.setDate(a.getDate()+1); efetivoIni=a.toISOString().split('T')[0]; }
+            }
             const items=[
-              {l:'Período Experimental (90 dias)', d:trial, hint:'auto: admissão + 90 dias'},
-              {l:'Fim do 2.º Contrato',            d:sec,   hint:'quando aplicável'},
-              {l:'Limite p/ Efetivo (2 anos)',     d:efetivo, hint:isEf?'já é Efetivo':'admissão + 2 anos'},
+              {l:'Período Experimental (90 dias)', d:trial,      hint:'auto: admissão + 90 dias'},
+              {l:'Fim do 2.º Contrato',            d:sec,        hint:'quando aplicável'},
+              {l:'Início Efetivo',                 d:efetivoIni, hint:isEf?'já é Efetivo':'fim do experimental ou do 2.º contrato + 1 dia'},
             ];
             return (
               <div style={{marginBottom:16}}>
@@ -198,7 +216,11 @@ function ContratosScreen({data,company,onUpdate,readOnly,user,onAudit,onNav}){
                     const close=d!==null && d>=0 && d<=60;
                     const color = !it.d ? 'var(--muted)' : passed ? 'var(--red)' : close ? 'var(--orange)' : 'var(--green)';
                     return (
-                      <div key={it.l} style={{background:'var(--card)',border:`1px solid var(--border)`,borderLeft:`3px solid ${color}`,borderRadius:10,padding:'10px 12px'}}>
+                      <div key={it.l} onClick={()=>setTimelineEmp(fullEmp)}
+                        title="Ver linha do tempo contratual"
+                        style={{background:'var(--card)',border:`1px solid var(--border)`,borderLeft:`3px solid ${color}`,borderRadius:10,padding:'10px 12px',cursor:'pointer',transition:'background .12s'}}
+                        onMouseOver={e=>e.currentTarget.style.background='var(--bg)'}
+                        onMouseOut={e=>e.currentTarget.style.background='var(--card)'}>
                         <div style={{fontSize:10,color:'var(--muted)',fontWeight:700,textTransform:'uppercase',letterSpacing:.5,marginBottom:4}}>{it.l}</div>
                         <div style={{fontSize:15,fontWeight:700,color:color}}>{it.d?fmtDate(it.d):'—'}</div>
                         <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>
@@ -218,7 +240,12 @@ function ContratosScreen({data,company,onUpdate,readOnly,user,onAudit,onNav}){
           <div style={{marginBottom:16}}>
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
               <div style={{fontWeight:600,fontSize:14}}>Histórico Contratual</div>
-              {!readOnly&&<button className="btn bp btn-sm" style={{marginLeft:'auto'}} onClick={openAdd}>+ Período</button>}
+              {!readOnly&&(
+                <button className="btn-soft" style={{marginLeft:'auto'}} onClick={openAdd} title="Adicionar período contratual">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <span>Adicionar período</span>
+                </button>
+              )}
             </div>
             <div className="card" style={{padding:0,overflow:'hidden'}}>
               {[...history].sort((a,b)=>(b.admissionDate||'').localeCompare(a.admissionDate||'')).map((h,i,arr)=>{
@@ -243,9 +270,15 @@ function ContratosScreen({data,company,onUpdate,readOnly,user,onAudit,onNav}){
                       </div>
                     </div>
                     {!readOnly&&(
-                      <div style={{display:'flex',gap:6,flexShrink:0}}>
-                        <button className="btn btn-sm" onClick={()=>openEdit(h)}>Editar</button>
-                        {arr.length>1&&<button className="btn btn-sm" style={{color:'var(--red)'}} onClick={()=>handleDelete(h.id)}>Elim.</button>}
+                      <div style={{display:'flex',gap:4,flexShrink:0}}>
+                        <button className="btn-icon" onClick={()=>openEdit(h)} title="Editar período">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </button>
+                        {arr.length>1&&(
+                          <button className="btn-icon btn-icon--danger" onClick={()=>handleDelete(h.id)} title="Eliminar período">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -317,6 +350,109 @@ function ContratosScreen({data,company,onUpdate,readOnly,user,onAudit,onNav}){
           </div>
         </div>
       )}
+      {timelineEmp && <ContractTimelineModal emp={timelineEmp} onClose={()=>setTimelineEmp(null)}/>}
+    </div>
+  );
+}
+
+function ContractTimelineModal({emp, onClose}){
+  const adm = emp.admissionDate ? new Date(emp.admissionDate) : null;
+  const trialEnd = emp.trialEndDate ? new Date(emp.trialEndDate) : null;
+  const secondEnd = emp.secondContractEnd ? new Date(emp.secondContractEnd) : null;
+  // Efetivo arranca no dia seguinte ao fim do contrato a termo (2.º se existir,
+  // senão o experimental).
+  const efetivoBase = secondEnd || trialEnd;
+  const efetivoStart = efetivoBase ? new Date(efetivoBase.getTime()+86400000) : null;
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  if(!adm){
+    return (
+      <div className="ov" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+        <div className="modal" style={{maxWidth:420}}>
+          <div className="mh"><div className="mh-t">Sem data de admissão</div><button className="btn bg" onClick={onClose}>✕</button></div>
+          <div className="mb"><p>Preenche a data de admissão na ficha para ver a linha do tempo.</p></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Limites da timeline: 30 dias antes da admissao ate ao mais distante
+  // entre os marcos e o dia de hoje, com folga no fim.
+  const ends = [trialEnd, secondEnd, efetivoStart, today].filter(Boolean);
+  const maxEnd = new Date(Math.max(...ends.map(d=>d.getTime())));
+  const start = new Date(adm); start.setMonth(start.getMonth()-1);
+  const end = new Date(maxEnd); end.setMonth(end.getMonth()+1);
+  const total = end.getTime() - start.getTime();
+  const pct = d => Math.max(0, Math.min(100, ((d.getTime() - start.getTime()) / total) * 100));
+
+  // Eixo de meses: um tick a cada 1, 2 ou 3 meses conforme o intervalo
+  const monthsSpan = (end.getFullYear()-start.getFullYear())*12 + (end.getMonth()-start.getMonth());
+  const step = monthsSpan > 36 ? 6 : monthsSpan > 18 ? 3 : monthsSpan > 9 ? 2 : 1;
+  const ticks = [];
+  for(let d=new Date(start.getFullYear(),start.getMonth(),1); d<=end; d.setMonth(d.getMonth()+step)){
+    ticks.push({pct: pct(new Date(d.getTime())), label: d.toLocaleDateString('pt-PT',{month:'short',year:'2-digit'}).replace('.','')});
+  }
+
+  const fmt = d => d.toLocaleDateString('pt-PT');
+  const markers = [
+    {date: adm,      label:'Admissão', color:'#16a34a', side:'top'},
+    trialEnd     && {date: trialEnd,     label:'Fim Exp.',      color:'#dc2626', side:'bottom'},
+    secondEnd    && {date: secondEnd,    label:'Fim 2.º',       color:'#dc2626', side:'top'},
+    efetivoStart && {date: efetivoStart, label:'Início Efetivo', color:'#0d9488', side:'bottom', dashed:true},
+    {date: today, label:'Hoje', color:'#2563eb', side:'top', dotted:true},
+  ].filter(Boolean);
+
+  return (
+    <div className="ov" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div className="modal" style={{maxWidth:780,width:'92vw'}}>
+        <div className="mh">
+          <div className="mh-t">Linha do tempo — {emp.name}</div>
+          <button className="btn bg" onClick={onClose}>✕</button>
+        </div>
+        <div className="mb">
+          <div className="ctl-legend">
+            <span><i className="ctl-sw ctl-sw--trial"/>Período Experimental</span>
+            {secondEnd && <span><i className="ctl-sw ctl-sw--second"/>2.º Contrato</span>}
+            <span><i className="ctl-sw ctl-sw--end"/>Fim de Contrato</span>
+            <span><i className="ctl-sw ctl-sw--two"/>Início Efetivo</span>
+          </div>
+          <div className="ctl">
+            <div className="ctl-bar">
+              {trialEnd && (
+                <div className="ctl-seg ctl-seg--trial"
+                  style={{left:pct(adm)+'%', width:(pct(trialEnd)-pct(adm))+'%'}}
+                  title={`Experimental: ${fmt(adm)} → ${fmt(trialEnd)}`}/>
+              )}
+              {trialEnd && secondEnd && (
+                <div className="ctl-seg ctl-seg--second"
+                  style={{left:pct(trialEnd)+'%', width:(pct(secondEnd)-pct(trialEnd))+'%'}}
+                  title={`2.º Contrato: ${fmt(trialEnd)} → ${fmt(secondEnd)}`}/>
+              )}
+              {markers.map((m,i)=>(
+                <div key={i} className={`ctl-mark ctl-mark--${m.side}${m.dashed?' is-dashed':''}${m.dotted?' is-dotted':''}`}
+                  style={{left:pct(m.date)+'%', borderColor:m.color}}>
+                  <div className="ctl-mark-lbl" style={{color:m.color}}>{m.label}</div>
+                  <div className="ctl-mark-date">{fmt(m.date)}</div>
+                </div>
+              ))}
+            </div>
+            <div className="ctl-axis">
+              {ticks.map((t,i)=>(
+                <div key={i} className="ctl-tick" style={{left:t.pct+'%'}}>{t.label}</div>
+              ))}
+            </div>
+          </div>
+          <div style={{marginTop:24,display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:10,fontSize:12}}>
+            <div><strong>Admissão:</strong> {fmt(adm)}</div>
+            <div><strong>Fim Exp. (90d):</strong> {trialEnd?fmt(trialEnd):'—'}</div>
+            <div><strong>Fim 2.º Contrato:</strong> {secondEnd?fmt(secondEnd):'—'}</div>
+            <div><strong>Início Efetivo:</strong> {efetivoStart?fmt(efetivoStart):'—'}</div>
+          </div>
+        </div>
+        <div className="mf">
+          <button className="btn" onClick={onClose}>Fechar</button>
+        </div>
+      </div>
     </div>
   );
 }

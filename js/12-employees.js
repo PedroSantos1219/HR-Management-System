@@ -128,6 +128,89 @@ function EmpModal({emp,onSave,onClose,readOnly}){
   );
 }
 
+const NOTE_TAGS = [
+  {k:'telefonema',  l:'Telefonema',  c:'#2563eb'},
+  {k:'reuniao',     l:'Reunião',     c:'#0d9488'},
+  {k:'advertencia', l:'Advertência', c:'#dc2626'},
+  {k:'elogio',      l:'Elogio',      c:'#16a34a'},
+  {k:'observacao',  l:'Observação',  c:'#6b7280'},
+  {k:'outro',       l:'Outro',       c:'#6b7280'},
+];
+
+function NotasTab({emp,notes,readOnly,user,onSaveNote,onDelNote,onAudit}){
+  const myNotes=useMemo(()=>
+    (notes||[]).filter(n=>n.empId===emp.id&&n.empCompany===emp.company)
+      .sort((a,b)=>(b.ts||'').localeCompare(a.ts||'')),
+  [notes,emp]);
+  const [text,setText]=useState('');
+  const [tag,setTag]=useState('observacao');
+
+  function add(){
+    const t=text.trim();
+    if(!t) return;
+    const n={id:Date.now().toString(),empId:emp.id,empCompany:emp.company,ts:new Date().toISOString(),by:user?.name||user?.username||'RH',tag,text:t};
+    onSaveNote(n);
+    onAudit&&onAudit(`Nota adicionada a ${emp.name} (${NOTE_TAGS.find(x=>x.k===tag)?.l||tag})`, 'nota');
+    setText('');
+  }
+  function remove(n){
+    if(!confirm('Apagar esta nota?')) return;
+    onDelNote(n.id);
+    onAudit&&onAudit(`Nota removida de ${emp.name}`, 'nota');
+  }
+
+  return (
+    <div>
+      {!readOnly && (
+        <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:10,padding:12,marginBottom:14}}>
+          <div style={{display:'flex',gap:8,marginBottom:8,alignItems:'center',flexWrap:'wrap'}}>
+            <select className="fi" style={{padding:'4px 8px',fontSize:12,width:'auto'}} value={tag} onChange={e=>setTag(e.target.value)}>
+              {NOTE_TAGS.map(t=><option key={t.k} value={t.k}>{t.l}</option>)}
+            </select>
+            <span style={{fontSize:11,color:'var(--muted)'}}>por {user?.name||user?.username||'RH'} · {new Date().toLocaleDateString('pt-PT')}</span>
+          </div>
+          <textarea
+            className="fi"
+            value={text}
+            onChange={e=>setText(e.target.value)}
+            placeholder="Escreve a nota… (ex: ligou a faltar amanhã, motivo médico)"
+            rows={3}
+            style={{width:'100%',padding:8,fontSize:13,resize:'vertical',minHeight:60,boxSizing:'border-box'}}
+            onKeyDown={e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)) add();}}
+          />
+          <div style={{display:'flex',justifyContent:'space-between',marginTop:8,alignItems:'center'}}>
+            <span style={{fontSize:11,color:'var(--muted)'}}>Ctrl+Enter para guardar</span>
+            <button className="btn bp btn-sm" onClick={add} disabled={!text.trim()}>Adicionar nota</button>
+          </div>
+        </div>
+      )}
+      {myNotes.length===0 ? (
+        <div className="empty" style={{padding:24,textAlign:'center',color:'var(--muted)'}}>Sem notas para este colaborador.</div>
+      ) : (
+        <div style={{display:'flex',flexDirection:'column',gap:8}}>
+          {myNotes.map(n=>{
+            const t=NOTE_TAGS.find(x=>x.k===n.tag)||NOTE_TAGS[NOTE_TAGS.length-1];
+            const d=new Date(n.ts);
+            const dateStr=isNaN(d)?'':d.toLocaleString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+            return (
+              <div key={n.id} style={{background:'var(--card)',border:'1px solid var(--border)',borderLeft:`3px solid ${t.c}`,borderRadius:8,padding:'10px 12px'}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4,flexWrap:'wrap'}}>
+                  <span style={{fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:.5,color:t.c}}>{t.l}</span>
+                  <span style={{fontSize:11,color:'var(--muted)'}}>{dateStr} · {n.by}</span>
+                  {!readOnly && (
+                    <button onClick={()=>remove(n)} title="Apagar" style={{marginLeft:'auto',background:'transparent',border:'none',color:'var(--muted)',cursor:'pointer',fontSize:14,lineHeight:1,padding:'0 4px'}}>✕</button>
+                  )}
+                </div>
+                <div style={{fontSize:13,whiteSpace:'pre-wrap',color:'var(--text)'}}>{n.text}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AusenciasTab({emp,absences,readOnly,user,onSaveAbsence,onDelAbsence,onAudit}){
   const myAbs=useMemo(()=>
     (absences||[]).filter(a=>a.empId===emp.id&&a.empCompany===emp.company)
@@ -245,7 +328,7 @@ function AusenciasTab({emp,absences,readOnly,user,onSaveAbsence,onDelAbsence,onA
   );
 }
 
-function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive,user,evals,onSaveEval,onDelEval,absences,onSaveAbsence,onDelAbsence,onAudit,ferias,onRenameId}){
+function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive,user,evals,onSaveEval,onDelEval,absences,onSaveAbsence,onDelAbsence,notes,onSaveNote,onDelNote,onAudit,ferias,onRenameId}){
   const [tab,setTab]=useState('info');
   const [showEvalModal,setShowEvalModal]=useState(false);
   const [ef,setEf]=useState({type:'',date:new Date().toISOString().split('T')[0],notes:'',nextAction:'',nextDate:''});
@@ -489,7 +572,7 @@ function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive
         </div>
       )}
       <div className="tabs" style={{flexShrink:0}}>
-        {[['info','Dados'],['docs','Docs'],['medical','Medicina'],['sef','SEF'],['training','Formação'],['diut','Diuturnidades'],['evals','Avaliações'],['ausencias','Ausências'],['epi','EPI'],['farda','Farda']].map(([k,l])=>(
+        {[['info','Dados'],['docs','Docs'],['notes','Notas'],['medical','Medicina'],['sef','SEF'],['training','Formação'],['diut','Diuturnidades'],['evals','Avaliações'],['ausencias','Ausências'],['epi','EPI'],['farda','Farda']].map(([k,l])=>(
           <div key={k} className={`tab ${tab===k?'active':''}`} onClick={()=>setTab(k)}>{l}</div>
         ))}
       </div>
@@ -519,6 +602,7 @@ function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive
           <div className="field"><div className="fl">Validade ADR</div><div className={`fv ${expClass(daysTo(emp.adrExpiry))}`}>{fmtDate(emp.adrExpiry)} <ExpiryChip date={emp.adrExpiry}/></div></div>
         </div>}
         {tab==='docs'&&<DocsTab empId={emp.id} empCompany={emp.company} empName={emp.name} readOnly={readOnly} user={user} onAudit={onAudit}/>}
+        {tab==='notes'&&<NotasTab emp={emp} notes={notes} readOnly={readOnly} user={user} onSaveNote={onSaveNote} onDelNote={onDelNote} onAudit={onAudit}/>}
         {tab==='medical'&&<div className="fg">
           <FV label="Última Consulta" val={fmtDate(emp.lastMedicalConsult)}/>
           <div className="field"><div className="fl">Próxima Consulta</div><div className={`fv ${expClass(daysTo(nm))}`}>{fmtDate(nm)} <ExpiryChip date={nm}/></div></div>
@@ -604,7 +688,65 @@ function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive
   );
 }
 
-function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval,onDelEval,absences,onSaveAbsence,onDelAbsence,initSel,ferias,onRenameId}){
+function BulkEditModal({count,onApply,onClose}){
+  // Só os campos preenchidos são aplicados; o resto fica como está em
+  // cada colaborador. Útil para mudanças em massa (salário, função…).
+  const [f,setF]=useState({role:'',contractStatus:'',contractEndDate:'',baseSalary:'',availability:'',app:''});
+  const set=(k,v)=>setF(p=>({...p,[k]:v}));
+  const filled=Object.entries(f).filter(([k,v])=>v!=='').map(([k])=>k);
+  function go(){
+    if(filled.length===0){ onClose(); return; }
+    if(!confirm(`Aplicar alterações a ${count} colaboradores? Esta acção sobrepõe os valores actuais nos campos preenchidos.`)) return;
+    onApply(f);
+  }
+  return (
+    <div className="ov" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div className="modal" style={{maxWidth:520}}>
+        <div className="mh"><div className="mh-t">Editar {count} colaboradores</div><button className="btn bg" onClick={onClose}>✕</button></div>
+        <div className="mb">
+          <p style={{fontSize:12,color:'var(--muted)',marginBottom:14}}>Só os campos que preencheres são aplicados. Os restantes ficam como estão.</p>
+          <div className="fg">
+            <div className="field"><div className="fl">Função</div>
+              <input className="fi" value={f.role} onChange={e=>set('role',e.target.value)} placeholder="(manter) — ex: Mot. Veic. Pesados"/></div>
+            <div className="field"><div className="fl">Estado</div>
+              <select className="fi" value={f.contractStatus} onChange={e=>set('contractStatus',e.target.value)}>
+                <option value="">(manter)</option>
+                {['Ativo','De baixa','De seguro','Férias','Suspenso','Inativo'].map(o=><option key={o}>{o}</option>)}
+              </select></div>
+            <div className="field"><div className="fl">Tipo Contrato</div>
+              <select className="fi" value={f.contractEndDate} onChange={e=>set('contractEndDate',e.target.value)}>
+                <option value="">(manter)</option>
+                {['Efetivo','Termo Certo','Indeterminado'].map(o=><option key={o}>{o}</option>)}
+              </select></div>
+            <div className="field"><div className="fl">Disponibilidade</div>
+              <select className="fi" value={f.availability} onChange={e=>set('availability',e.target.value)}>
+                <option value="">(manter)</option>
+                {['Disponível','Seguro','Baixa','Licença'].map(o=><option key={o}>{o}</option>)}
+              </select></div>
+            <div className="field"><div className="fl">Ordenado Base (€)</div>
+              <input className="fi" value={f.baseSalary} onChange={e=>set('baseSalary',e.target.value)} placeholder="(manter) — ex: 1014.02"/></div>
+            <div className="field"><div className="fl">App (4Miga)</div>
+              <select className="fi" value={f.app} onChange={e=>set('app',e.target.value)}>
+                <option value="">(manter)</option>
+                <option>SIM</option><option>NÃO</option>
+              </select></div>
+          </div>
+          {filled.length>0 && (
+            <div style={{background:'var(--blbg)',border:'1px solid var(--blue)',borderRadius:8,padding:'8px 12px',marginTop:14,fontSize:12,color:'var(--blue)'}}>
+              Vai actualizar: <strong>{filled.join(', ')}</strong>
+            </div>
+          )}
+        </div>
+        <div className="mf">
+          <button className="btn bs" onClick={onClose}>Cancelar</button>
+          <button className="btn bp" disabled={filled.length===0} onClick={go}>Aplicar a {count}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval,onDelEval,absences,onSaveAbsence,onDelAbsence,notes,onSaveNote,onDelNote,initSel,ferias,onRenameId}){
   const {employees=[],inactive=[]}=data;
   const [search,setSearch]=useState('');
   const [sf,setSf]=useState('all');
@@ -625,7 +767,29 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
   const [archive,setArchive]=useState(initSel?.goToArchive||false);
   const [exitModal,setExitModal]=useState(null);
   const [returnModal,setReturnModal]=useState(null);
+  const [bulkMode,setBulkMode]=useState(false);
+  const [bulkSel,setBulkSel]=useState(()=>new Set());
+  const [bulkModal,setBulkModal]=useState(false);
   const detailRef=useRef(null);
+  function toggleBulk(empKey){
+    setBulkSel(prev=>{const n=new Set(prev);if(n.has(empKey))n.delete(empKey);else n.add(empKey);return n;});
+  }
+  function exitBulk(){ setBulkMode(false); setBulkSel(new Set()); setBulkModal(false); }
+  async function applyBulk(changes){
+    const ne=employees.map(e=>{
+      const k=e.id+'|'+e.company;
+      if(!bulkSel.has(k)) return e;
+      const next={...e};
+      Object.entries(changes).forEach(([f,v])=>{ if(v!==''&&v!==null&&v!==undefined) next[f]=v; });
+      return next;
+    });
+    await onUpdate({...data,employees:ne});
+    if(onAudit){
+      const fields=Object.keys(changes).filter(k=>changes[k]!==''&&changes[k]!==null&&changes[k]!==undefined).join(', ');
+      onAudit(`Edição em massa de ${bulkSel.size} colaboradores: ${fields}`, 'colaborador');
+    }
+    exitBulk();
+  }
 
   useEffect(()=>{
     if(!sel) return;
@@ -707,10 +871,27 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
       <div className="card emp-list">
         <div style={{padding:'10px',borderBottom:'1px solid var(--border)'}}>
           <div style={{display:'flex',gap:6,marginBottom:7}}>
-            <button className={`btn btn-sm ${!archive?'bp':'bs'}`} onClick={()=>{setArchive(false);setSel(null);}}>Activos ({empCount})</button>
-            <button className={`btn btn-sm ${archive?'bp':'bs'}`} onClick={()=>{setArchive(true);setSel(null);}}>Inativos ({inactCount})</button>
-            {!readOnly&&!archive&&<button className="btn bp btn-sm" style={{marginLeft:'auto'}} onClick={()=>{setEditEmp({id:'new'});setShowForm(true);}}>+</button>}
+            <button className={`btn btn-sm ${!archive?'bp':'bs'}`} onClick={()=>{setArchive(false);setSel(null);exitBulk();}}>Activos ({empCount})</button>
+            <button className={`btn btn-sm ${archive?'bp':'bs'}`} onClick={()=>{setArchive(true);setSel(null);exitBulk();}}>Inativos ({inactCount})</button>
+            {!readOnly&&!archive&&(
+              bulkMode
+                ? <button className="btn bs btn-sm" style={{marginLeft:'auto'}} onClick={exitBulk} title="Sair do modo de selecção">Cancelar</button>
+                : <>
+                    <button className="btn bs btn-sm" style={{marginLeft:'auto'}} onClick={()=>setBulkMode(true)} title="Seleccionar vários para editar em massa">☑</button>
+                    <button className="btn bp btn-sm" onClick={()=>{setEditEmp({id:'new'});setShowForm(true);}}>+</button>
+                  </>
+            )}
           </div>
+          {bulkMode && (
+            <div style={{display:'flex',gap:6,alignItems:'center',padding:'6px 8px',background:'var(--blbg)',border:'1px solid var(--blue)',borderRadius:6,marginBottom:7,fontSize:12}}>
+              <span style={{flex:1,color:'var(--blue)',fontWeight:600}}>{bulkSel.size} seleccionado{bulkSel.size===1?'':'s'}</span>
+              <button className="btn bs btn-sm" style={{padding:'2px 8px'}} onClick={()=>{
+                const all=new Set(filtered.map(e=>e.id+'|'+e.company));
+                setBulkSel(bulkSel.size===all.size?new Set():all);
+              }}>{bulkSel.size===filtered.length?'Nenhum':'Todos'}</button>
+              <button className="btn bp btn-sm" disabled={bulkSel.size===0} onClick={()=>setBulkModal(true)}>Editar…</button>
+            </div>
+          )}
           <input className="fi" style={{marginBottom:6}} placeholder="Nome, NIF, n.º..." value={search} onChange={e=>setSearch(e.target.value)}/>
           <div className="emp-filter-bar">
             {[['all','Todos'],['ativo','Ativo'],['baixa','Baixa'],['seguro','Seguro'],['ferias','Férias']].map(([s,lbl])=>(
@@ -720,8 +901,20 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
         </div>
         <div className="list-body">
           {filtered.length===0?<div className="empty" style={{padding:24}}>Sem resultados</div>:
-          filtered.map(emp=>(
-            <div key={emp.id+emp.company} className={`li ${sel?.id===emp.id&&sel?.company===emp.company?'sel':''}`} onClick={()=>{setSel(emp);onAudit&&onAudit(`Consultou ficha de ${emp.name}`, 'consulta');}}>
+          filtered.map(emp=>{
+            const k=emp.id+'|'+emp.company;
+            const checked=bulkSel.has(k);
+            return (
+            <div key={k} className={`li ${sel?.id===emp.id&&sel?.company===emp.company?'sel':''}`}
+              onClick={()=>{
+                if(bulkMode){ toggleBulk(k); return; }
+                setSel(emp);
+                onAudit&&onAudit(`Consultou ficha de ${emp.name}`, 'consulta');
+              }}>
+              {bulkMode && (
+                <input type="checkbox" checked={checked} readOnly
+                  style={{marginRight:2,width:16,height:16,accentColor:'var(--blue)',flexShrink:0}}/>
+              )}
               <div className="av" style={{background:COMP_COLORS[emp.company]||'#1a0d0d',fontSize:12}}>{initials(emp.name)}</div>
               <div style={{flex:1,minWidth:0}}>
                 <div style={{fontWeight:600,fontSize:13,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{emp.name}</div>
@@ -734,13 +927,14 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
                   : null
               }
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
       <div ref={detailRef} className="card" style={{padding:16,overflow:'auto'}}>
         {!sel?<div className="empty" style={{paddingTop:70}}>Seleccione um colaborador</div>:
         <>{isMobile&&<button className="btn bs btn-sm" style={{marginBottom:8,display:'flex',alignItems:'center',gap:4}} onClick={()=>setSel(null)}>← Voltar</button>}
-        <EmpDetail emp={sel} readOnly={readOnly} isInactive={archive} user={user} evals={evals} onSaveEval={onSaveEval} onDelEval={onDelEval} absences={absences} onSaveAbsence={onSaveAbsence} onDelAbsence={onDelAbsence} onAudit={onAudit} ferias={ferias}
+        <EmpDetail emp={sel} readOnly={readOnly} isInactive={archive} user={user} evals={evals} onSaveEval={onSaveEval} onDelEval={onDelEval} absences={absences} onSaveAbsence={onSaveAbsence} onDelAbsence={onDelAbsence} notes={notes} onSaveNote={onSaveNote} onDelNote={onDelNote} onAudit={onAudit} ferias={ferias}
           onRenameId={async(newId)=>{
             if(!onRenameId) return {ok:false,error:'Sem permissões'};
             const r = await onRenameId(sel.id, sel.company, newId);
@@ -755,6 +949,7 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
           onClose={()=>setSel(null)}/></>}
       </div>
       {showForm&&editEmp&&<EmpModal emp={editEmp} onSave={handleSave} onClose={()=>{setShowForm(false);setEditEmp(null);}} readOnly={false}/>}
+      {bulkModal&&<BulkEditModal count={bulkSel.size} onApply={applyBulk} onClose={()=>setBulkModal(false)}/>}
       {exitModal&&<ExitModal emp={exitModal} onConfirm={confirmDeactivate} onClose={()=>setExitModal(null)}/>}
       {returnModal&&<ReturnModal emp={returnModal} onConfirm={confirmReturn} onClose={()=>setReturnModal(null)}/>}
     </div>

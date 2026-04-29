@@ -282,67 +282,115 @@ function FardaScreen({data, company, readOnly, user, onAudit}) {
     />;
   }
 
+  // Resumo agregado para o header
+  const totalEmps = emps.length;
+  const completos = emps.filter(e=>empStatus(e).missing===0).length;
+  const emFalta = emps.filter(e=>empStatus(e).missing>0).length;
+
   return (
     <div>
-      <div style={{display:'flex',gap:8,marginBottom:12,alignItems:'center',flexWrap:'wrap'}}>
-        <span style={{fontWeight:700,fontSize:14}}>Controlo de Fardas</span>
-        <span style={{fontSize:11,color:'var(--muted)'}}>Casaco · Calças · Polar · Polo Manga Curta · Polo Manga Comprida · Casacão</span>
-        <button className="btn" onClick={()=>setView('stock')}
-          style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:6,padding:'6px 14px',borderRadius:8,fontSize:12,fontWeight:700,background:'#1a0d0d',color:'white',border:'none',cursor:'pointer',boxShadow:'0 2px 6px rgba(0,0,0,.15)'}}>
-          📦 Ver Stock
+      {/* Header */}
+      <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:14,flexWrap:'wrap'}}>
+        <div style={{flex:1,minWidth:220}}>
+          <div style={{fontWeight:700,fontSize:18}}>Controlo de Fardas</div>
+          <div style={{fontSize:12,color:'var(--muted)',marginTop:2}}>{FARDA_ITEMS.map(i=>i.label).join(' · ')}</div>
+        </div>
+        <div style={{display:'flex',gap:6,alignItems:'center'}}>
+          {[
+            {l:'Completos', v:completos, c:'var(--green)'},
+            {l:'Em falta',  v:emFalta,   c:'var(--orange)'},
+            {l:'Total',     v:totalEmps, c:'var(--muted)'},
+          ].map(s=>(
+            <div key={s.l} style={{padding:'4px 12px',background:'#fff',border:'1px solid var(--border)',borderRadius:8,textAlign:'center',minWidth:60}}>
+              <div style={{fontSize:15,fontWeight:800,color:s.c,lineHeight:1.1}}>{s.v}</div>
+              <div style={{fontSize:9,fontWeight:600,color:'var(--muted)',textTransform:'uppercase',letterSpacing:.3}}>{s.l}</div>
+            </div>
+          ))}
+        </div>
+        <button className="btn-soft" onClick={()=>setView('stock')} title="Gerir stock por tamanho">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          <span>Ver Stock</span>
         </button>
-        <label style={{display:'flex',alignItems:'center',gap:5,fontSize:12,cursor:'pointer'}}>
-          <input type="checkbox" checked={filterMissing} onChange={e=>setFilterMissing(e.target.checked)}/>
-          Apenas com peças em falta
-        </label>
       </div>
 
-      <div style={{background:'var(--bg)',border:'1px solid var(--border)',borderRadius:8,padding:'10px 14px',marginBottom:14,fontSize:12,color:'var(--muted)'}}>
-        Registo informativo da farda entregue a cada colaborador. <strong>Nenhuma peça é obrigatória</strong>. Quando entregares uma peça, é descontada automaticamente do stock (se houver stock disponível para o tamanho).
+      {/* Sub-bar: filtros + nota */}
+      <div style={{display:'flex',gap:10,alignItems:'center',marginBottom:14,flexWrap:'wrap'}}>
+        <label className="farda-toggle">
+          <input type="checkbox" checked={filterMissing} onChange={e=>setFilterMissing(e.target.checked)}/>
+          <span>Apenas com peças em falta</span>
+        </label>
+        <span style={{fontSize:11,color:'var(--muted)',flex:1,minWidth:200}}>
+          Nenhuma peça é obrigatória — quando entregares, o stock é descontado automaticamente.
+        </span>
       </div>
 
       {loading&&<div style={{padding:'12px',color:'var(--muted)',fontSize:12}}>A carregar dados...</div>}
-      <div style={{display:'flex',gap:10,marginBottom:12,flexWrap:'wrap'}}>
-        {[['#1D6A39','Tem','#EAFAF1','#1D6A39'],['#C0392B','Não tem','#FDEDEC','#C0392B']].map(([dot,lb,bg,tc])=>(
-          <div key={lb} style={{display:'flex',alignItems:'center',gap:5,background:bg,padding:'3px 10px',borderRadius:20,fontSize:11,fontWeight:600,color:tc}}><span style={{display:'inline-block',width:8,height:8,borderRadius:'50%',background:dot}}></span>{lb}</div>
-        ))}
-      </div>
 
-      <div className="card" style={{overflow:'hidden'}}>
+      <div className="card" style={{overflow:'hidden',padding:0}}>
         <div style={{overflowX:'auto'}}>
-          <table style={{width:'100%',borderCollapse:'collapse'}}>
+          <table className="farda-table">
             <thead>
               <tr>
-                <th style={{background:'var(--bg)',padding:'8px 10px',textAlign:'left',fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:'.5px',color:'var(--muted)',position:'sticky',top:0}}>Colaborador</th>
-                <th style={{background:'var(--bg)',padding:'8px 10px',textAlign:'left',fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:'.5px',color:'var(--muted)',position:'sticky',top:0}}>Empresa</th>
+                <th className="farda-th farda-th--left">Colaborador</th>
+                <th className="farda-th farda-th--left">Empresa</th>
                 {FARDA_ITEMS.map(item=>(
-                  <th key={item.id} style={{background:'var(--bg)',padding:'8px 6px',textAlign:'center',fontSize:11,fontWeight:700,color:'var(--muted)',position:'sticky',top:0,whiteSpace:'nowrap'}} title={item.label}>{item.icon}</th>
+                  <th key={item.id} className="farda-th farda-th--icon" title={item.label}>
+                    <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
+                      <span style={{fontSize:16,lineHeight:1}}>{item.icon}</span>
+                      <span style={{fontSize:9,fontWeight:600,color:'var(--muted)',textTransform:'uppercase',letterSpacing:.3,whiteSpace:'nowrap'}}>{item.label.replace('Polo Manga ','').replace('Manga ','')}</span>
+                    </div>
+                  </th>
                 ))}
-                <th style={{background:'var(--bg)',padding:'8px 10px',textAlign:'center',fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:'.5px',color:'var(--muted)',position:'sticky',top:0}}>Estado</th>
-                <th style={{background:'var(--bg)',padding:'8px 10px',position:'sticky',top:0}}></th>
+                <th className="farda-th">Estado</th>
+                <th className="farda-th"></th>
               </tr>
             </thead>
             <tbody>
-              {list.map((emp,ri) => {
+              {list.map(emp => {
                 const d = getData(emp);
+                const accent = COMP_COLORS[emp.company]||'#999';
                 return (
-                  <tr key={emp.id+emp.company} style={{backgroundColor:ri%2===0?'white':'var(--bg)',cursor:'pointer'}} onClick={()=>setSelEmp(emp)} title="Clique para gerir">
-                    <td style={{padding:'8px 10px',fontWeight:600,fontSize:13}}>{emp.name}</td>
-                    <td style={{padding:'8px 10px'}}><span className="chip cgr">{emp.company}</span></td>
+                  <tr key={emp.id+emp.company} className="farda-row" onClick={()=>setSelEmp(emp)}
+                    style={{cursor:'pointer'}}>
+                    <td className="farda-td">
+                      <div style={{display:'flex',alignItems:'center',gap:10}}>
+                        <span style={{width:3,height:24,borderRadius:2,background:accent,flexShrink:0}}/>
+                        <div style={{minWidth:0}}>
+                          <div style={{fontWeight:600,fontSize:13}}>{emp.name}</div>
+                          <div style={{fontSize:10,color:'var(--muted)'}}>N.º {emp.id}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="farda-td"><span className="chip cgr">{emp.company}</span></td>
                     {FARDA_ITEMS.map(item => {
                       const has = (d[item.id]||[]).length > 0;
                       return (
-                        <td key={item.id} style={{padding:'6px',textAlign:'center'}}>
-                          <span style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:22,height:22,borderRadius:'50%',background:has?'#EAFAF1':'#FDEDEC',color:has?'#1D6A39':'#C0392B',fontWeight:700,fontSize:13}}>{has?'✓':'✕'}</span>
+                        <td key={item.id} className="farda-td farda-td--cell">
+                          <span className={`farda-mark ${has?'is-has':'is-empty'}`}>
+                            {has
+                              ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                              : <span style={{fontSize:11,fontWeight:700}}>–</span>}
+                          </span>
                         </td>
                       );
                     })}
-                    <td style={{padding:'8px 10px',textAlign:'center',fontWeight:700,fontSize:12}}>
-                      <span style={{color:'#1D6A39'}}>{emp._f.has}</span>
-                      <span style={{color:'var(--muted)',fontWeight:400}}> / {emp._f.total}</span>
+                    <td className="farda-td" style={{padding:'8px 14px'}}>
+                      <div style={{display:'flex',alignItems:'center',gap:8}}>
+                        <div style={{flex:1,display:'flex',gap:2,maxWidth:90}}>
+                          {Array.from({length:emp._f.total}).map((_,i)=>(
+                            <div key={i} style={{flex:1,height:5,borderRadius:2,background:i<emp._f.has?'var(--green)':'var(--border)'}}/>
+                          ))}
+                        </div>
+                        <span style={{fontSize:11,fontWeight:700,color:emp._f.has===emp._f.total?'var(--green)':'var(--muted)',whiteSpace:'nowrap'}}>
+                          {emp._f.has}/{emp._f.total}
+                        </span>
+                      </div>
                     </td>
-                    <td style={{padding:'8px 10px'}}>
-                      <button className="btn bs btn-sm" onClick={e=>{e.stopPropagation();setSelEmp(emp);}}>Gerir</button>
+                    <td className="farda-td" style={{textAlign:'right'}}>
+                      <button className="btn-soft" onClick={e=>{e.stopPropagation();setSelEmp(emp);}} title="Gerir farda deste colaborador">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        <span>Gerir</span>
+                      </button>
                     </td>
                   </tr>
                 );

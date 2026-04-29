@@ -38,15 +38,19 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
         const td = daysTo(emp.endDate);
         if(td !== null && td <= 90) contratos.push({...emp, days: td, nextDate: emp.endDate});
       }
-      // Aviso de conversão a Efetivo: 60 dias antes dos 2 anos de admissão
-      // (ou já a vermelho se ultrapassou), apenas para quem ainda não é Efetivo.
-      if((emp.contractEndDate||'').toLowerCase() !== 'efetivo' && emp.admissionDate){
-        const adm = new Date(emp.admissionDate);
-        if(!isNaN(adm)){
-          const twoY = new Date(adm); twoY.setFullYear(twoY.getFullYear()+2);
-          const ed = twoY.toISOString().split('T')[0];
-          const td = daysTo(ed);
-          if(td !== null && td <= 60) efetivacao.push({...emp, days: td, nextDate: ed});
+      // Aviso de efetivação: alerta a 60 dias do início efetivo (= dia
+      // seguinte ao fim do 2.º contrato, ou ao fim do experimental se
+      // não houver 2.º). Só para quem ainda não está como Efetivo.
+      if((emp.contractEndDate||'').toLowerCase() !== 'efetivo'){
+        const base = emp.secondContractEnd || emp.trialEndDate;
+        if(base){
+          const b = new Date(base);
+          if(!isNaN(b)){
+            b.setDate(b.getDate()+1);
+            const ed = b.toISOString().split('T')[0];
+            const td = daysTo(ed);
+            if(td !== null && td <= 60) efetivacao.push({...emp, days: td, nextDate: ed});
+          }
         }
       }
       if(isDriver(emp)){
@@ -146,7 +150,8 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
               <span>Motoristas</span>
               {isAdmin && (
                 <button className="meta-btn" onClick={changeMeta} title="Definir meta de disponíveis">
-                  Meta
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="22" x2="4" y2="15"/><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1"/></svg>
+                  <span>Meta</span>
                 </button>
               )}
             </div>
@@ -192,7 +197,7 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
           {title:'Cartão de Cidadão',                 items:alerts.cc,        color:'var(--red-l)', tc:'var(--red)',  field:'ccExpiry',  screen:'employees'},
           {title:'ADR — Mercadorias Perigosas',       items:alerts.adr,       color:'#f5eef8',    tc:'#7D3C98',       field:'adrExpiry', screen:'cartas',        transportOnly:true},
           {title:'Contratos a Termo — fim próximo',   items:alerts.contratos, color:'#eef2ff',    tc:'#3730a3',       field:'nextDate',  screen:'contratos'},
-          {title:'Conversão a Efetivo — 2 anos',      items:alerts.efetivacao,color:'#fef0e0',    tc:'#9a3412',       field:'nextDate',  screen:'contratos'},
+          {title:'Próximos a Efetivar',               items:alerts.efetivacao,color:'#ccfbf1',    tc:'#0d9488',       field:'nextDate',  screen:'contratos'},
         ]
         .filter(c => !(c.transportOnly && company==='pit'))
         .map(({title,items,color,tc,field,screen,showDocType}) => {

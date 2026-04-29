@@ -225,6 +225,21 @@ function DiutScreen({data,company,onUpdate,readOnly,onAudit}){
   const [search,setSearch]=useState('');
   // null = sort por próxima diuturnidade; depois cicla 'desc' → 'asc'.
   const [sortAnt,setSortAnt]=useState(null);
+  // Edição inline da contagem de diuturnidades (override manual).
+  const [editKey,setEditKey]=useState(null);
+  const [editVal,setEditVal]=useState('');
+  function commitEdit(emp){
+    if(readOnly) return;
+    const v=String(editVal||'').trim();
+    const n=parseInt(v);
+    if(v==='' || isNaN(n) || n<0){ setEditKey(null); return; }
+    const clamped=Math.min(DIUT_MAX, n);
+    if(String(clamped)===String(parseInt(emp.diuturnidasCount)||0)){ setEditKey(null); return; }
+    const ne=employees.map(e=>e.id===emp.id&&e.company===emp.company?{...e,diuturnidasCount:String(clamped)}:e);
+    onUpdate({...data,employees:ne});
+    onAudit&&onAudit(`Diuturnidades de ${emp.name} alteradas manualmente para ${clamped}`, 'diuturnidade');
+    setEditKey(null);
+  }
 
   // Máximo entre o auto-calculado e o confirmado manualmente, com clamp ao DIUT_MAX
   // (limpa registos legacy que tinham >5 diuturnidades).
@@ -298,7 +313,28 @@ function DiutScreen({data,company,onUpdate,readOnly,onAudit}){
                   <td><Chip label={emp.company} type="gr"/></td>
                   <td>{fmtDate(emp.admissionDate)}</td>
                   <td style={{textAlign:'center',fontWeight:700,fontSize:15}}>{yrs!==null?`${yrs} ${yrs===1?'ano':'anos'}`:''}</td>
-                  <td style={{textAlign:'center',fontWeight:700,fontSize:16}}>{n}</td>
+                  <td style={{textAlign:'center',fontWeight:700,fontSize:16}}>
+                    {readOnly ? n : (
+                      editKey===emp.id+'|'+emp.company ? (
+                        <input
+                          type="number" min="0" max={DIUT_MAX} autoFocus
+                          value={editVal}
+                          onChange={e=>setEditVal(e.target.value)}
+                          onBlur={()=>commitEdit(emp)}
+                          onKeyDown={e=>{if(e.key==='Enter')commitEdit(emp);else if(e.key==='Escape')setEditKey(null);}}
+                          style={{width:54,padding:'2px 4px',fontSize:15,fontWeight:700,textAlign:'center',border:'1px solid var(--blue)',borderRadius:4,outline:'none'}}
+                        />
+                      ) : (
+                        <span
+                          onClick={()=>{setEditKey(emp.id+'|'+emp.company);setEditVal(String(n));}}
+                          title="Clica para alterar (override manual)"
+                          style={{cursor:'pointer',display:'inline-block',padding:'2px 8px',borderRadius:4,transition:'background .12s'}}
+                          onMouseOver={e=>e.currentTarget.style.background='var(--bg)'}
+                          onMouseOut={e=>e.currentTarget.style.background='transparent'}
+                        >{n}</span>
+                      )
+                    )}
+                  </td>
                   <td>{fmtDate(emp._nd)}</td>
                   <td>{d===null?'—':d<0?<span className="chip cr">Passou</span>:d<=45?<span className="chip co">{d}d</span>:<span className="chip cg">{d}d</span>}</td>
                   <td>{n>=DIUT_MAX?<span className="chip cg">Máximo</span>:d!==null&&d<0?<span className="chip cr">Por confirmar</span>:d!==null&&d<=45?<span className="chip co">Alerta</span>:<span className="chip cg">OK</span>}</td>

@@ -99,31 +99,26 @@
   margin-left: auto;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  background: white;
-  border: 1px solid var(--blue);
-  color: var(--blue);
-  border-radius: 999px;
-  font-size: 10px;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .5px;
-  padding: 3px 11px 3px 8px;
+  letter-spacing: .4px;
+  padding: 4px 10px;
   cursor: pointer;
-  transition: background .15s, color .15s, transform .12s, box-shadow .15s;
+  transition: border-color .12s, color .12s, background .12s;
+  font-family: inherit;
 }
-.meta-btn::before {
-  content: "◎";
-  font-size: 12px;
-  line-height: 1;
-}
+.meta-btn svg { flex-shrink: 0; }
 .meta-btn:hover {
-  background: var(--blue);
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(26, 82, 118, .25);
+  border-color: var(--blue);
+  color: var(--blue);
+  background: rgba(155, 35, 53, .04);
 }
-.meta-btn:active { transform: translateY(0); box-shadow: none; }
 
 /* Cards clicáveis ganham elevação subtil. As classes .stat e .ac estão em
    employees.css; aqui só adicionamos comportamento extra. */
@@ -313,4 +308,106 @@
 .tiny-muted {
   font-size: 11px;
   color: var(--muted);
+}
+
+/* Linha do tempo contratual (modal acessível pelos cards de Marcos
+   Contratuais no ecrã Contratos). */
+.ctl-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 22px;
+}
+.ctl-legend i {
+  display: inline-block;
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+.ctl-sw--trial  { background: #9ca3af; }
+.ctl-sw--second { background: #6b7280; }
+.ctl-sw--end    { background: #dc2626; }
+.ctl-sw--two    { background: transparent; border: 2px dashed #ea580c; height: 8px; }
+
+.ctl {
+  position: relative;
+  padding: 70px 14px 60px;
+}
+.ctl-bar {
+  position: relative;
+  height: 28px;
+  background: #f3f4f6;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.ctl-seg {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  border-radius: 4px;
+}
+.ctl-seg--trial  { background: #9ca3af; }
+.ctl-seg--second { background: #6b7280; }
+
+.ctl-mark {
+  position: absolute;
+  top: -55px;
+  bottom: -50px;
+  width: 0;
+  border-left: 2px solid var(--text);
+  z-index: 2;
+}
+.ctl-mark.is-dashed { border-left-style: dashed; }
+.ctl-mark.is-dotted { border-left-style: dotted; }
+.ctl-mark-lbl {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+  background: #fff;
+  padding: 0 4px;
+}
+.ctl-mark-date {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 10px;
+  color: var(--muted);
+  background: #fff;
+  padding: 0 4px;
+}
+.ctl-mark--top .ctl-mark-lbl  { top: 0; }
+.ctl-mark--top .ctl-mark-date { top: 16px; }
+.ctl-mark--bottom .ctl-mark-lbl  { bottom: 16px; }
+.ctl-mark--bottom .ctl-mark-date { bottom: 0; }
+
+.ctl-axis {
+  position: relative;
+  height: 24px;
+  margin-top: 6px;
+  border-top: 1px solid var(--border);
+}
+.ctl-tick {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.ctl-tick::before {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 4px;
+  background: var(--border);
+  margin: 0 auto 2px;
 }

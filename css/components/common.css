@@ -37,6 +37,67 @@
   border-radius: 6px;
 }
 
+/* Botões secundários modernos */
+.btn-ghost,
+.btn-soft,
+.btn-status,
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: background .12s, color .12s, border-color .12s;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 5px 8px 5px 4px;
+}
+.btn-ghost:hover { color: var(--text); background: rgba(0,0,0,.04); }
+
+.btn-soft {
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 11px;
+}
+.btn-soft:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: rgba(155, 35, 53, .04);
+}
+
+.btn-status {
+  /* mesma altura/forma de .btn-soft, mas com cor de estado */
+  background: #fff;
+  border: 1px solid currentColor;
+  padding: 5px 11px;
+  cursor: default;
+}
+
+.btn-icon {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  padding: 5px;
+  border-radius: 6px;
+}
+.btn-icon:hover {
+  background: rgba(0,0,0,.05);
+  color: var(--text);
+}
+.btn-icon--danger:hover {
+  background: rgba(192,57,43,.08);
+  color: var(--red);
+}
+
 /* Campos de formulário */
 .fi,
 select,
