@@ -394,17 +394,27 @@ function ContractTimelineModal({emp, onClose}){
   }
 
   const fmt = d => d.toLocaleDateString('pt-PT');
-  const markers = [
-    {date: adm,      label:'Admissão', color:'#16a34a', side:'top'},
-    trialEnd     && {date: trialEnd,     label:'Fim Exp.',      color:'#dc2626', side:'bottom'},
-    secondEnd    && {date: secondEnd,    label:'Fim 2.º',       color:'#dc2626', side:'top'},
-    efetivoStart && {date: efetivoStart, label:'Início Efetivo', color:'#0d9488', side:'bottom', dashed:true},
-    {date: today, label:'Hoje', color:'#2563eb', side:'top', dotted:true},
-  ].filter(Boolean);
+  const rawMarkers = [];
+  rawMarkers.push({date: adm, label:'Admissão', color:'#16a34a'});
+  // Quando o trial e o início do efetivo são consecutivos (1 dia entre eles)
+  // e não há 2.º contrato, junta-se num só marcador para não sobrepor.
+  const trialAndEfetivoConsec = trialEnd && efetivoStart && !secondEnd
+    && Math.abs(efetivoStart.getTime() - trialEnd.getTime()) <= 86400000 * 2;
+  if(trialAndEfetivoConsec){
+    rawMarkers.push({date: efetivoStart, label:'Fim Exp. → Efetivo', color:'#0d9488'});
+  } else {
+    if(trialEnd)     rawMarkers.push({date: trialEnd,     label:'Fim Exp.',       color:'#dc2626'});
+    if(secondEnd)    rawMarkers.push({date: secondEnd,    label:'Fim 2.º',        color:'#dc2626'});
+    if(efetivoStart) rawMarkers.push({date: efetivoStart, label:'Início Efetivo', color:'#0d9488', dashed:true});
+  }
+  rawMarkers.push({date: today, label:'Hoje', color:'#2563eb', dotted:true});
+  // Ordena por data e alterna lado em cima/baixo para evitar colisão de labels.
+  rawMarkers.sort((a,b)=>a.date-b.date);
+  const markers = rawMarkers.map((m,i)=>({...m, side: i%2===0?'top':'bottom', _pct: pct(m.date)}));
 
   return (
     <div className="ov" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
-      <div className="modal" style={{maxWidth:780,width:'92vw'}}>
+      <div className="modal" style={{maxWidth:880,width:'94vw'}}>
         <div className="mh">
           <div className="mh-t">Linha do tempo — {emp.name}</div>
           <button className="btn bg" onClick={onClose}>✕</button>
@@ -430,7 +440,8 @@ function ContractTimelineModal({emp, onClose}){
               )}
               {markers.map((m,i)=>(
                 <div key={i} className={`ctl-mark ctl-mark--${m.side}${m.dashed?' is-dashed':''}${m.dotted?' is-dotted':''}`}
-                  style={{left:pct(m.date)+'%', borderColor:m.color}}>
+                  style={{left:m._pct+'%', borderColor:m.color}}>
+                  <div className="ctl-mark-dot" style={{background:m.color}}/>
                   <div className="ctl-mark-lbl" style={{color:m.color}}>{m.label}</div>
                   <div className="ctl-mark-date">{fmt(m.date)}</div>
                 </div>
@@ -442,7 +453,7 @@ function ContractTimelineModal({emp, onClose}){
               ))}
             </div>
           </div>
-          <div style={{marginTop:24,display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:10,fontSize:12}}>
+          <div style={{marginTop:28,display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:10,fontSize:12}}>
             <div><strong>Admissão:</strong> {fmt(adm)}</div>
             <div><strong>Fim Exp. (90d):</strong> {trialEnd?fmt(trialEnd):'—'}</div>
             <div><strong>Fim 2.º Contrato:</strong> {secondEnd?fmt(secondEnd):'—'}</div>

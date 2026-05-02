@@ -335,43 +335,55 @@
 
 .ctl {
   position: relative;
-  padding: 70px 14px 60px;
+  padding: 90px 16px 80px;
 }
 .ctl-bar {
   position: relative;
-  height: 28px;
+  height: 34px;
   background: #f3f4f6;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 8px;
 }
 .ctl-seg {
   position: absolute;
-  top: 2px;
-  bottom: 2px;
-  border-radius: 4px;
+  top: 3px;
+  bottom: 3px;
+  border-radius: 5px;
 }
 .ctl-seg--trial  { background: #9ca3af; }
 .ctl-seg--second { background: #6b7280; }
 
 .ctl-mark {
   position: absolute;
-  top: -55px;
-  bottom: -50px;
+  top: -78px;
+  bottom: -68px;
   width: 0;
   border-left: 2px solid var(--text);
   z-index: 2;
 }
 .ctl-mark.is-dashed { border-left-style: dashed; }
 .ctl-mark.is-dotted { border-left-style: dotted; }
+.ctl-mark-dot {
+  position: absolute;
+  top: 78px;
+  left: -6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.18);
+  margin-top: 7px;
+}
 .ctl-mark-lbl {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   background: #fff;
-  padding: 0 4px;
+  padding: 1px 6px;
+  border-radius: 4px;
 }
 .ctl-mark-date {
   position: absolute;
@@ -381,12 +393,12 @@
   font-size: 10px;
   color: var(--muted);
   background: #fff;
-  padding: 0 4px;
+  padding: 0 6px;
 }
-.ctl-mark--top .ctl-mark-lbl  { top: 0; }
-.ctl-mark--top .ctl-mark-date { top: 16px; }
-.ctl-mark--bottom .ctl-mark-lbl  { bottom: 16px; }
-.ctl-mark--bottom .ctl-mark-date { bottom: 0; }
+.ctl-mark--top .ctl-mark-lbl  { top: 6px; }
+.ctl-mark--top .ctl-mark-date { top: 24px; }
+.ctl-mark--bottom .ctl-mark-lbl  { bottom: 24px; }
+.ctl-mark--bottom .ctl-mark-date { bottom: 6px; }
 
 .ctl-axis {
   position: relative;

@@ -320,7 +320,7 @@ function FardaScreen({data, company, readOnly, user, onAudit}) {
           <span>Apenas com peças em falta</span>
         </label>
         <span style={{fontSize:11,color:'var(--muted)',flex:1,minWidth:200}}>
-          Nenhuma peça é obrigatória — quando entregares, o stock é descontado automaticamente.
+          Quando entregue, a peça fica descontada no stock.
         </span>
       </div>
 
@@ -491,7 +491,7 @@ function FardaStockScreen({stock, onChange, onBack, readOnly, onAudit}){
       {/* Cabeçalho */}
       <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap',marginBottom:14}}>
         <button className="btn bs" onClick={onBack}>← Voltar</button>
-        <span style={{fontWeight:800,fontSize:16}}>📦 Stock de Fardas</span>
+        <span style={{fontWeight:800,fontSize:16}}>Stock de Fardas</span>
         <span style={{fontSize:12,color:'var(--muted)'}}>Total em stock: <strong style={{color:'var(--fg)'}}>{totalPieces}</strong> peças</span>
         {!readOnly && (
           editing
