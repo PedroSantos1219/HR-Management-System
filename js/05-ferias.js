@@ -135,36 +135,39 @@ function FeriasScreen({data,ferias,feriasConfig,onSaveFerias,onSaveConfig,readOn
       return <div className="empty" style={{padding:40,textAlign:'center',color:'var(--muted)'}}>Sem colaboradores para mostrar.</div>;
     }
 
+    // CSS grid garante que cabeçalho e linhas usam exactamente a mesma
+    // distribuição de colunas (220px para o nome + 12 fracções iguais
+    // para os meses) — sem o desalinhamento que aparecia quando a
+    // scrollbar vertical comia largura no flex.
+    const gridTpl = '220px repeat(12, minmax(0, 1fr))';
     return (
       <div className="card" style={{padding:0,overflow:'hidden'}}>
-        <div style={{display:'flex',background:'var(--bg)',borderBottom:'1px solid var(--border)',position:'sticky',top:0,zIndex:2}}>
-          <div style={{width:220,padding:'10px 14px',fontSize:11,fontWeight:700,textTransform:'uppercase',color:'var(--muted)',letterSpacing:.5,borderRight:'1px solid var(--border)',flexShrink:0}}>Colaborador</div>
-          <div style={{flex:1,position:'relative',display:'flex'}}>
+        <div style={{maxHeight:'calc(100vh - 260px)',overflowY:'auto'}}>
+          <div style={{display:'grid',gridTemplateColumns:gridTpl,background:'var(--bg)',borderBottom:'1px solid var(--border)',position:'sticky',top:0,zIndex:2}}>
+            <div style={{padding:'10px 14px',fontSize:11,fontWeight:700,textTransform:'uppercase',color:'var(--muted)',letterSpacing:.5,borderRight:'1px solid var(--border)'}}>Colaborador</div>
             {MONTHS.map((m,i)=>(
-              <div key={i} style={{flex:1,padding:'10px 4px',fontSize:11,fontWeight:700,textAlign:'center',color:'var(--muted)',borderRight:i<11?'1px solid var(--border)':'none'}}>{m}</div>
+              <div key={i} style={{padding:'10px 4px',fontSize:11,fontWeight:700,textAlign:'center',color:'var(--muted)',borderRight:i<11?'1px solid var(--border)':'none'}}>{m}</div>
             ))}
           </div>
-        </div>
-        <div style={{maxHeight:'calc(100vh - 260px)',overflowY:'auto'}}>
           {filtered.map(emp=>{
             const periods=empPeriods(emp.id,emp.company);
             const used=emp.used;
             const left=DIREITO_DIAS-used;
             return (
-              <div key={emp.id+emp.company} style={{display:'flex',borderBottom:'1px solid var(--border)',minHeight:38,cursor:'pointer',transition:'background .1s'}}
+              <div key={emp.id+emp.company} style={{display:'grid',gridTemplateColumns:gridTpl,borderBottom:'1px solid var(--border)',minHeight:38,cursor:'pointer',transition:'background .1s'}}
                 onClick={()=>setSelEmp({id:emp.id,company:emp.company})}
                 onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
                 onMouseLeave={e=>e.currentTarget.style.background=''}>
-                <div style={{width:220,padding:'8px 14px',borderRight:'1px solid var(--border)',flexShrink:0,display:'flex',alignItems:'center',gap:8}}>
+                <div style={{padding:'8px 14px',borderRight:'1px solid var(--border)',display:'flex',alignItems:'center',gap:8,minWidth:0}}>
                   <div style={{width:6,height:24,borderRadius:3,background:COMP_COLORS[emp.company]||'#999',flexShrink:0}}/>
                   <div style={{minWidth:0,flex:1}}>
                     <div style={{fontSize:13,fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{emp.name}</div>
                     <div style={{fontSize:10,color:'var(--muted)'}}>{used}/{DIREITO_DIAS} usados · {left>=0?left+' por gozar':Math.abs(left)+' a mais'}</div>
                   </div>
                 </div>
-                <div style={{flex:1,position:'relative',display:'flex'}}>
+                <div style={{gridColumn:'2 / span 12',position:'relative',display:'grid',gridTemplateColumns:'repeat(12, 1fr)'}}>
                   {MONTHS.map((m,i)=>(
-                    <div key={i} style={{flex:1,borderRight:i<11?'1px solid var(--border)':'none'}}/>
+                    <div key={i} style={{borderRight:i<11?'1px solid var(--border)':'none'}}/>
                   ))}
                   {periods.map(p=>{
                     const sd=new Date(p.startDate),ed=new Date(p.endDate);
