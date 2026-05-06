@@ -97,7 +97,7 @@ function SefScreen({data,company,onUpdate,readOnly,onAudit,onNav}){
     if(f==='expired') l=l.filter(e=>daysTo(e.sefExpiry)<0);
     if(f==='soon') l=l.filter(e=>{const d=daysTo(e.sefExpiry);return d!==null&&d>=0&&d<=60;});
     if(f==='ok') l=l.filter(e=>daysTo(e.sefExpiry)>60);
-    if(search.trim()){const s=search.trim().toLowerCase();l=l.filter(e=>e.name?.toLowerCase().includes(s)||String(e.id).includes(s));}
+    if(search.trim()){const s=search.trim();l=l.filter(e=>nameMatches(e.name,s)||String(e.id).includes(s));}
     return l;
   },[emps,f,search]);
   function update(emp,field,val){
@@ -175,7 +175,7 @@ function MedScreen({data,company,onUpdate,readOnly,onAudit}){
     let l=emps.map(e=>({...e,_nm:nextMed(e)})).sort((a,b)=>{const da=daysTo(a._nm),db=daysTo(b._nm);if(da===null&&db===null)return 0;if(da===null)return 1;if(db===null)return -1;return da-db;});
     if(f==='expired') l=l.filter(e=>daysTo(e._nm)<0);
     if(f==='soon') l=l.filter(e=>{const d=daysTo(e._nm);return d!==null&&d>=0&&d<=60;});
-    if(search.trim()){const s=search.trim().toLowerCase();l=l.filter(e=>e.name?.toLowerCase().includes(s)||String(e.id).includes(s));}
+    if(search.trim()){const s=search.trim();l=l.filter(e=>nameMatches(e.name,s)||String(e.id).includes(s));}
     return l;
   },[emps,f,search]);
   function update(emp,field,val){
@@ -263,7 +263,7 @@ function DiutScreen({data,company,onUpdate,readOnly,onAudit}){
     }else{
       l=l.sort((a,b)=>{const da=daysTo(a._nd),db=daysTo(b._nd);if(da===null&&db===null)return 0;if(da===null)return 1;if(db===null)return -1;return da-db;});
     }
-    if(search.trim()){const s=search.trim().toLowerCase();l=l.filter(e=>e.name?.toLowerCase().includes(s)||String(e.id).includes(s));}
+    if(search.trim()){const s=search.trim();l=l.filter(e=>nameMatches(e.name,s)||String(e.id).includes(s));}
     return l;
   },[emps,search,sortAnt]);
   function toggleSortAnt(){ setSortAnt(s=>s===null?'desc':s==='desc'?'asc':null); }

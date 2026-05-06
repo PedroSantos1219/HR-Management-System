@@ -76,8 +76,7 @@ function FeriasScreen({data,ferias,feriasConfig,onSaveFerias,onSaveConfig,readOn
     return list.filter(e=>{
       const coName=CO_MAP[company]||'all';
       const coOk=coName==='all'||e.company===coName;
-      const s=search.trim().toLowerCase();
-      return coOk&&(!s||e.name?.toLowerCase().includes(s));
+      return coOk && nameMatches(e.name, search);
     });
   }
 

@@ -817,7 +817,7 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
     else if(sf==='seguro')  l=l.filter(e=>(e.availability||'').toLowerCase()==='seguro');
     else if(sf==='ferias')  l=l.filter(e=>isOnVacation(e, ferias, todayStr));
     else if(sf==='ativo')   l=l.filter(e=>(e.contractStatus||'').toLowerCase()==='ativo');
-    if(search){const s=search.toLowerCase();l=l.filter(e=>e.name?.toLowerCase().includes(s)||e.id?.includes(s)||e.nif?.includes(s));}
+    if(search){const s=search.trim();l=l.filter(e=>nameMatches(e.name,s)||e.id?.includes(s)||e.nif?.includes(s));}
     return l;
   },[employees,inactive,company,search,sf,archive,ferias]);
 

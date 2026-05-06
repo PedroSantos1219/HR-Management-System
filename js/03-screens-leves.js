@@ -48,7 +48,7 @@ function CartasConducaoScreen({data,company,onUpdate,readOnly,onAudit,onNav,init
       if(a.days===null)return 1;if(b.days===null)return -1;
       return a.days-b.days;
     })
-    .filter(e=>!searchLower||e.name?.toLowerCase().includes(searchLower)||String(e.id).includes(searchLower));
+    .filter(e=>!searchLower||nameMatches(e.name,searchLower)||String(e.id).includes(searchLower));
   const drivers=withLic.filter(e=>e._drv);
   const expired=drivers.filter(e=>e.days!==null&&e.days<0);
   const warning=drivers.filter(e=>e.days!==null&&e.days>=0&&e.days<=90);
@@ -292,7 +292,7 @@ function AniversariosScreen({data,company}){
   }
   const filtered=useMemo(()=>{
     return filterEmps(allEmps, company)
-      .filter(e=>!search||e.name?.toLowerCase().includes(search.toLowerCase()))
+      .filter(e=>!search||nameMatches(e.name,search))
       .map(e=>({...e,daysLeft:daysToBirthday(e.birthDate)}))
       .filter(e=>e.daysLeft!==null)
       .sort((a,b)=>a.daysLeft-b.daysLeft);
