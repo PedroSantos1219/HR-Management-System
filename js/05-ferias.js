@@ -339,20 +339,27 @@ function FeriasScreen({data,ferias,feriasConfig,onSaveFerias,onSaveConfig,readOn
     const ec=cfgForm.estado==='Fechado'?{bg:'#d1fae5',c:'#065f46'}:{bg:'#fef3c7',c:'#92400e'};
     return(
       <div>
-        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:18,flexWrap:'wrap'}}>
-          <button className="btn" onClick={()=>setSelEmp(null)} style={{padding:'5px 14px'}}>← Índice</button>
-          <div style={{flex:1}}>
-            <div style={{fontWeight:700,fontSize:16}}>{emp.name}</div>
-            <div style={{fontSize:12,color:'var(--muted)'}}>{emp.role||'—'} · {emp.company}</div>
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:18,flexWrap:'wrap'}}>
+          <div style={{display:'flex',alignItems:'center',gap:10,flex:1,minWidth:200}}>
+            <button className="btn-ghost" onClick={()=>setSelEmp(null)} title="Voltar à lista" style={{padding:'5px 6px'}}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div style={{minWidth:0,flex:1}}>
+              <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                <span style={{fontWeight:700,fontSize:16}}>{emp.name}</span>
+                <span style={{fontSize:12,fontWeight:700,padding:'2px 8px',borderRadius:6,background:'var(--bg)',color:'var(--muted)',border:'1px solid var(--border)',whiteSpace:'nowrap'}}>N.º {emp.id}</span>
+              </div>
+              <div style={{fontSize:12,color:'var(--muted)'}}>{emp.role||'—'} · {emp.company}</div>
+            </div>
           </div>
-          <span style={{fontSize:13,fontWeight:700,padding:'5px 16px',borderRadius:12,background:ec.bg,color:ec.c,
-            cursor:readOnly?'default':'pointer',border:'1px solid '+ec.c+'40'}}
+          <span style={{fontSize:12.5,fontWeight:700,padding:'5px 11px',borderRadius:8,background:ec.bg,color:ec.c,
+            cursor:readOnly?'default':'pointer',border:'1px solid '+ec.c+'40',whiteSpace:'nowrap'}}
             onClick={()=>!readOnly&&setCfgField('estado',cfgForm.estado==='Fechado'?'Por Fechar':'Fechado')}>
             {cfgForm.estado}{!readOnly&&<span style={{fontSize:10,marginLeft:6,opacity:.6}}>clicar</span>}
           </span>
           <button onClick={()=>setFeriaPdfHtml(buildFeriasPdf())} title="Exportar PDF de férias"
             style={{display:'flex',alignItems:'center',background:'transparent',border:'none',padding:0,cursor:'pointer',transition:'opacity .15s'}} onMouseOver={e=>e.currentTarget.style.opacity='.75'} onMouseOut={e=>e.currentTarget.style.opacity='1'}>
-            <img src="css/assets/PDF_file_icon.svg.png" alt="PDF" style={{height:36,width:'auto',display:'block'}}/>
+            <img src="css/assets/PDF_file_icon.svg.png" alt="PDF" style={{height:32,width:'auto',display:'block'}}/>
           </button>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(120px,1fr))',gap:10,marginBottom:20}}>

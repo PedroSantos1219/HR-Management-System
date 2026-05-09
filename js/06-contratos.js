@@ -142,7 +142,10 @@ function ContratosScreen({data,company,onUpdate,readOnly,user,onAudit,onNav}){
         </div>
       ):!fullEmp?(
         <div style={{padding:40,textAlign:'center',color:'var(--muted)'}}>
-          <button className="btn" onClick={()=>setSelEmp(null)}>← Voltar</button>
+          <button className="btn-ghost" onClick={()=>setSelEmp(null)} title="Voltar à lista">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            <span>Voltar</span>
+          </button>
         </div>
       ):(
         <div>

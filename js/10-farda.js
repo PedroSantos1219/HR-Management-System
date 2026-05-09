@@ -490,7 +490,9 @@ function FardaStockScreen({stock, onChange, onBack, readOnly, onAudit}){
     <div>
       {/* Cabeçalho */}
       <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap',marginBottom:14}}>
-        <button className="btn bs" onClick={onBack}>← Voltar</button>
+        <button className="btn-ghost" onClick={onBack} title="Voltar a Controlo de Fardas" style={{padding:'5px 6px'}}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
         <span style={{fontWeight:800,fontSize:16}}>Stock de Fardas</span>
         <span style={{fontSize:12,color:'var(--muted)'}}>Total em stock: <strong style={{color:'var(--fg)'}}>{totalPieces}</strong> peças</span>
         {!readOnly && (

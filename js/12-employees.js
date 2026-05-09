@@ -933,7 +933,10 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
       </div>
       <div ref={detailRef} className="card" style={{padding:16,overflow:'auto'}}>
         {!sel?<div className="empty" style={{paddingTop:70}}>Seleccione um colaborador</div>:
-        <>{isMobile&&<button className="btn bs btn-sm" style={{marginBottom:8,display:'flex',alignItems:'center',gap:4}} onClick={()=>setSel(null)}>← Voltar</button>}
+        <>{isMobile&&<button className="btn-ghost" style={{marginBottom:8,padding:'5px 6px'}} onClick={()=>setSel(null)} title="Voltar à lista">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          <span>Voltar</span>
+        </button>}
         <EmpDetail emp={sel} readOnly={readOnly} isInactive={archive} user={user} evals={evals} onSaveEval={onSaveEval} onDelEval={onDelEval} absences={absences} onSaveAbsence={onSaveAbsence} onDelAbsence={onDelAbsence} notes={notes} onSaveNote={onSaveNote} onDelNote={onDelNote} onAudit={onAudit} ferias={ferias}
           onRenameId={async(newId)=>{
             if(!onRenameId) return {ok:false,error:'Sem permissões'};
