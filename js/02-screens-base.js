@@ -120,7 +120,9 @@ function SefScreen({data,company,onUpdate,readOnly,onAudit,onNav}){
     <div>
       <div style={{display:'flex',gap:8,marginBottom:12,alignItems:'center',flexWrap:'wrap'}}>
         <span style={{fontWeight:700,fontSize:14}}>SEF / Declarações Porto</span>
-        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Pesquisar colaborador..." className="fi" style={{width:200,padding:'5px 10px',fontSize:12}}/>
+        <div className="rh-search"><span className="rh-search__ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Pesquisar colaborador..." className="fi rh-search__inp"/>
+        </div>
         <div style={{marginLeft:'auto',display:'flex',gap:5}}>
           {[['all','Todos'],['expired','Vencidos'],['soon','≤60d'],['ok','OK']].map(([k,l])=>(
             <button key={k} className={`btn btn-sm ${f===k?'bp':'bs'}`} onClick={()=>setF(k)}>{l}</button>
@@ -188,7 +190,9 @@ function MedScreen({data,company,onUpdate,readOnly,onAudit}){
     <div>
       <div style={{display:'flex',gap:8,marginBottom:12,alignItems:'center',flexWrap:'wrap'}}>
         <span style={{fontWeight:700,fontSize:14}}>Medicina do Trabalho</span>
-        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Pesquisar colaborador..." className="fi" style={{width:200,padding:'5px 10px',fontSize:12}}/>
+        <div className="rh-search"><span className="rh-search__ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Pesquisar colaborador..." className="fi rh-search__inp"/>
+        </div>
         <div style={{marginLeft:'auto',display:'flex',gap:5}}>
           {[['all','Todos'],['expired','Vencidos'],['soon','≤60d']].map(([k,l])=>(
             <button key={k} className={`btn btn-sm ${f===k?'bp':'bs'}`} onClick={()=>setF(k)}>{l}</button>
@@ -289,7 +293,9 @@ function DiutScreen({data,company,onUpdate,readOnly,onAudit}){
     <div>
       <div style={{display:'flex',gap:8,marginBottom:10,alignItems:'center',flexWrap:'wrap'}}>
         <span style={{fontWeight:700,fontSize:14}}>Diuturnidades</span>
-        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Pesquisar colaborador..." className="fi" style={{width:200,padding:'5px 10px',fontSize:12,marginLeft:'auto'}}/>
+        <div className="rh-search" style={{marginLeft:'auto'}}><span className="rh-search__ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Pesquisar colaborador..." className="fi rh-search__inp"/>
+        </div>
       </div>
       <div style={{background:'var(--orbg)',borderRadius:8,padding:'10px 12px',marginBottom:12,fontSize:12,color:'var(--orange)'}}>
         Cada 3 anos de antiguidade gera uma nova diuturnidade. Alerta activado antes do dia 15 do mês anterior ao vencimento.

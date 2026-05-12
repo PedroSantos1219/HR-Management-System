@@ -33,6 +33,7 @@ const SEED = {"employees":[],"inactive":[],"feriasYear":(new Date()).getFullYear
 <script type="text/babel" src="./js/12-employees.js"></script>
 <script type="text/babel" src="./js/13-docs.js"></script>
 <script type="text/babel" src="./js/14-motoristas.js"></script>
+<script type="text/babel" src="./js/15-mensagens.js"></script>
 <script type="text/babel">
 const API_URL='./api.php';
 
@@ -219,6 +220,21 @@ function App(){
       setScreen('dashboard');
     }
   },[company,screen]);
+
+  // Tecla ESC fecha o modal de topo. Procura o último .ov e dispara o
+  // botão de fechar (o "X" no canto, que usa className btn bg).
+  useEffect(()=>{
+    function onKey(e){
+      if(e.key !== 'Escape' && e.key !== 'Esc') return;
+      const overlays = document.querySelectorAll('.ov');
+      if(overlays.length === 0) return;
+      const top = overlays[overlays.length-1];
+      const closeBtn = top.querySelector('.mh .btn.bg') || top.querySelector('.btn.bg');
+      if(closeBtn) closeBtn.click();
+    }
+    window.addEventListener('keydown', onKey);
+    return ()=>window.removeEventListener('keydown', onKey);
+  },[]);
 
   function doYearRolloverBackup(d,lf,lfc){
     const cy=new Date().getFullYear();
@@ -1186,7 +1202,7 @@ async function sharePdf(){
   const coLabel={'all':'Todas','roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evo'}[company];
   const sCartas=cEmps.filter(e=>e.driverLicenseExpiry&&daysTo(e.driverLicenseExpiry)!==null&&daysTo(e.driverLicenseExpiry)<=90).length;
   const sAniversarios=cEmps.filter(e=>daysToBirthday(e.birthDate)===0).length;
-  const sTitles={dashboard:'Dashboard',users:'Gestão de Utilizadores',employees:'Colaboradores',sef:'SEF / Portos',medicina:'Medicina do Trabalho',diuturnidades:'Diuturnidades',formacao:'Formação Contínua',contratos:'Contratos',relatorios:'Relatórios',audit:'Logs',epi:'Controlo de EPIs',fardas:'Controlo de Fardas',ferias:'Férias',cartas:'Cartas de Condução',avaliacao:'Avaliações',aniversarios:'Aniversários',backups:'Backups da Base de Dados'};
+  const sTitles={dashboard:'Dashboard',users:'Gestão de Utilizadores',employees:'Colaboradores',sef:'SEF / Portos',medicina:'Medicina do Trabalho',diuturnidades:'Diuturnidades',formacao:'Formação Contínua',contratos:'Contratos',mensagens:'Mensagens',relatorios:'Relatórios',audit:'Logs',epi:'Controlo de EPIs',fardas:'Controlo de Fardas',ferias:'Férias',cartas:'Cartas de Condução',avaliacao:'Avaliações',aniversarios:'Aniversários',backups:'Backups da Base de Dados'};
 
   return(
     <div className="app">
@@ -1217,6 +1233,7 @@ async function sharePdf(){
         <div className="sb-sec">
           <div className="sb-lbl">Gestão</div>
           <div className={`sb-item ${screen==='contratos'?'active':''}`} onClick={()=>navigate('contratos')}>Contratos</div>
+          <div className={`sb-item ${screen==='mensagens'?'active':''}`} onClick={()=>navigate('mensagens')}>Mensagens</div>
           <div className={`sb-item ${screen==='relatorios'?'active':''}`} onClick={()=>navigate('relatorios')}>Relatórios</div>
         </div>
 
@@ -1296,13 +1313,14 @@ async function sharePdf(){
         </div>
         <div className="content">
           {screen==='dashboard'&&<Dashboard data={data} company={company} ferias={ferias} feriasConfig={feriasConfig} onNav={navigate} user={user} onUpdate={updateData}/>}
-          {screen==='motoristas'&&<MotoristasScreen data={data} company={company} onNav={navigate} ferias={ferias}/>}
-          {screen==='employees'&&<EmpScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} user={user} onAudit={audit} evals={evals} onSaveEval={saveEval} onDelEval={delEval} absences={absences} onSaveAbsence={saveAbsence} onDelAbsence={delAbsence} notes={notes} onSaveNote={saveNote} onDelNote={delNote} initSel={navTarget} ferias={ferias} onRenameId={renameEmployeeId}/>}
+          {screen==='motoristas'&&<MotoristasScreen data={data} company={company} onNav={navigate} ferias={ferias} initContext={navTarget}/>}
+          {screen==='employees'&&<EmpScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} user={user} onAudit={audit} evals={evals} onSaveEval={saveEval} onDelEval={delEval} absences={absences} onSaveAbsence={saveAbsence} onDelAbsence={delAbsence} notes={notes} onSaveNote={saveNote} onDelNote={delNote} initSel={navTarget} ferias={ferias} onRenameId={renameEmployeeId} onNav={navigate}/>}
           {screen==='sef'&&<SefScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit} onNav={navigate}/>}
           {screen==='medicina'&&<MedScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit}/>}
           {screen==='diuturnidades'&&<DiutScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit}/>}
           {screen==='formacao'&&<TrainingScreen data={data} company={company} readOnly={readOnly} user={user} onAudit={audit}/>}
           {screen==='contratos'&&<ContratosScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} user={user} onAudit={audit} onNav={navigate}/>}
+          {screen==='mensagens'&&<MensagensScreen data={data} company={company} user={user} onAudit={audit}/>}
           {screen==='relatorios'&&<RelatoriosScreen data={data} company={company} evals={evals} user={user}/>}
           {screen==='epi'&&<EpiScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} user={user} onAudit={audit} onNav={navigate}/>}
           {screen==='fardas'&&<FardaScreen data={data} company={company} readOnly={readOnly} user={user} onAudit={audit}/>}

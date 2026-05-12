@@ -503,6 +503,44 @@ try {
             respond(true, ['affected' => $stmt->rowCount()]);
             break;
 
+        case 'send_messages':
+            if (!$currentUser) {
+                respond(false, null, 'Sessao expirada.');
+            }
+            $recipients = $input['recipients'] ?? [];
+            if (!is_array($recipients) || empty($recipients)) {
+                respond(false, null, 'Sem destinatarios.');
+            }
+            $smtp = $GLOBALS['app_config']['smtp'] ?? [];
+            if (empty($smtp['host']) || empty($smtp['username'])) {
+                respond(false, null, 'SMTP nao configurado em config.php.');
+            }
+            require_once __DIR__ . '/mailer.php';
+            $mailer = new Mailer($smtp);
+            $sent = 0; $failed = [];
+            foreach ($recipients as $r) {
+                $to      = trim((string)($r['to']      ?? ''));
+                $name    = trim((string)($r['name']    ?? ''));
+                $subject = trim((string)($r['subject'] ?? ''));
+                $body    = (string)($r['body'] ?? '');
+                if ($to === '' || $body === '') {
+                    $failed[] = ['to' => $to, 'error' => 'Email ou corpo em falta'];
+                    continue;
+                }
+                // Corpo em texto simples -> converter para HTML preservando quebras.
+                $html = '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;color:#1a0d0d;white-space:pre-wrap;">'
+                      . htmlspecialchars($body, ENT_QUOTES, 'UTF-8')
+                      . '</div>';
+                try {
+                    $mailer->send($to, $name ?: $to, $subject ?: '(sem assunto)', $html);
+                    $sent++;
+                } catch (\Throwable $e) {
+                    $failed[] = ['to' => $to, 'error' => $e->getMessage()];
+                }
+            }
+            respond(true, ['sent' => $sent, 'failed' => $failed]);
+            break;
+
         case 'check_session':
             // BD sem qualquer utilizador (instalação nova) → sinaliza o setup wizard.
             $userCount = (int)$db->query('SELECT COUNT(*) FROM users')->fetchColumn();
