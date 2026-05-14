@@ -67,9 +67,7 @@ function CartasConducaoScreen({data,company,onUpdate,readOnly,onAudit,onNav,init
       `}}/>
       <div style={{display:'flex',gap:8,marginBottom:10,alignItems:'center',flexWrap:'wrap'}}>
         <span style={{fontWeight:700,fontSize:14}}>Cartas de Condução</span>
-        <div className="rh-search" style={{marginLeft:'auto'}}><span className="rh-search__ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Pesquisar colaborador..." className="fi rh-search__inp"/>
-        </div>
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Pesquisar colaborador..." className="fi" style={{width:200,padding:'5px 10px',fontSize:12,marginLeft:'auto'}}/>
         {hiddenCount>0&&company!=='escritorio'&&(
           <label className="show-hidden">
             <input type="checkbox" checked={showHidden} onChange={e=>setShowHidden(e.target.checked)}/>
