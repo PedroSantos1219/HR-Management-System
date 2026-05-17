@@ -123,10 +123,6 @@
   background: rgba(29,106,57,.12);
   color: var(--green);
 }
-.farda-mark.is-old {
-  background: rgba(214,137,16,.14);
-  color: var(--orange);
-}
 .farda-mark.is-empty {
   background: var(--bg);
   color: var(--border);

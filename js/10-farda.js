@@ -7,7 +7,6 @@ const FARDA_ITEMS = [
   {id:'polo_curta',     label:'Polo Manga Curta',      icon:'👕'},
   {id:'polo_comprida',  label:'Polo Manga Comprida',   icon:'👔'},
   {id:'casacao',        label:'Casacão',               icon:'🧥'},
-  {id:'chapeu',         label:'Chapéu',                icon:'🧢'},
 ];
 
 // Polo curta/comprida partilham o mesmo stock.
@@ -18,7 +17,6 @@ const FARDA_TO_STOCK = {
   polo_curta:    'polo',
   polo_comprida: 'polo',
   casacao:       'casacao',
-  chapeu:        'chapeu',
 };
 
 const FARDA_STOCK_DEFAULT = {
@@ -70,12 +68,6 @@ const FARDA_STOCK_DEFAULT = {
       {key:'56-58', label:'56-58', qty:0},
       {key:'60-62', label:'60-62', qty:0},
       {key:'64-66', label:'64-66', qty:0},
-    ],
-  },
-  chapeu: {
-    label:'Chapéu', icon:'🧢',
-    sizes:[
-      {key:'unico', label:'Tamanho único', qty:0},
     ],
   },
 };
