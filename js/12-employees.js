@@ -708,10 +708,11 @@ function BulkEditModal({count,onApply,onClose}){
           <div className="fg">
             <div className="field"><div className="fl">Função</div>
               <input className="fi" value={f.role} onChange={e=>set('role',e.target.value)} placeholder="(manter) — ex: Mot. Veic. Pesados"/></div>
-            <div className="field"><div className="fl">Estado</div>
+            <div className="field"><div className="fl">Estado Contratual</div>
               <select className="fi" value={f.contractStatus} onChange={e=>set('contractStatus',e.target.value)}>
                 <option value="">(manter)</option>
-                {['Ativo','De baixa','De seguro','Férias','Suspenso','Inativo'].map(o=><option key={o}>{o}</option>)}
+                <option>Ativo</option>
+                <option>Inativo</option>
               </select></div>
             <div className="field"><div className="fl">Tipo Contrato</div>
               <select className="fi" value={f.contractEndDate} onChange={e=>set('contractEndDate',e.target.value)}>
@@ -746,7 +747,7 @@ function BulkEditModal({count,onApply,onClose}){
   );
 }
 
-function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval,onDelEval,absences,onSaveAbsence,onDelAbsence,notes,onSaveNote,onDelNote,initSel,ferias,onRenameId}){
+function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval,onDelEval,absences,onSaveAbsence,onDelAbsence,notes,onSaveNote,onDelNote,initSel,ferias,onRenameId,onNav}){
   const {employees=[],inactive=[]}=data;
   const [search,setSearch]=useState('');
   const [sf,setSf]=useState('all');
@@ -816,8 +817,26 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
     if(sf==='baixa')   l=l.filter(e=>(e.availability||'').toLowerCase()==='baixa');
     else if(sf==='seguro')  l=l.filter(e=>(e.availability||'').toLowerCase()==='seguro');
     else if(sf==='ferias')  l=l.filter(e=>isOnVacation(e, ferias, todayStr));
-    else if(sf==='ativo')   l=l.filter(e=>(e.contractStatus||'').toLowerCase()==='ativo');
+    else if(sf==='disponivel') l=l.filter(e=>{
+      const av=(e.availability||'').toLowerCase();
+      if(av==='baixa'||av==='seguro'||av==='licença'||av==='licenca') return false;
+      if(isOnVacation(e, ferias, todayStr)) return false;
+      return true;
+    });
+    else if(sf==='indisponivel') l=l.filter(e=>{
+      const av=(e.availability||'').toLowerCase();
+      if(av==='baixa'||av==='seguro'||av==='licença'||av==='licenca') return true;
+      if(isOnVacation(e, ferias, todayStr)) return true;
+      return false;
+    });
     if(search){const s=search.trim();l=l.filter(e=>nameMatches(e.name,s)||e.id?.includes(s)||e.nif?.includes(s));}
+    // Pit Evolution sempre por último; restantes pela ordem natural Roupeta → II → Arlize.
+    const ORDER={'Roupeta':1,'Roupeta II':2,'Arlize':3,'Pit Evolution':99};
+    l=[...l].sort((a,b)=>{
+      const oa=ORDER[a.company]||50, ob=ORDER[b.company]||50;
+      if(oa!==ob) return oa-ob;
+      return (a.name||'').localeCompare(b.name||'');
+    });
     return l;
   },[employees,inactive,company,search,sf,archive,ferias]);
 
@@ -871,8 +890,8 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
       <div className="card emp-list">
         <div style={{padding:'10px',borderBottom:'1px solid var(--border)'}}>
           <div style={{display:'flex',gap:6,marginBottom:7}}>
-            <button className={`btn btn-sm ${!archive?'bp':'bs'}`} onClick={()=>{setArchive(false);setSel(null);exitBulk();}}>Activos ({empCount})</button>
-            <button className={`btn btn-sm ${archive?'bp':'bs'}`} onClick={()=>{setArchive(true);setSel(null);exitBulk();}}>Inativos ({inactCount})</button>
+            <button className={`btn btn-sm ${!archive?'bp':'bs'}`} onClick={()=>{setArchive(false);setSel(null);setSf('all');exitBulk();}}>Activos ({empCount})</button>
+            <button className={`btn btn-sm ${archive?'bp':'bs'}`} onClick={()=>{setArchive(true);setSel(null);setSf('all');exitBulk();}}>Inativos ({inactCount})</button>
             {!readOnly&&!archive&&(
               bulkMode
                 ? <button className="btn bs btn-sm" style={{marginLeft:'auto'}} onClick={exitBulk} title="Sair do modo de selecção">Cancelar</button>
@@ -894,9 +913,24 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
           )}
           <input className="fi" style={{marginBottom:6}} placeholder="Nome, NIF, n.º..." value={search} onChange={e=>setSearch(e.target.value)}/>
           <div className="emp-filter-bar">
-            {[['all','Todos'],['ativo','Ativo'],['baixa','Baixa'],['seguro','Seguro'],['ferias','Férias']].map(([s,lbl])=>(
-              <button key={s} className={`emp-filter-btn ${sf===s?'is-active':''}`} onClick={()=>setSf(s)}>{lbl}</button>
-            ))}
+            {archive
+              ? <button className={`emp-filter-btn ${sf==='all'?'is-active':''}`} onClick={()=>setSf('all')}>Todos</button>
+              : <>
+                  {[['all','Todos'],['baixa','Baixa'],['seguro','Seguro'],['ferias','Férias']].map(([s,lbl])=>(
+                    <button key={s} className={`emp-filter-btn ${sf===s?'is-active':''}`} onClick={()=>setSf(s)}>{lbl}</button>
+                  ))}
+                  <button className={`emp-filter-btn emp-filter-btn--ok ${sf==='disponivel'?'is-active':''}`}
+                    onClick={()=>setSf('disponivel')}
+                    title="Só os que estão activos e em função (sem baixa/seguro/férias)">
+                    Disponível
+                  </button>
+                  <button className={`emp-filter-btn emp-filter-btn--warn ${sf==='indisponivel'?'is-active':''}`}
+                    onClick={()=>setSf('indisponivel')}
+                    title="Só os que estão activos mas em ausência (baixa, seguro, licença ou férias)">
+                    Indisponível
+                  </button>
+                </>
+            }
           </div>
         </div>
         <div className="list-body">

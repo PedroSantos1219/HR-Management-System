@@ -250,3 +250,29 @@ textarea:focus {
 .exp-red    { color: var(--red);    font-weight: 600; }
 .exp-orange { color: var(--orange); font-weight: 600; }
 .exp-green  { color: var(--green);  }
+
+/* Caixa de pesquisa com ícone de lupa — usada nos ecrãs Medicina, SEF,
+   Diuturnidades, Cartas, etc. */
+.rh-search {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 240px;
+}
+.rh-search__ico {
+  position: absolute;
+  left: 10px;
+  display: inline-flex;
+  pointer-events: none;
+  color: var(--muted);
+}
+.rh-search__inp {
+  width: 100%;
+  padding: 6px 10px 6px 32px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+.rh-search__inp:focus {
+  outline: none;
+  border-color: var(--blue);
+}

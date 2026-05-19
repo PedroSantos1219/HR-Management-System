@@ -73,6 +73,40 @@
   transform: translateY(1px);
 }
 
+/* Pill "Disponível" — estado positivo (não uma queixa). Verde subtil. */
+.emp-filter-btn--ok {
+  border-color: var(--green);
+  color: var(--green);
+  background: #fff;
+}
+.emp-filter-btn--ok:hover {
+  background: rgba(29,106,57,.08);
+  color: var(--green);
+  border-color: var(--green);
+}
+.emp-filter-btn--ok.is-active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+/* Pill "Indisponível" — agrupa todas as ausências. Laranja. */
+.emp-filter-btn--warn {
+  border-color: var(--orange);
+  color: var(--orange);
+  background: #fff;
+}
+.emp-filter-btn--warn:hover {
+  background: rgba(214,137,16,.08);
+  color: var(--orange);
+  border-color: var(--orange);
+}
+.emp-filter-btn--warn.is-active {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #fff;
+}
+
 /* Bloco de estatísticas no topo do dashboard */
 .stats {
   display: flex;
@@ -208,9 +242,10 @@
 .emp-id-pill__input {
   width: 56px;
   padding: 1px 4px;
-  border: 1px solid currentColor;
-  border-radius: 4px;
-  background: rgba(255,255,255,.5);
+  border: none;
+  border-bottom: 1px solid currentColor;
+  border-radius: 0;
+  background: transparent;
   font-weight: 700;
   font-size: 13px;
   font-variant-numeric: tabular-nums;
