@@ -1,0 +1,47 @@
+# BD com dados pessoais (NIF, IBAN, salários)
+rh_manager.sqlite
+rh_manager.sqlite-journal
+rh_manager.sqlite-shm
+rh_manager.sqlite-wal
+*.db
+*.db-journal
+
+backups/
+!backups/.gitkeep
+
+# Documentos carregados pelos colaboradores
+uploads/
+!uploads/.gitkeep
+
+# Excel real
+EXCEL/
+*.xlsm
+*.xlsx
+!exemplos/*.xlsx
+
+# Credenciais SMTP, super-admins, default_users
+config.php
+
+# IDE / OS
+.vscode/
+.idea/
+.claude/
+*.swp
+*.swo
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Logs e temporários
+*.log
+error_log
+php_errorlog
+*.tmp
+*.bak
+*.orig
+
+# Notas locais
+*.local.md
+
+# Scripts de importação one-off (referenciam dados reais dos colaboradores)
+scripts/
