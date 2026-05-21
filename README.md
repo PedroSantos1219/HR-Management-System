@@ -77,7 +77,7 @@ gitignored. So is the real `EXCEL/` folder with company data.
 
 ## License
 
-MIT — see `LICENSE` (to be added).
+MIT — see [`LICENSE`](./LICENSE).
 
 ---
 
