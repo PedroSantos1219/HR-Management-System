@@ -424,10 +424,12 @@ function ContractTimelineModal({emp, onClose}){
         </div>
         <div className="mb">
           <div className="ctl-legend">
-            <span><i className="ctl-sw ctl-sw--trial"/>Período Experimental</span>
+            <span><i className="ctl-sw ctl-sw--adm"/>Admissão</span>
+            {trialEnd && <span><i className="ctl-sw ctl-sw--trial"/>Período Experimental</span>}
             {secondEnd && <span><i className="ctl-sw ctl-sw--second"/>2.º Contrato</span>}
-            <span><i className="ctl-sw ctl-sw--end"/>Fim de Contrato</span>
-            <span><i className="ctl-sw ctl-sw--two"/>Início Efetivo</span>
+            {(trialEnd || secondEnd) && !trialAndEfetivoConsec && <span><i className="ctl-sw ctl-sw--end"/>Fim de Contrato</span>}
+            {efetivoStart && <span><i className="ctl-sw ctl-sw--ef"/>{trialAndEfetivoConsec?'Fim Exp. → Efetivo':'Início Efetivo'}</span>}
+            <span><i className="ctl-sw ctl-sw--today"/>Hoje</span>
           </div>
           <div className="ctl">
             <div className="ctl-bar">

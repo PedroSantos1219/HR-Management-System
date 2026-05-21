@@ -315,27 +315,32 @@
 .ctl-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px 18px;
+  gap: 12px 18px;
   font-size: 11px;
   color: var(--muted);
   margin-bottom: 22px;
+}
+.ctl-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 .ctl-legend i {
   display: inline-block;
   width: 14px;
   height: 10px;
   border-radius: 2px;
-  margin-right: 5px;
-  vertical-align: middle;
 }
+.ctl-sw--adm    { background: #16a34a; border-radius: 50%; width: 10px; height: 10px; }
 .ctl-sw--trial  { background: #9ca3af; }
 .ctl-sw--second { background: #6b7280; }
-.ctl-sw--end    { background: #dc2626; }
-.ctl-sw--two    { background: transparent; border: 2px dashed #ea580c; height: 8px; }
+.ctl-sw--end    { background: #dc2626; border-radius: 50%; width: 10px; height: 10px; }
+.ctl-sw--ef     { background: transparent; border: 2px dashed #0d9488; height: 6px; }
+.ctl-sw--today  { background: transparent; border-top: 2px dotted #2563eb; height: 0; border-radius: 0; }
 
 .ctl {
   position: relative;
-  padding: 90px 16px 80px;
+  padding: 100px 16px 110px;
 }
 .ctl-bar {
   position: relative;
@@ -355,8 +360,8 @@
 
 .ctl-mark {
   position: absolute;
-  top: -78px;
-  bottom: -68px;
+  top: -88px;
+  bottom: -50px;
   width: 0;
   border-left: 2px solid var(--text);
   z-index: 2;
@@ -365,7 +370,7 @@
 .ctl-mark.is-dotted { border-left-style: dotted; }
 .ctl-mark-dot {
   position: absolute;
-  top: 78px;
+  top: 88px;
   left: -6px;
   width: 10px;
   height: 10px;
@@ -395,20 +400,20 @@
   background: #fff;
   padding: 0 6px;
 }
-.ctl-mark--top .ctl-mark-lbl  { top: 6px; }
-.ctl-mark--top .ctl-mark-date { top: 24px; }
-.ctl-mark--bottom .ctl-mark-lbl  { bottom: 24px; }
-.ctl-mark--bottom .ctl-mark-date { bottom: 6px; }
+.ctl-mark--top .ctl-mark-lbl  { top: 8px; }
+.ctl-mark--top .ctl-mark-date { top: 28px; }
+.ctl-mark--bottom .ctl-mark-lbl  { bottom: 28px; }
+.ctl-mark--bottom .ctl-mark-date { bottom: 8px; }
 
 .ctl-axis {
   position: relative;
   height: 24px;
-  margin-top: 6px;
+  margin-top: 56px;
   border-top: 1px solid var(--border);
 }
 .ctl-tick {
   position: absolute;
-  top: 4px;
+  top: 6px;
   left: 0;
   transform: translateX(-50%);
   font-size: 10px;
@@ -421,5 +426,5 @@
   width: 1px;
   height: 4px;
   background: var(--border);
-  margin: 0 auto 2px;
+  margin: 0 auto 3px;
 }

@@ -2,7 +2,7 @@
 // Indisponível agrupa Seguro + Baixa + Licença + Férias actuais, com o motivo
 // à frente para se ver porque é que a pessoa não está na rua.
 
-function MotoristasScreen({data, company, onNav, ferias}){
+function MotoristasScreen({data, company, onNav, ferias, initContext}){
   const {employees=[]} = data;
   const [filter, setFilter] = useState('all');
   const cm = {'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
@@ -70,6 +70,15 @@ function MotoristasScreen({data, company, onNav, ferias}){
 
   return (
     <div>
+
+      {initContext?._fromEmployees && (
+        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
+          <button className="btn-soft" onClick={()=>onNav('employees')} title="Voltar à lista de Colaboradores">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            <span>Voltar a Colaboradores</span>
+          </button>
+        </div>
+      )}
 
       <div className="emp-filter-bar" style={{marginBottom:14}}>
         {FILTERS.map(([k,lbl]) => (
