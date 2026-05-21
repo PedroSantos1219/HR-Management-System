@@ -3476,6 +3476,7 @@ function SecurityLogsScreen(){
 function App(){
   const [user,setUser]=useState(null);
   const [ready,setReady]=useState(false);
+  const [setupInfo,setSetupInfo]=useState(null);
   const [screen,setScreen]=useState('dashboard');
   const [company,setCompany]=useState('all');
   const [previousCompany,setPreviousCompany]=useState(null);
@@ -3515,7 +3516,9 @@ function App(){
     (async()=>{
       try{
         const u=await apiCall('check_session');
-        if(u){
+        if(u?.needsSetup){
+          setSetupInfo({smtpConfigured: !!u.smtpConfigured});
+        }else if(u){
           window.__sec.csrf = u.csrf || '';
           window.__sec.securityVersion = u.securityVersion || 0;
           setUser(u);
@@ -4346,6 +4349,7 @@ async function sharePdf(){
   }
 
   if(!ready) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'var(--bg)'}}><div style={{textAlign:'center'}}><div>A verificar sessão...</div></div></div>;
+  if(setupInfo) return <SetupScreen smtpConfigured={setupInfo.smtpConfigured} onDone={()=>setSetupInfo(null)}/>;
   if(!user) return <LoginScreen onLogin={handleLogin}/>;
   if(!data) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'var(--bg)'}}><div style={{textAlign:'center'}}><div>A carregar dados...</div></div></div>;
 

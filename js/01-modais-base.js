@@ -148,6 +148,86 @@ function LoginScreen({onLogin}){
   );
 }
 
+// Mostrado quando a BD não tem nenhum utilizador (instalação fresca).
+// Cria o primeiro admin e desaparece para sempre — o endpoint recusa-se a correr
+// novamente se já houver utilizadores na BD.
+function SetupScreen({smtpConfigured, onDone}){
+  const [email,setEmail]=React.useState('');
+  const [name,setName]=React.useState('');
+  const [pass,setPass]=React.useState('');
+  const [pass2,setPass2]=React.useState('');
+  const [err,setErr]=React.useState('');
+  const [loading,setLoading]=React.useState(false);
+  const [done,setDone]=React.useState(false);
+
+  async function submit(e){
+    e.preventDefault();
+    setErr('');
+    if(!email.trim()){ setErr('Indique um email.'); return; }
+    if(pass.length<8){ setErr('A password deve ter pelo menos 8 caracteres.'); return; }
+    if(pass!==pass2){ setErr('As passwords não coincidem.'); return; }
+    setLoading(true);
+    try{
+      await apiCall('setup_create_admin',{email:email.trim(),name:name.trim(),password:pass});
+      setDone(true);
+      setTimeout(onDone, 1400);
+    }catch(ex){
+      setErr(ex.message||'Falha ao criar administrador.');
+    }finally{ setLoading(false); }
+  }
+
+  return(
+    <div className="container-login">
+      <div style={{textAlign:'center',color:'white'}}>
+        <img src="css/assets/Logo-header.svg" alt="" style={{height:'72px',display:'block',margin:'0 auto 14px',filter:'brightness(0) invert(1)'}}/>
+        <div style={{fontSize:'22px',fontWeight:'800',letterSpacing:'2px'}}>PRIMEIRO ACESSO</div>
+        <div style={{fontSize:'12px',color:'rgba(255,255,255,.5)',marginTop:'5px'}}>Crie a conta de administrador</div>
+      </div>
+      <form onSubmit={submit} className="container-login-form">
+        <div style={{fontSize:11,color:'#6b7280',marginBottom:14,lineHeight:1.5,textAlign:'center'}}>
+          Esta página só aparece uma vez, na instalação inicial. Depois de criar
+          o primeiro administrador pode gerir os restantes utilizadores a partir
+          da própria aplicação.
+        </div>
+
+        <div style={{display:'flex',alignItems:'center',gap:8,padding:'8px 12px',marginBottom:14,borderRadius:8,
+                     background: smtpConfigured ? '#e6f4ea' : '#fef4e7',
+                     color: smtpConfigured ? '#1E7E34' : '#92400e',
+                     border: `1px solid ${smtpConfigured ? '#cae8d3' : '#f4d6b1'}`,
+                     fontSize:12,fontWeight:600}}>
+          <span style={{fontFamily:'monospace',fontWeight:800}}>{smtpConfigured ? '[OK]' : '[!]'}</span>
+          <span>SMTP {smtpConfigured ? 'configurado — emails activos.' : 'não configurado — verifique config.php para activar recuperação de password.'}</span>
+        </div>
+
+        <div style={{marginBottom:'12px'}}>
+          <div className="fl" style={{marginBottom:'6px'}}>Email do administrador</div>
+          <input type="email" value={email} onChange={e=>{setEmail(e.target.value);setErr('');}} className="fi" placeholder="admin@empresa.com" autoComplete="email" required disabled={done}/>
+        </div>
+        <div style={{marginBottom:'12px'}}>
+          <div className="fl" style={{marginBottom:'6px'}}>Nome (opcional)</div>
+          <input type="text" value={name} onChange={e=>setName(e.target.value)} className="fi" placeholder="Nome completo" autoComplete="name" disabled={done}/>
+        </div>
+        <div style={{marginBottom:'12px'}}>
+          <div className="fl" style={{marginBottom:'6px'}}>Password</div>
+          <input type="password" value={pass} onChange={e=>{setPass(e.target.value);setErr('');}} className="fi" placeholder="Mínimo 8 caracteres" autoComplete="new-password" required disabled={done}/>
+        </div>
+        <div style={{marginBottom:'16px'}}>
+          <div className="fl" style={{marginBottom:'6px'}}>Confirmar password</div>
+          <input type="password" value={pass2} onChange={e=>{setPass2(e.target.value);setErr('');}} className="fi" placeholder="Repita a password" autoComplete="new-password" required disabled={done}/>
+        </div>
+
+        {err && <div style={{color:'#C0392B',fontSize:13,marginBottom:12,background:'#fdecea',borderRadius:8,padding:'8px 12px'}}>{err}</div>}
+        {done && <div style={{color:'#1E7E34',fontSize:13,marginBottom:12,background:'#e6f4ea',borderRadius:8,padding:'8px 12px',textAlign:'center'}}>Administrador criado. A redirigir para o login…</div>}
+
+        <button type="submit" className="btn bp" style={{width:'100%',justifyContent:'center',padding:'12px'}} disabled={loading||done}>
+          {done ? 'Conta criada' : loading ? 'A criar…' : 'Criar administrador'}
+        </button>
+      </form>
+      <div style={{fontSize:10,color:'rgba(255,255,255,.22)'}}>{new Date().getFullYear()}</div>
+    </div>
+  );
+}
+
 function ExitModal({emp, onConfirm, onClose}){
   const [form,setForm]=useState({
     exitDate: new Date().toISOString().split('T')[0],

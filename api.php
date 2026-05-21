@@ -207,7 +207,7 @@ try {
     ensureSchema($db);
     if (function_exists('ensureSecuritySchema')) { ensureSecuritySchema($db); }
 
-    $publicActions = ['login', 'check_session', 'logout', 'request_password_reset', 'reset_password_with_token'];
+    $publicActions = ['login', 'check_session', 'logout', 'request_password_reset', 'reset_password_with_token', 'setup_create_admin'];
     if (!in_array($action, $publicActions, true) && empty($_SESSION['user_id'])) {
         respond(false, null, 'Sessao expirada. Por favor, inicie sessao novamente.');
     }
@@ -219,7 +219,7 @@ try {
         }
     }
 
-    $csrfExempt = ['login', 'check_session', 'logout', 'get_csrf_token', 'request_password_reset', 'reset_password_with_token'];
+    $csrfExempt = ['login', 'check_session', 'logout', 'get_csrf_token', 'request_password_reset', 'reset_password_with_token', 'setup_create_admin'];
     if (!in_array($action, $csrfExempt, true) && function_exists('csrfValidate')) {
         if (!csrfValidate($input)) {
             respond(false, null, 'Token de seguranca invalido ou em falta. Recarregue a pagina.');
@@ -479,6 +479,15 @@ try {
             break;
 
         case 'check_session':
+            // BD sem qualquer utilizador (instalação nova) → sinaliza o setup wizard.
+            $userCount = (int)$db->query('SELECT COUNT(*) FROM users')->fetchColumn();
+            if ($userCount === 0) {
+                $smtp = $GLOBALS['app_config']['smtp'] ?? [];
+                respond(true, [
+                    'needsSetup' => true,
+                    'smtpConfigured' => !empty($smtp['username']) && !empty($smtp['password']),
+                ]);
+            }
             if (empty($_SESSION['user_id'])) { respond(true, null); }
             $su = $db->prepare('SELECT id, username, email, role FROM users WHERE id = :id AND verified = 1 LIMIT 1');
             $su->execute([':id' => $_SESSION['user_id']]);
@@ -503,6 +512,34 @@ try {
             }
             $csrf = function_exists('csrfTokenGet') ? csrfTokenGet() : '';
             respond(true, ['csrf' => $csrf]);
+            break;
+
+        // Setup wizard: cria o primeiro admin numa instalação fresca.
+        // Recusa-se a correr se já existir qualquer utilizador, por isso é seguro mantê-lo público.
+        case 'setup_create_admin':
+            if ((int)$db->query('SELECT COUNT(*) FROM users')->fetchColumn() > 0) {
+                respond(false, null, 'Setup ja concluido — utilize o login normal.');
+            }
+            $suEmail = strtolower(trim((string)($input['email'] ?? '')));
+            $suName  = trim((string)($input['name']  ?? ''));
+            $suPass  = (string)($input['password']  ?? '');
+            if ($suName === '') { $suName = $suEmail !== '' ? explode('@', $suEmail)[0] : 'Admin'; }
+            if (!filter_var($suEmail, FILTER_VALIDATE_EMAIL)) {
+                respond(false, null, 'Endereco de email invalido.');
+            }
+            if (strlen($suPass) < 8) {
+                respond(false, null, 'A password deve ter pelo menos 8 caracteres.');
+            }
+            $db->prepare(
+                'INSERT INTO users (username, email, password_hash, role, verified, created_at, created_by)
+                 VALUES (:u, :e, :p, "ADMIN", 1, :c, "Setup")'
+            )->execute([
+                ':u' => $suName,
+                ':e' => $suEmail,
+                ':p' => password_hash($suPass, PASSWORD_DEFAULT),
+                ':c' => date('c'),
+            ]);
+            respond(true, ['message' => 'Administrador criado. Pode iniciar sessao.']);
             break;
 
         case 'login':
@@ -1287,13 +1324,12 @@ function verifyEmailToken(string $token): never
 
 function showVerifyPage(bool $success, string $message): void
 {
-    $icon  = $success ? '&#x2705;' : '&#x274C;';
     $color = $success ? '#1D6A39' : '#C0392B';
-    $title = $success ? 'Email Verificado' : 'Verificacao Falhou';
+    $title = $success ? 'Email verificado' : 'Verificacao falhou';
     echo '<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>' . $title . ' &middot; RH Manager</title>
-<style>body{font-family:Segoe UI,sans-serif;background:#f5f7fa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.box{background:white;border-radius:14px;padding:40px;max-width:460px;width:90%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.1)}.icon{font-size:52px;margin-bottom:16px}h2{color:' . $color . ';margin:0 0 12px}p{color:#6b7280;font-size:14px;line-height:1.6;margin:0 0 20px}a{display:inline-block;padding:10px 24px;background:#1a5276;color:white;border-radius:8px;text-decoration:none;font-weight:600}</style>
-</head><body><div class="box"><div class="icon">' . $icon . '</div><h2>' . $title . '</h2><p>' . $message . '</p><a href="./index.html">Ir para o Login &rarr;</a></div></body></html>';
+<title>' . $title . '</title>
+<style>body{font-family:Segoe UI,sans-serif;background:#f5f7fa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.box{background:white;border-radius:14px;padding:40px;max-width:460px;width:90%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.1)}h2{color:' . $color . ';margin:0 0 14px;font-size:22px}p{color:#6b7280;font-size:14px;line-height:1.6;margin:0 0 20px}a{display:inline-block;padding:10px 24px;background:#1a5276;color:white;border-radius:8px;text-decoration:none;font-weight:600}</style>
+</head><body><div class="box"><h2>' . $title . '</h2><p>' . $message . '</p><a href="./index.html">Ir para o login</a></div></body></html>';
 }
 
 // Tenta usar o host pelo qual o utilizador chegou ao site (HTTP_HOST) — assim
@@ -1338,11 +1374,11 @@ body{font-family:Segoe UI,sans-serif;background:#f5f7fa;margin:0;padding:20px}
 .note{margin-top:20px;padding:12px 16px;background:#f5f7fa;border-radius:8px;font-size:12px;color:#6b7280}
 .foot{padding:16px 28px;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af;text-align:center}
 </style></head><body><div class="wrap">
-<div class="hd"><div style="font-size:36px;margin-bottom:8px">&#x1F69B;</div><h1>' . strtoupper($appName) . '</h1><p>Gestao de Recursos Humanos</p></div>
+<div class="hd"><h1>' . strtoupper($appName) . '</h1><p>Gestao de Recursos Humanos</p></div>
 <div class="bd">
 <p>Ola, <strong>' . $userEsc . '</strong>!</p>
 <p>Foi criada uma conta para si no sistema de RH. Para activar a sua conta, clique no botao abaixo:</p>
-<p style="text-align:center"><a href="' . $verifyLink . '" class="btn">&#x2709;&#xFE0F; Verificar Email e Activar Conta</a></p>
+<p style="text-align:center"><a href="' . $verifyLink . '" class="btn">Verificar email e activar conta</a></p>
 <div class="note">Se nao reconhece este email, pode ignora-lo com seguranca.<br>Este link e valido para uma unica utilizacao.</div>
 </div>
 <div class="foot">' . $appName . ' &middot; Email automatico, nao responda.</div>
@@ -1384,11 +1420,11 @@ body{font-family:Segoe UI,sans-serif;background:#f5f7fa;margin:0;padding:20px}
 .note{margin-top:20px;padding:12px 16px;background:#fef4e7;border-left:3px solid #e67e22;border-radius:6px;font-size:12px;color:#92400e}
 .foot{padding:16px 28px;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af;text-align:center}
 </style></head><body><div class="wrap">
-<div class="hd"><div style="font-size:36px;margin-bottom:8px">&#x1F510;</div><h1>RECUPERAR PASSWORD</h1><p>RH Manager</p></div>
+<div class="hd"><h1>RECUPERAR PASSWORD</h1><p>' . $appName . '</p></div>
 <div class="bd">
 <p>Ola, <strong>' . $userEsc . '</strong>!</p>
 <p>Recebemos um pedido para repor a sua password. Para definir uma nova, clique no botao abaixo:</p>
-<p style="text-align:center"><a href="' . $resetLink . '" class="btn">&#x1F511; Definir Nova Password</a></p>
+<p style="text-align:center"><a href="' . $resetLink . '" class="btn">Definir nova password</a></p>
 <div class="note"><strong>Importante:</strong> o link e valido por 1 hora. Se nao foi voce que pediu, ignore este email — a sua password actual continua activa.</div>
 </div>
 <div class="foot">' . $appName . ' &middot; Email automatico, nao responda.</div>
@@ -1429,7 +1465,7 @@ body{font-family:Segoe UI,sans-serif;background:#f5f7fa;margin:0;padding:20px}
 .note{margin-top:16px;padding:10px 14px;background:#fef4e7;border-radius:6px;font-size:11px;color:#92400e}
 .foot{padding:14px 24px;border-top:1px solid #e5e7eb;font-size:10px;color:#9ca3af;text-align:center}
 </style></head><body><div class="wrap">
-<div class="hd"><h1>&#x1F510; CODIGO DE AUTORIZACAO</h1></div>
+<div class="hd"><h1>CODIGO DE AUTORIZACAO</h1></div>
 <div class="bd">
 <p>Ola, <strong>' . $userEsc . '</strong>.</p>
 <p>Para confirmar a acção <strong>' . $descEsc . '</strong>, insira este código no site:</p>
