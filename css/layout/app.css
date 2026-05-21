@@ -1,0 +1,416 @@
+﻿/* Layout principal: grid sidebar + conteúdo */
+.app {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* Sidebar */
+.sb {
+  background: #1a0d0d;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.sb-logo {
+  padding: 22px 14px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+}
+.sb-logo-img {
+  width: 80%;
+  max-width: 140px;
+  display: block;
+  margin-bottom: 10px;
+  filter: brightness(0) invert(1);
+  opacity: .92;
+}
+.sb-logo-t {
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255,255,255,.55);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.sb-logo-s {
+  display: none;
+}
+/* Sidebar footer: sessão + logout */
+.sb-footer {
+  margin-top: auto;
+  padding: 12px 10px 14px;
+  border-top: 1px solid rgba(255,255,255,.1);
+  flex-shrink: 0;
+}
+.sb-footer-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.sb-footer-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+  letter-spacing: .5px;
+}
+.sb-footer-info {
+  min-width: 0;
+}
+.sb-footer-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sb-footer-role {
+  font-size: 10px;
+  color: rgba(255,255,255,.4);
+  margin-top: 1px;
+}
+.sb-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.15);
+  background: transparent;
+  color: rgba(255,255,255,.6);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .3px;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.sb-logout-btn:hover {
+  background: rgba(192,57,43,.35);
+  border-color: rgba(192,57,43,.6);
+  color: #ff8a80;
+}
+
+.sb-sec {
+  padding: 10px 6px 4px;
+}
+.sb-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,.3);
+  padding: 4px 8px 6px;
+}
+.sb-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: rgba(255,255,255,.7);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  margin-bottom: 2px;
+}
+.sb-item:hover {
+  background: rgba(255,255,255,.08);
+  color: white;
+}
+.sb-item.active {
+  background: var(--blue);
+  color: white;
+  font-weight: 600;
+}
+.sb-badge {
+  margin-left: auto;
+  background: #E74C3C;
+  color: white;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* Área principal */
+.main {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Topbar */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  min-height: 50px;
+}
+.tb-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  margin-right: 6px;
+}
+.co-pills {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-wrap: nowrap;   /* pills nunca quebram linha */
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+}
+.co-pills::-webkit-scrollbar { display: none; }
+.co-pill {
+  padding: 4px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.co-pill:not(.active):hover {
+  color: var(--pill-color, #1a0d0d);
+  border-color: var(--pill-color, #1a0d0d);
+  background: color-mix(in srgb, var(--pill-color, #1a0d0d) 8%, var(--card));
+}
+.co-pill.active {
+  color: #fff;
+  background: var(--pill-color, #1a0d0d);
+  border-color: var(--pill-color, #1a0d0d);
+}
+.co-pill.active:hover {
+  filter: brightness(1.08);
+}
+.co-pill:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+.tb-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-left: auto;
+}
+
+/* Conteúdo scrollável */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* Layout de colaborador (detalhe) */
+.emp-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.emp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Tablet (769–980px): sidebar mais estreita, grid igual */
+@media (max-width: 980px) {
+  .app {
+    grid-template-columns: 170px 1fr;
+  }
+  .emp-layout {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Camada mobile (≤768px). Acrescenta-se ao desktop, não substitui. */
+@media (max-width: 768px) {
+
+  /* Layout raiz */
+  .app {
+    grid-template-columns: 1fr;
+    height: 100dvh; /* dynamic viewport height — evita barra do browser */
+  }
+
+  /* Sidebar desliza como drawer, escondida por defeito */
+  .sb {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    width: 260px;
+    z-index: 300;
+    transform: translateX(-100%);
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+    box-shadow: 4px 0 24px rgba(0,0,0,.35);
+  }
+  .sb.sb-open {
+    transform: translateX(0);
+  }
+
+  /* Overlay escuro quando o drawer está aberto */
+  .sb-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 299;
+    animation: fadeIn .2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Conteúdo principal ocupa ecrã todo */
+  .main {
+    height: 100dvh;
+    width: 100%;
+  }
+
+  /* Topbar em duas linhas: (1) ☰ | título | ícones, (2) pills com scroll */
+  .topbar {
+    padding: 0 14px;
+    height: auto;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    overflow: visible;
+    /* border-bottom do base mantém-se, fica abaixo das pills */
+  }
+  .tb-title {
+    font-size: 15px;
+    font-weight: 700;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 0;
+    /* Garante que title + hamburger + tb-right ficam na mesma linha */
+    order: 0;
+  }
+  .tb-right {
+    order: 1;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+  .tb-right .btn-sm { display: none; }
+  .tb-right > span:last-child,
+  .tb-right > span:nth-last-child(2) { display: none; }
+
+  /* Linha 1 tem 52px → tb-title e tb-right definem a altura da linha */
+  .tb-right { height: 52px; display: flex; align-items: center; }
+  .tb-title { padding: 16px 0; line-height: 1.2; }
+
+  /* Linha 2 — barra de filtro com fundo e separador próprios */
+  .co-pills {
+    order: 10;      /* vai para depois de todos os outros */
+    width: 100%;
+    flex: none;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 8px 0 10px 0;
+    background: transparent;
+    border-top: 1px solid var(--border);
+    scrollbar-width: none;
+    display: flex;
+    align-items: center;
+    margin: 0 -14px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .co-pills::-webkit-scrollbar { display: none; }
+  .co-pill {
+    padding: 6px 16px;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  /* Conteúdo */
+  .content {
+    padding: 12px;
+  }
+
+  /* Colaboradores: lista ou detalhe, nunca os dois ao mesmo tempo */
+  .emp-layout {
+    grid-template-columns: 1fr !important;
+  }
+  /* Lista de colaboradores ocupa ecrã completo quando detalhe não está visível */
+  .emp-layout > .card:last-child {
+    display: none;
+  }
+  .emp-layout.emp-detail-open > .card:first-child {
+    display: none;
+  }
+  .emp-layout.emp-detail-open > .card:last-child {
+    display: block;
+  }
+
+  /* Formulários em coluna única */
+  .fg {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Hambúrguer só aparece em mobile */
+  .mob-menu-btn {
+    order: -1; /* sempre antes do título */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 52px;   /* mesma altura da linha, fica centrado verticalmente */
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 22px;
+    padding: 0;
+    flex-shrink: 0;
+    border-radius: 6px;
+    transition: background .15s;
+  }
+  .mob-menu-btn:hover { background: var(--bg); }
+}
+
+/* Garante que overlay e hambúrguer nunca aparecem em desktop. */
+@media (min-width: 769px) {
+  .sb-overlay { display: none !important; }
+  .mob-menu-btn { display: none !important; }
+  .emp-layout.emp-detail-open > .card:first-child { display: block !important; }
+  .emp-layout.emp-detail-open > .card:last-child  { display: block !important; }
+}

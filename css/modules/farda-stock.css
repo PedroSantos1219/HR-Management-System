@@ -1,0 +1,75 @@
+.stock-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stock-cat {
+  padding: 12px 14px;
+  border-top: 3px solid #1a0d0d;
+}
+
+.stock-cat-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.stock-cat-icon  { font-size: 22px; }
+.stock-cat-label { flex: 1; font-weight: 800; font-size: 14px; }
+
+.stock-sizes {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stock-size-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.stock-size-label { flex: 1; font-size: 12px; font-weight: 600; }
+
+.stock-size-qty {
+  min-width: 32px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+}
+.stock-size-qty.is-zero { color: #9ca3af; }
+
+/* Pill verde/vermelha conforme stock > 0 */
+.qty-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+.qty-pill--ok    { background: #EAFAF1; color: #1D6A39; }
+.qty-pill--empty { background: #FDEDEC; color: #C0392B; }
+
+/* Input numérico com botões −/+ */
+.qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.qty-btn { padding: 2px 8px; }
+
+.qty-input {
+  width: 55px;
+  text-align: center;
+  padding: 3px 4px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 700;
+}

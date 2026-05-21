@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gestor Excel · RH Manager</title>
+  <link rel="stylesheet" href="css/base/variables.css">
+  <link rel="stylesheet" href="css/excel-manager.css">
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">&#x1F69B;</div>
+    <h2>RH Manager</h2>
+    <p>Gestor de Ficheiros Excel</p>
+    <div id="login-err"></div>
+    <input id="l-email" type="email" placeholder="Email" autocomplete="username">
+    <input id="l-pass" type="password" placeholder="Password" autocomplete="current-password">
+    <button onclick="doLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- Header -->
+<div class="hd">
+  <div class="hd-logo">
+    <div class="hd-icon">&#x1F4CA;</div>
+    <div>
+      <div class="hd-t">Gestor de Ficheiros Excel</div>
+      <div class="hd-s">Transportes Roupeta &mdash; RH Manager</div>
+    </div>
+  </div>
+  <div class="hd-nav">
+    <a href="index.html" class="hd-btn btn-back">&#x2190; Voltar ao RH</a>
+    <button class="hd-btn btn-logout" onclick="doLogout()">Sair</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main" id="main-content" style="display:none">
+
+  <div class="page-title">&#x1F4CA; Gestor de Ficheiros Excel</div>
+  <div class="page-sub">Exportar, descarregar e fazer backup de todos os dados em formato Excel ou JSON.</div>
+
+  <div class="info-banner">
+    <span class="info-banner-icon">&#x2139;&#xFE0F;</span>
+    <div>
+      <strong>Como funciona</strong>
+      <ul>
+        <li><strong>Exportar BD para Excel</strong> — preenche o template original com os dados actuais da aplicação e descarrega.</li>
+        <li><strong>Download de Template</strong> — descarrega o ficheiro Excel original do servidor (sem dados da app).</li>
+        <li><strong>Exportar Módulo</strong> — cria um Excel novo com os dados de um módulo específico.</li>
+        <li><strong>Backup JSON</strong> — cópia de segurança em formato JSON para restauro rápido.</li>      </ul>
+    </div>
+  </div>
+
+  <!-- Exportação Principal-->
+  <div class="section-label">&#x1F4E4; Exportação Principal — Base de Dados Completa</div>
+  <div class="grid grid-3">
+
+    <div class="card">
+      <div class="card-icon">&#x1F4C8;</div>
+      <div class="card-title">Exportar BD → Excel</div>
+      <div class="card-desc">
+        Preenche o template <strong>BASE DE DADOS ROUPETA E RII</strong> com todos os colaboradores actuais da aplicação e descarrega o ficheiro.
+      </div>
+      <div class="card-footer">
+        <span class="card-badge badge-green">Roupeta + RII + Arlize</span>
+        <button class="btn btn-green" onclick="exportMainExcel(this)">
+          <span>&#x2B07;</span> Exportar
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">&#x1F4CB;</div>
+      <div class="card-title">Download Template Original</div>
+      <div class="card-desc">
+        Descarrega o ficheiro <strong>.xlsm</strong> original do servidor — com todas as fórmulas, macros e folhas intactas, sem substituir dados.
+      </div>
+      <div class="card-foote
+        <span class="card-badge badge-blue">Com macros (.xlsm)</span>
+        <button class="btn btn-blue" onclick="downloadTemplate('roupeta')">
+          <span>&#x2B07;</span> Download
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">&#x1F4BE;</div>
+      <div class="card-title">Backup Completo (JSON)</div>
+      <div class="card-desc">
+        Exporta todos os dados da aplicação (colaboradores, férias, formação, EPIs, avaliações) num único ficheiro JSON para restauro.
+      </div>
+      <div class="card-footer">
+        <span class="card-badge badge-orange">Todos os módulos</span>
+        <button class="btn btn-orange" onclick="backupCompleto(this)">
+          <span>&#x1F4BE;</span> Backup
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Outros Ficheiros Excel  -->
+  <div class="section-label">&#x1F4C2; Outros Ficheiros Excel no Servidor</div>
+  <div class="card card--mb">
+    <table class="file-table">
+      <thead>
+        <tr>
+          <th>Ficheiro</th>
+          <th>Tipo</th>
+          <th>Tamanho</th>
+          <th class="col-action">Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="file-name">&#x1F4CA; BASE DE DADOS ROUPETA E RII.xlsm</td>
+          <td><span class="card-badge badge-green">BD Principal</span></td>
+          <td class="file-size" id="size-roupeta">—</td>
+          <td><button class="btn btn-green" onclick="downloadTemplate('roupeta')">&#x2B07; Download</button></td>
+        </tr>
+        <tr>
+          <td class="file-name">&#x1F4CA; BASE DE DADOS - COLABORADORES PIT EVOLUTION.xlsx</td>
+          <td><span class="card-badge badge-blue">Pit Evolution</span></td>
+          <td class="file-size" id="size-pit">—</td>
+          <td><button class="btn btn-blue" onclick="downloadTemplate('pit')">&#x2B07; Download</button></td>
+        </tr>
+        <tr>
+          <td class="file-name">&#x1F4CA; MARCAÇÃO DE FÉRIAS - 2024_.xlsx</td>
+          <td><span class="card-badge badge-orange">Férias</span></td>
+          <td class="file-size" id="size-ferias">—</td>
+          <td><button class="btn btn-orange" onclick="downloadTemplate('ferias')">&#x2B07; Download</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Exportação por Módulo -->
+  <div class="section-label">&#x1F9E9; Exportar por Módulo (Excel)</div>
+  <div class="grid grid-4">
+
+    <div class="card">
+      <div class="card-icon">&#x1F465;</div>
+      <div class="card-title">Colaboradores</div>
+      <div class="card-desc">Todos os dados dos colaboradores activos e inativos.</div>
+      <button class="btn btn-green btn-full" onclick="exportModule('colaboradores', this)">&#x2B07; Exportar Excel</button>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">&#x1F4C4;</div>
+      <div class="card-title">SEF / Portos</div>
+      <div class="card-desc">Validades das declarações SEF e portos, estado de envio WhatsApp.</div>
+      <button class="btn btn-green btn-full" onclick="exportModule('sef', this)">&#x2B07; Exportar Excel</button>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">&#x1FA7A;</div>
+      <div class="card-title">Medicina do Trabalho</div>
+      <div class="card-desc">Últimas consultas, próximas datas e notas médicas.</div>
+      <button class="btn btn-green btn-full" onclick="exportModule('medicina', this)">&#x2B07; Exportar Excel</button>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">&#x1F4C5;</div> <!-- Transformar o CSS numa pasta à parte-->
+      <div class="card-title">Diuturnidades</div>
+      <div class="card-desc">Contagem e próximas datas de diuturnidade (CCT ANTRAM-FECTRANS).</div>
+      <button class="btn btn-green btn-full" onclick="exportModule('diuturnidades', this)">&#x2B07; Exportar Excel</button>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">&#x1F4DD;</div>
+      <div class="card-title">Contratos</div>
+      <div class="card-desc">Estado, tipo e data de admissão de todos os contratos.</div>
+      <button class="btn btn-green btn-full" onclick="exportModule('contratos', this)">&#x2B07; Exportar Excel</button>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">&#x1F3AB;</div>
+      <div class="card-title">Cartas de Condução</div>
+      <div class="card-desc">Validades de cartas, CAM/CQC, cartão tacógrafo e ADR.</div>
+      <button class="btn btn-green btn-full" onclick="exportModule('cartas', this)">&#x2B07; Exportar Excel</button>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">&#x1F393;</div>
+      <div class="card-title">Formação</div>
+      <div class="card-desc">Todos os registos de formação interna e externa por colaborador.</div>
+      <button class="btn btn-green btn-full" onclick="exportModule('formacao', this)">&#x2B07; Exportar Excel</button>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">&#x1F3D6;</div>
+      <div class="card-title">Férias</div>
+      <div class="card-desc">Marcação de férias, dias gozados e saldo do ano corrente.</div>
+      <button class="btn btn-green btn-full" onclick="exportModule('ferias', this)">&#x2B07; Exportar Excel</button>
+    </div>
+
+  </div>
+
+  <!-- ── Backup JSON por Módulo ────────────────────────────── -->
+  <div class="section-label">&#x1F4BE; Backups JSON por Módulo</div>
+  <div class="grid grid-4">
+    <div class="card">
+      <div class="card-icon">&#x1F465;</div>
+      <div class="card-title">Colaboradores (JSON)</div>
+      <div class="card-desc">Activos + arquivo.</div>
+      <button class="btn btn-gray btn-full" onclick="backupModule('employees')">&#x1F4BE; Backup</button>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#x1F4C4;</div>
+      <div class="card-title">SEF (JSON)</div>
+      <div class="card-desc">Declarações SEF e portos.</div>
+      <button class="btn btn-gray btn-full" onclick="backupModule('sef')">&#x1F4BE; Backup</button>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#x1FA7A;</div>
+      <div class="card-title">Medicina (JSON)</div>
+      <div class="card-desc">Consultas e notas médicas.</div>
+      <button class="btn btn-gray btn-full" onclick="backupModule('medicina')">&#x1F4BE; Backup</button>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#x1F393;</div>
+      <div class="card-title">Formação (JSON)</div>
+      <div class="card-desc">Todos os registos de formação.</div>
+      <button class="btn btn-gray btn-full" onclick="backupModule('formacao')">&#x1F4BE; Backup</button>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#x1F9E4;</div>
+      <div class="card-title">EPIs (JSON)</div>
+      <div class="card-desc">Equipamentos de protecção individual.</div>
+      <button class="btn btn-gray btn-full" onclick="backupModule('epi')">&#x1F4BE; Backup</button>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#x1F3D6;</div>
+      <div class="card-title">Férias (JSON)</div>
+      <div class="card-desc">Marcação e configuração de férias.</div>
+      <button class="btn btn-gray btn-full" onclick="backupModule('ferias')">&#x1F4BE; Backup</button>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#x1F4DD;</div>
+      <div class="card-title">Contratos (JSON)</div>
+      <div class="card-desc">Dados contratuais de todos os colaboradores.</div>
+      <button class="btn btn-gray btn-full" onclick="backupModule('contratos')">&#x1F4BE; Backup</button>
+    </div>
+    <div class="card card--accent">
+      <div class="card-icon">&#x26A0;&#xFE0F;</div>
+      <div class="card-title">Backup Completo (JSON)</div>
+      <div class="card-desc">Todos os módulos num único ficheiro.</div>
+      <button class="btn btn-orange btn-full" onclick="backupCompleto(this)">&#x1F4BE; Backup Total</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'api.php';
+let appData = null;
+let trainingData = null;
+let feriasData = null;
+let feriasConfig = null;
+let currentUser = null;
+
+/* ── API helper ─────────────────────────────────────────── */
+async function api(action, body = {}) {
+  const r = await fetch(API, {
+    method: 'POST', credentials: 'include',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({action, ...body})
+  });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || 'Erro desconhecido');
+  return j.data;
+}
+
+/* ── Toast ──────────────────────────────────────────────── */
+let toastTimer;
+function toast(msg, type = 'ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast show toast-${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+/* ── Login / Session ─────────────────────────────────────── */
+async function checkSession() {
+  try {
+    const u = await api('check_session');
+    if (u) {
+      currentUser = u;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      loadAppData();
+      loadFileSizes();
+    }
+  } catch(e) {}
+}
+
+async function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  const err   = document.getElementById('login-err');
+  err.style.display = 'none';
+  try {
+    const u = await api('login', {email, password: pass});
+    currentUser = u;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    loadAppData();
+    loadFileSizes();
+  } catch(e) {
+    err.textContent = e.message;
+    err.style.display = 'block';
+  }
+}
+
+async function doLogout() {
+  await api('logout');
+  location.reload();
+}
+
+document.getElementById('l-pass').addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
+document.getElementById('l-email').addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('l-pass').focus(); });
+
+/* ── Load all data upfront ───────────────────────────────── */
+async function loadAppData() {
+  try {
+    const [data, training] = await Promise.all([
+      api('get_data'),
+      api('get_training')
+    ]);
+    appData = data || {employees:[], inactive:[]};
+    trainingData = Array.isArray(training) ? training : [];
+    feriasData = appData.ferias || [];
+    feriasConfig = appData.feriasConfig || [];
+  } catch(e) {
+    toast('Erro ao carregar dados: ' + e.message, 'err');
+  }
+}
+
+/* ── File sizes ──────────────────────────────────────────── */
+async function loadFileSizes() {
+  try {
+    const sizes = await api('get_file_sizes');
+    if (sizes) {
+      if (sizes.roupeta) document.getElementById('size-roupeta').textContent = fmtSize(sizes.roupeta);
+      if (sizes.pit)     document.getElementById('size-pit').textContent     = fmtSize(sizes.pit);
+      if (sizes.ferias)  document.getElementById('size-ferias').textContent  = fmtSize(sizes.ferias);
+    }
+  } catch(e) {}
+}
+
+function fmtSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1024/1024).toFixed(1) + ' MB';
+}
+
+/* Load SheetJS*/
+function loadXLSX() {
+  return new Promise((res, rej) => {
+    if (window.XLSX) { res(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    s.onload = res; s.onerror = () => rej(new Error('Falha ao carregar SheetJS'));
+    document.body.appendChild(s);
+  });
+}
+
+/*  Helper: Excel date number  */
+function fmtDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  if (isNaN(dt)) return d;
+  return dt.toLocaleDateString('pt-PT');
+}
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr), t = new Date();
+  t.setHours(0,0,0,0); d.setHours(0,0,0,0);
+  return Math.round((d-t)/86400000);
+}
+function calcAge(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr), t = new Date();
+  let a = t.getFullYear() - d.getFullYear();
+  const m = t.getMonth() - d.getMonth();
+  if (m < 0 || (m===0 && t.getDate() < d.getDate())) a--;
+  return a;
+}
+function nextDiut(emp) {
+  const n = parseInt(emp.diuturnidasCount) || 0;
+  if (!emp.admissionDate) return null;
+  const ad = new Date(emp.admissionDate);
+  const nd = new Date(ad);
+  nd.setFullYear(nd.getFullYear() + (n + 1) * 3);
+  return nd.toISOString().split('T')[0];
+}
+function nextMed(emp) {
+  if (!emp.lastMedicalConsult) return null;
+  const d = new Date(emp.lastMedicalConsult);
+  const age = calcAge(emp.birthDate);
+  const years = age >= 50 ? 1 : 2;
+  d.setFullYear(d.getFullYear() + years);
+  return d.toISOString().split('T')[0];
+}
+
+/* Download template files */
+async function downloadTemplate(which) {
+  const map = {
+    roupeta: 'get_excel_template',
+    pit:     'get_pit_template',
+    ferias:  'get_ferias_template'
+  };
+  const action = map[which] || 'get_excel_template';
+  toast('A descarregar ficheiro...', 'inf');
+  try {
+    const r = await fetch(`${API}?action=${action}`, {credentials:'include'});
+    if (!r.ok) throw new Error(await r.text());
+    const blob = await r.blob();
+    const name = r.headers.get('Content-Disposition')?.match(/filename="?([^"]+)"?/)?.[1] || `template_${which}.xlsx`;
+    triggerDownload(blob, name);
+    toast('Ficheiro descarregado com sucesso.', 'ok');
+  } catch(e) {
+    toast('Erro: ' + e.message, 'err');
+  }
+}
+
+function triggerDownload(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 500);
+}
+
+/*Exportar BD Principal para Excel*/
+async function exportMainExcel(btn) {
+  if (!appData) { toast('Dados ainda a carregar. Aguarde...', 'inf'); return; }
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> A exportar...';
+  try {
+    await loadXLSX();
+    const employees = appData.employees || [];
+    if (!employees.length) throw new Error('Sem colaboradores para exportar.');
+
+    const resp = await fetch(`${API}?action=get_excel_template`, {credentials:'include'});
+    if (!resp.ok) throw new Error('Template Excel não encontrado no servidor.');
+    const ab = await resp.arrayBuffer();
+    const wb = window.XLSX.read(ab, {type:'array'});
+
+    function setCell(ws, row, col, value) {
+      const ref = window.XLSX.utils.encode_cell({r: row-1, c: col-1});
+      if (value === null || value === undefined || value === '') { if(ws[ref]) delete ws[ref]; return; }
+      ws[ref] = {t: typeof value === 'number' ? 'n' : 's', v: value};
+    }
+
+    const ws = wb.Sheets['BD- Roupeta,Roupeta II e Ar'];
+    if (!ws) throw new Error('Folha "BD- Roupeta,Roupeta II e Ar" não encontrada no template.');
+
+    // Limpar linhas antigas (linha 16 em diante)
+    for (let r = 16; r < 516; r++) {
+      for (let c = 1; c <= 38; c++) {
+        const ref = window.XLSX.utils.encode_cell({r:r-1, c:c-1});
+        if (ws[ref]) delete ws[ref];
+      }
+    }
+
+    let row = 16;
+    for (const emp of employees) {
+      const age      = calcAge(emp.birthDate);
+      const daysLett = daysUntil(emp.driverLicenseExpiry);
+      const daysCAM  = daysUntil(emp.camExpiry);
+      const daysTach = daysUntil(emp.tachographCardExpiry);
+      const diutVal  = (parseInt(emp.diuturnidasCount)||0) * 24.63;
+
+      setCell(ws, row,  1, emp.id);
+      setCell(ws, row,  2, emp.app || 'NÃO');
+      setCell(ws, row,  3, emp.company);
+      setCell(ws, row,  4, emp.name);
+      // col 5 = Disponibilidade (não existe no app — deixar vazio)
+      setCell(ws, row,  6, emp.role);
+      setCell(ws, row,  7, emp.contractStatus);
+      setCell(ws, row,  8, emp.admissionDate);
+      setCell(ws, row,  9, emp.contractEndDate);
+      // col 10 = Dias Restantes (calculado pelo Excel)
+      setCell(ws, row, 11, emp.birthplace);
+      setCell(ws, row, 12, emp.nationality);
+      setCell(ws, row, 13, emp.birthDate);
+      setCell(ws, row, 14, age !== '' ? age : '');
+      setCell(ws, row, 15, emp.personalPhone);
+      setCell(ws, row, 16, emp.email);
+      setCell(ws, row, 17, emp.companyPhone);
+      setCell(ws, row, 18, emp.ccNumber);
+      setCell(ws, row, 19, emp.ccExpiry);
+      setCell(ws, row, 20, emp.nif);
+      setCell(ws, row, 21, emp.niss);
+      setCell(ws, row, 22, emp.address);
+      setCell(ws, row, 23, emp.education);
+      setCell(ws, row, 24, emp.maritalStatus);
+      setCell(ws, row, 25, emp.incomeHolder);
+      setCell(ws, row, 26, emp.dependents);
+      setCell(ws, row, 27, emp.driverLicense);
+      setCell(ws, row, 28, emp.driverLicenseExpiry);
+      setCell(ws, row, 29, daysLett !== null ? Number(daysLett) : '');
+      setCell(ws, row, 30, emp.camExpiry);
+      setCell(ws, row, 31, daysCAM  !== null ? Number(daysCAM)  : '');
+      setCell(ws, row, 32, emp.tachographCardExpiry);
+      setCell(ws, row, 33, daysTach !== null ? Number(daysTach) : '');
+      setCell(ws, row, 34, emp.adrExpiry);
+      setCell(ws, row, 35, emp.iban);
+      setCell(ws, row, 36, emp.baseSalary ? (parseFloat(emp.baseSalary) || emp.baseSalary) : '');
+      setCell(ws, row, 37, parseInt(emp.diuturnidasCount) || 0);
+      setCell(ws, row, 38, diutVal > 0 ? diutVal : '');
+      row++;
+    }
+
+    // Actualizar range
+    if (ws['!ref']) {
+      const orig2 = window.XLSX.utils.decode_range(ws['!ref']);
+      ws['!ref'] = window.XLSX.utils.encode_range({
+        s: orig2.s, e: {r: Math.max(orig2.e.r, row-1), c: Math.max(orig2.e.c, 37)}
+      });
+    }
+
+    const blob = new Blob([window.XLSX.write(wb, {type:'array', bookType:'xlsx'})],
+      {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    triggerDownload(blob, `BD_Roupeta_${today()}.xlsx`);
+    toast(`Excel exportado com sucesso — ${employees.length} colaboradores.`, 'ok');
+  } catch(e) {
+    toast('Erro ao exportar: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+}
+
+/*Exportar Módulo como Excel*/
+async function exportModule(module, btn) {
+  if (!appData) { toast('Dados ainda a carregar. Aguarde...', 'inf'); return; }
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> A exportar...';
+  try {
+    await loadXLSX();
+    const wb = window.XLSX.utils.book_new();
+    const emps = appData.employees || [];
+    const today_str = today();
+
+    switch(module) {
+      case 'colaboradores': {
+        const rows = emps.map(e => ({
+          'Nº': e.id, 'Nome': e.name, 'Empresa': e.company, 'Função': e.role,
+          'Estado': e.contractStatus, 'Tipo Contrato': e.contractEndDate,
+          'Admissão': fmtDate(e.admissionDate), 'Nascimento': fmtDate(e.birthDate),
+          'Idade': calcAge(e.birthDate), 'Naturalidade': e.birthplace,
+          'Nacionalidade': e.nationality, 'Estado Civil': e.maritalStatus,
+          'Habilitações': e.education, 'Dependentes': e.dependents,
+          'Titular IRS': e.incomeHolder, 'NIF': e.nif, 'NISS': e.niss,
+          'Nº CC': e.ccNumber, 'Validade CC': fmtDate(e.ccExpiry),
+          'Telefone': e.personalPhone, 'Email': e.email,
+          'Tel. Empresa': e.companyPhone, 'Morada': e.address,
+          'IBAN': e.iban, 'Ordenado Base': e.baseSalary,
+          'App 4Miga': e.app
+        }));
+        const ws = window.XLSX.utils.json_to_sheet(rows);
+        window.XLSX.utils.book_append_sheet(wb, ws, 'Colaboradores');
+        // Sheet de inativos
+        const rowsI = (appData.inactive||[]).map(e => ({
+          'Nº': e.id, 'Nome': e.name, 'Empresa': e.company, 'Função': e.role,
+          'Estado': e.contractStatus, 'Admissão': fmtDate(e.admissionDate)
+        }));
+        if (rowsI.length) {
+          const wsI = window.XLSX.utils.json_to_sheet(rowsI);
+          window.XLSX.utils.book_append_sheet(wb, wsI, 'Inativos');
+        }
+        break;
+      }
+      case 'sef': {
+        const rows = emps.map(e => ({
+          'Nº': e.id, 'Nome': e.name, 'Empresa': e.company,
+          'Validade SEF/Porto': fmtDate(e.sefExpiry),
+          'Dias Restantes': daysUntil(e.sefExpiry) ?? '',
+          'Enviado WhatsApp': e.sefSentWhatsapp || 'Não'
+        }));
+        rows.sort((a,b) => (a['Dias Restantes']||9999) - (b['Dias Restantes']||9999));
+        window.XLSX.utils.book_append_sheet(wb, window.XLSX.utils.json_to_sheet(rows), 'SEF');
+        break;
+      }
+      case 'medicina': {
+        const rows = emps.map(e => ({
+          'Nº': e.id, 'Nome': e.name, 'Empresa': e.company,
+          'Última Consulta': fmtDate(e.lastMedicalConsult),
+          'Próxima Consulta': fmtDate(nextMed(e)),
+          'Dias Restantes': daysUntil(nextMed(e)) ?? '',
+          'Notas': e.medicalNotes || ''
+        }));
+        rows.sort((a,b) => (a['Dias Restantes']||9999) - (b['Dias Restantes']||9999));
+        window.XLSX.utils.book_append_sheet(wb, window.XLSX.utils.json_to_sheet(rows), 'Medicina');
+        break;
+      }
+      case 'diuturnidades': {
+        const DIUT_VAL = 24.63;
+        const rows = emps.map(e => ({
+          'Nº': e.id, 'Nome': e.name, 'Empresa': e.company,
+          'Admissão': fmtDate(e.admissionDate),
+          'Nº Diuturnidades': parseInt(e.diuturnidasCount)||0,
+          'Valor (€)': ((parseInt(e.diuturnidasCount)||0)*DIUT_VAL).toFixed(2),
+          'Próxima Diuturnidade': fmtDate(nextDiut(e)),
+          'Dias Restantes': daysUntil(nextDiut(e)) ?? ''
+        }));
+        window.XLSX.utils.book_append_sheet(wb, window.XLSX.utils.json_to_sheet(rows), 'Diuturnidades');
+        break;
+      }
+      case 'contratos': {
+        const rows = emps.map(e => ({
+          'Nº': e.id, 'Nome': e.name, 'Empresa': e.company,
+          'Admissão': fmtDate(e.admissionDate),
+          'Tipo Contrato': e.contractEndDate,
+          'Estado': e.contractStatus,
+          'Ordenado Base (€)': e.baseSalary || ''
+        }));
+        window.XLSX.utils.book_append_sheet(wb, window.XLSX.utils.json_to_sheet(rows), 'Contratos');
+        break;
+      }
+      case 'cartas': {
+        const rows = emps.map(e => ({
+          'Nº': e.id, 'Nome': e.name, 'Empresa': e.company,
+          'Carta de Condução': e.driverLicense,
+          'Validade Carta': fmtDate(e.driverLicenseExpiry),
+          'Dias (Carta)': daysUntil(e.driverLicenseExpiry) ?? '',
+          'Validade CAM/CQC': fmtDate(e.camExpiry),
+          'Dias (CAM)': daysUntil(e.camExpiry) ?? '',
+          'Cartão Tacógrafo': fmtDate(e.tachographCardExpiry),
+          'Dias (Tac.)': daysUntil(e.tachographCardExpiry) ?? '',
+          'Validade ADR': fmtDate(e.adrExpiry),
+          'Dias (ADR)': daysUntil(e.adrExpiry) ?? ''
+        }));
+        rows.sort((a,b) => (a['Dias (Carta)']||9999) - (b['Dias (Carta)']||9999));
+        window.XLSX.utils.book_append_sheet(wb, window.XLSX.utils.json_to_sheet(rows), 'Cartas de Condução');
+        break;
+      }
+      case 'formacao': {
+        const rows = trainingData.map(r => ({
+          'Nº': r.empId, 'Colaborador': r.empName||'', 'Empresa': r.empCompany||'',
+          'Categoria': r.category, 'Descrição': r.description||'',
+          'Entidade': r.entity||'', 'Data': fmtDate(r.date),
+          'Horas': r.hours||'', 'Certificado': r.certified||'',
+          'Nº Cert.': r.certNumber||'', 'Notas': r.notes||''
+        }));
+        window.XLSX.utils.book_append_sheet(wb, window.XLSX.utils.json_to_sheet(rows), 'Formação');
+        break;
+      }
+      case 'ferias': {
+        const fRows = (feriasData||[]).map(f => ({
+          'Colaborador': f.name||'', 'Empresa': f.company||'',
+          'Ano': f.year, 'Início': fmtDate(f.start), 'Fim': fmtDate(f.end),
+          'Dias': f.days||'', 'Tipo': f.type||'', 'Notas': f.notes||''
+        }));
+        window.XLSX.utils.book_append_sheet(wb, window.XLSX.utils.json_to_sheet(fRows.length ? fRows : [{}]), 'Férias');
+        break;
+      }
+    }
+
+    const blob = new Blob([window.XLSX.write(wb, {type:'array', bookType:'xlsx'})],
+      {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    triggerDownload(blob, `${module}_${today_str}.xlsx`);
+    toast('Excel exportado com sucesso.', 'ok');
+  } catch(e) {
+    toast('Erro: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+}
+
+/* Backup JSON */
+async function backupModule(module) {
+  if (!appData) { toast('Dados ainda a carregar. Aguarde...', 'inf'); return; }
+  const emps = appData.employees || [];
+  const map = {
+    employees:  {colaboradores: emps, arquivo: appData.inactive||[]},
+    sef:        {sef: emps.map(e=>({id:e.id,nome:e.name,empresa:e.company,sefExpiry:e.sefExpiry,sefSentWhatsapp:e.sefSentWhatsapp}))},
+    medicina:   {medicina: emps.map(e=>({id:e.id,nome:e.name,empresa:e.company,lastMedicalConsult:e.lastMedicalConsult,medicalNotes:e.medicalNotes}))},
+    formacao:   {formacao: trainingData},
+    epi:        {colaboradores: emps.map(e=>({id:e.id,nome:e.name,empresa:e.company}))},
+    ferias:     {ferias: feriasData, feriasConfig: feriasConfig},
+    contratos:  {contratos: emps.map(e=>({id:e.id,nome:e.name,empresa:e.company,admissionDate:e.admissionDate,contractEndDate:e.contractEndDate,contractStatus:e.contractStatus}))}
+  };
+  const content = map[module] || {};
+  const blob = new Blob([JSON.stringify({...content, geradoEm: new Date().toISOString()}, null, 2)], {type:'application/json'});
+  triggerDownload(blob, `backup_${module}_${today()}.json`);
+  toast('Backup criado com sucesso.', 'ok');
+}
+
+async function backupCompleto(btn) {
+  if (!appData) { toast('Dados ainda a carregar. Aguarde...', 'inf'); return; }
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> A criar backup...';
+  try {
+    const [training, exportData] = await Promise.all([
+      api('get_training'),
+      api('get_export_data').catch(()=>({}))
+    ]);
+    const content = {
+      ...appData,
+      training_records: training,
+      ferias: feriasData,
+      feriasConfig: feriasConfig,
+      export: exportData,
+      geradoEm: new Date().toISOString(),
+      versao: '3.0'
+    };
+    const blob = new Blob([JSON.stringify(content, null, 2)], {type:'application/json'});
+    triggerDownload(blob, `backup_completo_${today()}.json`);
+    toast('Backup completo criado com sucesso.', 'ok');
+  } catch(e) {
+    toast('Erro: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+}
+
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+/*Init*/
+checkSession();
+</script>
+</body>
+</html>

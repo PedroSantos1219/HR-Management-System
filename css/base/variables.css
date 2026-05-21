@@ -1,0 +1,18 @@
+:root {
+  --bg: #f5f7fa;
+  --card: #ffffff;
+  --text: #1f2a37;
+  --muted: #6b7280;
+  --border: #dde3ea;
+  --blue: #9b2335;
+  --blue-l: #fdecea;
+  --green: #1d6a39;
+  --green-l: #eaf8ef;
+  --orange: #b7660d;
+  --orange-l: #fef4e7;
+  --red: #c0392b;
+  --red-l: #fdecec;
+  --orbg: #fef4e7;
+  --blbg: #fdecea;
+  --grbg: #eaf8ef;
+}

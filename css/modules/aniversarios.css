@@ -1,0 +1,98 @@
+/* Cards do topo — recebem a cor via var(--c) */
+.aniv-stats        { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.aniv-stat         { flex: 1 1 110px; min-width: 100px; padding: 6px 10px; border-left: 3px solid var(--c); }
+.aniv-stat__label  { font-size: 11px; color: var(--muted); }
+.aniv-stat__value  { font-size: 18px; font-weight: 800; line-height: 1.1; color: var(--c); }
+
+/* Barra de pesquisa */
+.aniv-search       { margin-bottom: 12px; padding: 10px 14px; }
+.aniv-search__inp  { max-width: 320px; }
+
+/* Legenda das cores (≤5 dias, ≤15, ≤30, >30) */
+.aniv-legend       { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.aniv-legend__chip { display: flex; align-items: center; gap: 4px; padding: 2px 10px;
+                     border: 1px solid var(--c); border-radius: 12px;
+                     background: var(--c-bg); color: var(--c);
+                     font-size: 11px; font-weight: 600; }
+
+/* Tabela */
+.aniv-table              { width: 100%; border-collapse: collapse; font-size: 13px; }
+.aniv-table thead tr     { background: var(--bg); }
+.aniv-table th           { padding: 8px 12px; text-align: left; font-weight: 700;
+                           font-size: 11px; color: var(--muted); border-bottom: 1px solid var(--bdr); }
+.aniv-table td           { padding: 7px 12px; }
+.aniv-table tr           { background: var(--c-bg); border-bottom: 1px solid var(--c-border); }
+.aniv-table td.id        { font-size: 11px; color: var(--muted); font-weight: 500; }
+.aniv-table td.name      { font-weight: 700; color: var(--text); }
+.aniv-table td.company   { font-size: 11px; }
+.aniv-table td.company .pill { background: var(--bg); border: 1px solid var(--bdr);
+                               border-radius: 4px; padding: 2px 7px; font-size: 11px; }
+.aniv-table td.dob       { font-size: 12px; }
+.aniv-table td.next      { font-size: 12px; font-weight: 600; color: var(--c); }
+.aniv-table td.age       { font-size: 12px; color: var(--muted); }
+.aniv-table td.action    { text-align: center; }
+
+/* Pill de "Hoje!" / "X dias" */
+.aniv-days       { display: inline-block; padding: 2px 10px;
+                   background: var(--c-bg); color: var(--c);
+                   border: 1.5px solid var(--c); border-radius: 10px;
+                   font-size: 12px; font-weight: 700; }
+
+/* Botão "Enviar" no fim da linha */
+.aniv-send       { display: inline-flex; align-items: center; gap: 5px;
+                   padding: 4px 10px; border: none; border-radius: 7px;
+                   background: #E74C3C; color: white;
+                   font-size: 11px; font-weight: 700; cursor: pointer;
+                   box-shadow: 0 2px 6px rgba(231, 76, 60, .4);
+                   transition: transform .15s, filter .15s; }
+.aniv-send:hover { transform: translateY(-1px); filter: brightness(1.08); }
+.aniv-send:disabled { background: #f3f4f6; color: #9ca3af; border: 1px solid #e5e7eb;
+                      cursor: not-allowed; opacity: .65; box-shadow: none;
+                      font-weight: 600; }
+.aniv-send:disabled:hover { transform: none; filter: none; }
+
+/* Modal de partilha WhatsApp */
+.wa-modal               { max-width: 540px; }
+.wa-modal__head         { display: flex; align-items: center; gap: 10px;
+                          padding: 12px 16px; border-bottom: 2px solid #25D366; }
+.wa-modal__bolo         { height: 32px; width: auto; }
+.wa-modal__title-block  { flex: 1; }
+.wa-modal__title        { font-size: 15px; font-weight: 800; }
+.wa-modal__sub          { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+.wa-form .field         { margin-bottom: 12px; }
+.wa-form__phone-row     { display: flex; align-items: center; gap: 8px; }
+.wa-form__reset         { margin-left: auto; padding: 1px 8px;
+                          background: transparent; border: 1px solid var(--border);
+                          border-radius: 10px; color: var(--muted);
+                          font-size: 10px; cursor: pointer; }
+.wa-form__phone-inp     { font-family: Consolas, monospace; letter-spacing: .5px; }
+.wa-form__phone-hint    { margin-top: 3px; font-size: 10px; font-weight: 600; }
+.wa-form__phone-hint.ok  { color: var(--green); }
+.wa-form__phone-hint.err { color: var(--red); }
+
+.wa-form__msg-head      { display: flex; justify-content: space-between; align-items: center; }
+.wa-form__counter       { font-size: 10px; color: var(--muted); font-weight: 400; }
+.wa-form__msg           { resize: vertical; min-height: 140px;
+                          font-family: inherit; line-height: 1.5; }
+
+.wa-form__file          { padding: 5px 8px; }
+.wa-form__file-preview  { margin-top: 6px; display: flex; align-items: center; gap: 8px;
+                          padding: 6px 10px; background: var(--bg); border-radius: 6px;
+                          font-size: 11.5px; }
+.wa-form__thumb         { height: 36px; width: 36px; object-fit: cover; border-radius: 4px; }
+.wa-form__fname         { flex: 1; font-weight: 600; }
+.wa-form__fsize         { color: var(--muted); }
+.wa-form__file-help     { margin-top: 5px; font-size: 10px;
+                          color: var(--muted); line-height: 1.5; }
+
+.wa-modal__foot         { display: flex; gap: 8px; justify-content: flex-end;
+                          padding: 10px 16px; border-top: 1px solid var(--border); }
+.wa-send-btn            { display: flex; align-items: center; gap: 8px;
+                          padding: 9px 22px; background: #25D366; color: white;
+                          border: none; border-radius: 8px;
+                          font-weight: 700; font-size: 13px; cursor: pointer;
+                          box-shadow: 0 3px 12px rgba(37, 211, 102, .4);
+                          transition: filter .15s; }
+.wa-send-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.wa-send-btn:disabled   { cursor: not-allowed; opacity: .6; }
