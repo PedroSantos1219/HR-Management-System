@@ -1,5 +1,8 @@
 # HR Manager
 
+[![PHP lint](https://github.com/PedroSantos1219/HR-Management-System/actions/workflows/php-lint.yml/badge.svg)](https://github.com/PedroSantos1219/HR-Management-System/actions/workflows/php-lint.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+
 In-house HR application for a small fleet operator. Tracks staff,
 contracts, documents, PPE and uniform stock, training, vacations, plus
 reminders for medical exams and driving licences. Runs on a single XAMPP
@@ -38,6 +41,9 @@ C:\xampp\php\php.exe "<full path>\backup_cron.php"
 
 If that task ever fails, `api.php` has a fallback that creates the
 backup on the first login of the day.
+
+For the full office LAN setup (static IP, firewall, restoring across
+machines) see [`docs/DEPLOY.md`](./docs/DEPLOY.md).
 
 ## Project layout
 
