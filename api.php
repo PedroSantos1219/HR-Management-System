@@ -557,12 +557,27 @@ try {
             if ($lgEmail === '' || $lgPass === '') {
                 respond(false, null, 'Preencha o email e a password.');
             }
+            // Rate-limit por IP: 5 tentativas falhadas nos últimos 5 minutos bloqueia
+            // por mais 15. Evita brute-force a partir de um único posto na rede interna.
+            $clientIp = $_SERVER['REMOTE_ADDR'] ?? '';
+            $now = time();
+            $windowStart = $now - 900; // 15 min de retenção
+            $db->prepare('DELETE FROM login_attempts WHERE ts < :t')->execute([':t' => $windowStart]);
+            $recent = $db->prepare('SELECT COUNT(*) FROM login_attempts WHERE ip = :ip AND ts >= :t');
+            $recent->execute([':ip' => $clientIp, ':t' => $now - 300]);
+            if ((int)$recent->fetchColumn() >= 5) {
+                respond(false, null, 'Demasiadas tentativas falhadas. Aguarde alguns minutos antes de tentar de novo.');
+            }
             $su = $db->prepare('SELECT * FROM users WHERE LOWER(email) = :e LIMIT 1');
             $su->execute([':e' => $lgEmail]);
             $u = $su->fetch();
             if (!$u || !password_verify($lgPass, (string)$u['password_hash'])) {
+                $db->prepare('INSERT INTO login_attempts (ip, ts, email) VALUES (:ip, :t, :e)')
+                   ->execute([':ip' => $clientIp, ':t' => $now, ':e' => $lgEmail]);
                 respond(false, null, 'Email ou password incorretos.');
             }
+            // Login OK — limpa o registo de falhas deste IP.
+            $db->prepare('DELETE FROM login_attempts WHERE ip = :ip')->execute([':ip' => $clientIp]);
             session_regenerate_id(true);
             $_SESSION['user_id'] = $u['id'];
             $_SESSION['role']    = $u['role'];
@@ -1191,6 +1206,16 @@ function ensureSchema(PDO $db): void
             created_at      TEXT NOT NULL
         )'
     );
+
+    $db->exec(
+        'CREATE TABLE IF NOT EXISTS login_attempts (
+            id       INTEGER PRIMARY KEY AUTOINCREMENT,
+            ip       TEXT NOT NULL,
+            ts       INTEGER NOT NULL,
+            email    TEXT
+        )'
+    );
+    $db->exec('CREATE INDEX IF NOT EXISTS idx_login_attempts_ip_ts ON login_attempts(ip, ts)');
 
     seedDefaultUsers($db);
 }
