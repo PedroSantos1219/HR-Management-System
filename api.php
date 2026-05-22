@@ -15,7 +15,16 @@ if (!empty($_SESSION['LAST_ACTIVITY']) && time() - $_SESSION['LAST_ACTIVITY'] > 
 }
 $_SESSION['LAST_ACTIVITY'] = time();
 
-$GLOBALS['app_config'] = file_exists(__DIR__ . '/config.php') ? require __DIR__ . '/config.php' : [];
+if (!file_exists(__DIR__ . '/config.php')) {
+    header('Content-Type: application/json; charset=utf-8');
+    http_response_code(503);
+    echo json_encode([
+        'ok' => false,
+        'error' => 'config.php em falta. Copie config.example.php para config.php e preencha as credenciais SMTP antes do primeiro acesso.',
+    ]);
+    exit;
+}
+$GLOBALS['app_config'] = require __DIR__ . '/config.php';
 if (file_exists(__DIR__ . '/mailer.php'))   { require_once __DIR__ . '/mailer.php'; }
 if (file_exists(__DIR__ . '/security.php')) { require_once __DIR__ . '/security.php'; }
 
