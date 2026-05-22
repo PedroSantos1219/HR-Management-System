@@ -43,7 +43,9 @@ If that task ever fails, `api.php` has a fallback that creates the
 backup on the first login of the day.
 
 For the full office LAN setup (static IP, firewall, restoring across
-machines) see [`docs/DEPLOY.md`](./docs/DEPLOY.md).
+machines) see [`docs/DEPLOY.md`](./docs/DEPLOY.md). Before opening the
+server to the rest of the office, read [`docs/SECURITY.md`](./docs/SECURITY.md) —
+the NTFS permissions section in particular.
 
 ## Project layout
 

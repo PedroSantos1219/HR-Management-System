@@ -9,6 +9,13 @@ loosely follows [Keep a Changelog](https://keepachangelog.com/).
 - First-run setup wizard for the initial admin account, with an SMTP
   status banner.
 - Office LAN deployment guide at `docs/DEPLOY.md`.
+- Hardening checklist at `docs/SECURITY.md` covering NTFS permissions,
+  off-site backup, HTTPS and subnet restriction.
+- Login rate-limit: 5 failed attempts per IP every 5 minutes triggers
+  a temporary block.
+- Defensive security headers in `.htaccess` (X-Frame-Options,
+  X-Content-Type-Options, Referrer-Policy) and a commented-out
+  `Require ip` block ready to enable for LAN-only access.
 - GitHub Actions workflow that runs `php -l` on every PHP change.
 - CI and license badges in the README.
 - MIT `LICENSE` file.
