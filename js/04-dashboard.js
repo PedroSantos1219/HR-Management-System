@@ -6,13 +6,20 @@ function Dashboard({data,company,ferias,feriasConfig,onNav}){
   const emps=filterEmps(employees, company);
   const cy=new Date().getFullYear();
   const alerts=useMemo(()=>{
-    const sef=[],med=[],diut=[],cc=[],adr=[],cartas=[];
+    const sef=[],med=[],diut=[],cc=[],adr=[],cartas=[],contratos=[];
     emps.forEach(emp=>{
       const sd=daysTo(emp.sefExpiry); if(sd!==null&&sd<=60) sef.push({...emp,days:sd});
       const nm=nextMed(emp),md=daysTo(nm); if(md!==null&&md<=60) med.push({...emp,days:md,nextDate:nm});
       const nd=nextDiut(emp),dd=daysTo(nd); if(dd!==null&&dd>=0&&dd<=45) diut.push({...emp,days:dd,nextDate:nd});
       const cd=daysTo(emp.ccExpiry); if(cd!==null&&cd<=60) cc.push({...emp,days:cd});
       const ad=daysTo(emp.adrExpiry); if(ad!==null&&ad<=60) adr.push({...emp,days:ad});
+      // Contratos a termo certo perto de acabar (90 dias). Indica que a Tatiana
+      // precisa de avisar com pelo menos a antecedência legal mínima.
+      const isTermo = (emp.contractEndDate||'').toLowerCase().includes('termo');
+      if(isTermo && emp.endDate){
+        const td = daysTo(emp.endDate);
+        if(td !== null && td <= 90) contratos.push({...emp, days: td, nextDate: emp.endDate});
+      }
       if(isDriver(emp)){
         const checks=[
           {field:'driverLicenseExpiry', label:'Carta', d:daysTo(emp.driverLicenseExpiry)},
@@ -25,7 +32,7 @@ function Dashboard({data,company,ferias,feriasConfig,onNav}){
         }
       }
     });
-    return {sef,med,diut,cc,adr,cartas};
+    return {sef,med,diut,cc,adr,cartas,contratos};
   },[emps]);
   const feriasStats=useMemo(()=>{
     const yr=cy;
@@ -38,7 +45,7 @@ function Dashboard({data,company,ferias,feriasConfig,onNav}){
     return {porFechar,semGozar,recentes,total:list.length};
   },[emps,ferias,feriasConfig,cy]);
   const stats={total:emps.length,ativo:emps.filter(e=>e.contractStatus==='Ativo').length,baixa:emps.filter(e=>e.contractStatus?.toLowerCase().includes('baixa')).length,seguro:emps.filter(e=>e.contractStatus?.toLowerCase().includes('seguro')).length,motoristas:emps.filter(e=>e.role?.toLowerCase().includes('mot')).length};
-  const totalAlerts=alerts.sef.length+alerts.med.length+alerts.diut.length+alerts.cc.length+alerts.adr.length+alerts.cartas.length;
+  const totalAlerts=alerts.sef.length+alerts.med.length+alerts.diut.length+alerts.cc.length+alerts.adr.length+alerts.cartas.length+alerts.contratos.length;
   const byComp=Object.entries({'Roupeta':0,'Roupeta II':0,'Arlize':0,'Pit Evolution':0}).map(([n,_])=>({n,c:employees.filter(e=>e.company===n).length}));
   return(
     <div>
@@ -67,6 +74,7 @@ function Dashboard({data,company,ferias,feriasConfig,onNav}){
           {title:'Cartas de Condução (Carta · CAM · Tac.)',items:alerts.cartas,color:'#fef3c7',tc:'#92400e',field:'nextDate',screen:'cartas',showDocType:true,transportOnly:true},
           {title:'Cartão de Cidadão',items:alerts.cc,color:'var(--red-l)',tc:'var(--red)',field:'ccExpiry',screen:'employees'},
           {title:'ADR — Mercadorias Perigosas',items:alerts.adr,color:'#f5eef8',tc:'#7D3C98',field:'adrExpiry',screen:'cartas',transportOnly:true},
+          {title:'Contratos a Termo — fim próximo',items:alerts.contratos,color:'#eef2ff',tc:'#3730a3',field:'nextDate',screen:'contratos'},
         ].filter(c=>!(c.transportOnly && company==='pit'))
          .map(({title,items,color,tc,field,screen,showDocType})=>{
           const MAX=4;
