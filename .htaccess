@@ -24,8 +24,16 @@
     Require all denied
 </FilesMatch>
 
-# Block any access to docs/ from the browser — it's only for the repo.
-RedirectMatch 404 ^/docs/.*$
+# Repo docs and metadata files have no business being served. Catches
+# README.md, CHANGELOG.md, LICENSE, anything under docs/, etc. Using
+# FilesMatch so the rule survives the app being mounted at /<subpath>
+# (RedirectMatch starts at the document root, which doesn't help here).
+<FilesMatch "\.md$">
+    Require all denied
+</FilesMatch>
+<FilesMatch "^(LICENSE|README|CHANGELOG)$">
+    Require all denied
+</FilesMatch>
 
 # Optional: restrict the whole app to the office LAN. Uncomment and
 # adjust the subnet to match your network. Useful belt-and-braces if
