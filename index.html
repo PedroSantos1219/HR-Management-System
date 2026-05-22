@@ -31,6 +31,7 @@ const SEED = {"employees":[],"inactive":[],"feriasYear":(new Date()).getFullYear
 <script type="text/babel" src="./js/11-admin.js"></script>
 <script type="text/babel" src="./js/12-employees.js"></script>
 <script type="text/babel" src="./js/13-docs.js"></script>
+<script type="text/babel" src="./js/14-motoristas.js"></script>
 <script type="text/babel">
 const API_URL='./api.php';
 
@@ -121,6 +122,7 @@ async function loadDocs(empId, empCompany){
 async function saveDocs(empId, empCompany, docs){
   try{ await apiCall('save_docs',{empId, empCompany, docs}); }catch(e){}
 }
+
 
 async function uploadDoc(empId, empCompany, docId, filename, mime, dataUrl){
   return await apiCall('upload_doc',{empId, empCompany, docId, filename, mime, data:dataUrl});
@@ -1189,7 +1191,8 @@ async function sharePdf(){
           </div>
         </div>
         <div className="content">
-          {screen==='dashboard'&&<Dashboard data={data} company={company} ferias={ferias} feriasConfig={feriasConfig} onNav={navigate}/>}
+          {screen==='dashboard'&&<Dashboard data={data} company={company} ferias={ferias} feriasConfig={feriasConfig} onNav={navigate} user={user} onUpdate={updateData}/>}
+          {screen==='motoristas'&&<MotoristasScreen data={data} company={company} onNav={navigate}/>}
           {screen==='employees'&&<EmpScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} user={user} onAudit={audit} evals={evals} onSaveEval={saveEval} onDelEval={delEval} absences={absences} onSaveAbsence={saveAbsence} onDelAbsence={delAbsence} initSel={navTarget}/>}
           {screen==='sef'&&<SefScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit} onNav={navigate}/>}
           {screen==='medicina'&&<MedScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit}/>}
@@ -1212,11 +1215,6 @@ async function sharePdf(){
     </div>
   );
 }
-
-
-
-
-
 
 
 const root=ReactDOM.createRoot(document.getElementById('root'));

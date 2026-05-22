@@ -1,10 +1,28 @@
 // Dashboard inicial: cartões de estatísticas e alertas por módulo.
 
-function Dashboard({data,company,ferias,feriasConfig,onNav}){
+function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
   const {employees=[],inactive=[]}=data;
   const cm={'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
   const emps=filterEmps(employees, company);
   const cy=new Date().getFullYear();
+  const isAdmin = user?.role === 'ADMIN';
+
+  // Disponibilidade dos motoristas (Pit não conta — não tem este conceito)
+  const motoristas = emps.filter(e => (e.role||'').toLowerCase().includes('mot') && e.company !== 'Pit Evolution');
+  const disponiveis = motoristas.filter(e => (e.availability||'').toLowerCase().startsWith('dispon')).length;
+  const meta = parseInt(data.motoristasMetaDisponiveis) || 0;
+  const faltam = meta > 0 ? Math.max(0, meta - disponiveis) : 0;
+  const metaOk = meta > 0 && disponiveis >= meta;
+
+  async function changeMeta(){
+    if(!isAdmin || !onUpdate) return;
+    const cur = String(meta || '');
+    const v = window.prompt(`Quantos motoristas disponíveis quer ter?\n(actual: ${disponiveis})`, cur);
+    if(v === null) return;
+    const n = parseInt(v);
+    if(isNaN(n) || n < 0){ alert('Indique um número inteiro válido.'); return; }
+    await onUpdate({...data, motoristasMetaDisponiveis: n});
+  }
   const alerts=useMemo(()=>{
     const sef=[],med=[],diut=[],cc=[],adr=[],cartas=[],contratos=[];
     emps.forEach(emp=>{
@@ -49,7 +67,7 @@ function Dashboard({data,company,ferias,feriasConfig,onNav}){
   const byComp=Object.entries({'Roupeta':0,'Roupeta II':0,'Arlize':0,'Pit Evolution':0}).map(([n,_])=>({n,c:employees.filter(e=>e.company===n).length}));
   return(
     <div>
-      <div style={{display:'grid',gridTemplateColumns:company==='all'?'1fr 1fr':'1fr',gap:16,marginBottom:24,alignItems:'start'}}>
+      <div style={{display:'grid',gridTemplateColumns:company==='all'?'minmax(0,1.2fr) minmax(0,1fr) minmax(0,1.4fr)':'minmax(0,1.2fr) minmax(0,1fr)',gap:16,marginBottom:24,alignItems:'start'}}>
         <div>
           <div style={{fontSize:'11px',fontWeight:700,textTransform:'uppercase',letterSpacing:'.8px',color:'var(--muted)',marginBottom:'10px',paddingBottom:'6px',borderBottom:'1px solid var(--border)'}}>Visão Geral</div>
           <div className="stats" style={{marginBottom:0}}>
@@ -59,6 +77,26 @@ function Dashboard({data,company,ferias,feriasConfig,onNav}){
             <div className="stat" style={{borderColor:totalAlerts>0?'var(--red)':''}}><div className="stat-n" style={{color:'var(--red)'}}>{totalAlerts}</div><div className="stat-l">Alertas</div><div className="stat-s">Requerem atenção</div></div>
           </div>
         </div>
+
+        {/* Motoristas disponíveis (excluindo Pit) */}
+        <div>
+          <div style={{fontSize:'11px',fontWeight:700,textTransform:'uppercase',letterSpacing:'.8px',color:'var(--muted)',marginBottom:'10px',paddingBottom:'6px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',gap:8}}>
+            <span>Motoristas</span>
+            {isAdmin && <button onClick={changeMeta} title="Definir meta de disponíveis" style={{marginLeft:'auto',background:'transparent',border:'1px solid var(--border)',borderRadius:6,fontSize:10,padding:'2px 8px',cursor:'pointer',color:'var(--muted)'}}>meta</button>}
+          </div>
+          <div className="stat" style={{cursor:'pointer',borderLeft:`3px solid ${meta>0?(metaOk?'var(--green)':'var(--red)'):'var(--blue)'}`}} onClick={()=>onNav('motoristas')}>
+            <div className="stat-n" style={{color:meta>0?(metaOk?'var(--green)':'var(--red)'):'inherit'}}>
+              {disponiveis}{meta>0 && <span style={{fontSize:'.55em',color:'var(--muted)',fontWeight:600}}> / {meta}</span>}
+            </div>
+            <div className="stat-l">Disponíveis</div>
+            <div className="stat-s">
+              {meta>0
+                ? (metaOk ? 'meta atingida' : `faltam ${faltam}`)
+                : `de ${motoristas.length} motoristas`}
+            </div>
+          </div>
+        </div>
+
         {company==='all'&&<div>
           <div style={{fontSize:'11px',fontWeight:700,textTransform:'uppercase',letterSpacing:'.8px',color:'var(--muted)',marginBottom:'10px',paddingBottom:'6px',borderBottom:'1px solid var(--border)'}}>Por Empresa</div>
           <div className="stats" style={{marginBottom:0}}>
