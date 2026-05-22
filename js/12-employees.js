@@ -33,6 +33,7 @@ function EmpModal({emp,onSave,onClose,readOnly}){
             <SI k="name" label="Nome Completo" span ph="Nome próprio e apelidos"/>
             <SI k="role" label="Função" ph="ex: Mot. Veic. Pesados"/>
             <SI k="contractStatus" label="Estado" opts={['Ativo','De baixa','De seguro','Férias','Suspenso','Inativo']}/>
+            <SI k="availability" label="Disponibilidade" opts={['','Disponível','Seguro','Baixa','Licença']}/>
             <SI k="admissionDate" label="Data Admissão" type="date"/>
             <SI k="contractEndDate" label="Tipo Contrato" opts={['Efetivo','Termo Certo','Indeterminado']}/>
             <SI k="app" label="App (4Miga)" opts={['SIM','NÃO']}/>
@@ -373,6 +374,7 @@ function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive
           <div style={{fontSize:12,color:'var(--muted)'}}>{emp.role} · {emp.company} · #{emp.id}</div>
           <div style={{display:'flex',gap:5,marginTop:3,flexWrap:'wrap'}}>
             <Chip label={emp.contractStatus} type={emp.contractStatus==='Ativo'?'green':emp.contractStatus?.includes('baixa')?'orange':'gr'}/>
+            {emp.availability && <Chip label={emp.availability} type={emp.availability==='Disponível'?'green':emp.availability==='Baixa'?'orange':emp.availability==='Seguro'?'blue':'gr'}/>}
             {emp.app==='SIM'&&<Chip label="App" type="blue"/>}
           </div>
         </div>
