@@ -153,7 +153,7 @@ function Dashboard({data,company,ferias,feriasConfig,onNav}){
           </div>
         </div>
       </div>
-      {data.lastSavedBy&&<div style={{fontSize:11,color:'var(--muted)',textAlign:'right',marginTop:4}}>Última actualização: {data.lastSavedBy} em {new Date(data.lastSaved).toLocaleString('pt-PT')}</div>}
+      {data.lastSaved&&<div style={{fontSize:11,color:'var(--muted)',textAlign:'right',marginTop:4}}>Última actualização: {new Date(data.lastSaved).toLocaleString('pt-PT')}</div>}
     </div>
   );
 }
