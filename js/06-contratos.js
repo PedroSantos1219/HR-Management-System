@@ -76,23 +76,45 @@ function ContratosScreen({data,company,onUpdate,readOnly,user,onAudit,onNav}){
             <div className="sec-t" style={{margin:0}}>Contratos</div>
             <span style={{fontSize:12,color:'var(--muted)',marginLeft:'auto'}}>{sorted.length} colaborador{sorted.length!==1?'es':''}</span>
           </div>
-          <div className="tw">
+          <div className="tw contratos-table">
             <table>
-              <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Admissão</th><th>Tipo</th><th>Estado</th></tr></thead>
+              <thead><tr>
+                <th>N.º</th>
+                <th>Colaborador</th>
+                <th>Empresa</th>
+                <th>Admissão</th>
+                <th>Tipo</th>
+                <th>Dias</th>
+                <th>Estado</th>
+              </tr></thead>
               <tbody>
-                {sorted.map(emp=>(
-                  <tr key={emp.id+emp.company} style={{cursor:'pointer'}}
-                    onClick={()=>setSelEmp({id:emp.id,company:emp.company})}
-                    onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
-                    onMouseLeave={e=>e.currentTarget.style.background=''}>
-                    <td style={{color:'var(--muted)',fontWeight:500}}>{emp.id}</td>
-                    <td style={{fontWeight:600}}>{emp.name}</td>
-                    <td><Chip label={emp.company} type="gr"/></td>
-                    <td>{fmtDate(emp.admissionDate)}</td>
-                    <td style={{color:'var(--muted)'}}>{emp.contractEndDate||'—'}</td>
-                    <td><Chip label={emp.contractStatus} type={emp.contractStatus==='Ativo'?'green':emp.contractStatus==='Inativo'?'red':'orange'}/></td>
-                  </tr>
-                ))}
+                {sorted.map(emp=>{
+                  const isTermo = (emp.contractEndDate||'').toLowerCase().includes('termo');
+                  const d = isTermo && emp.endDate ? daysTo(emp.endDate) : null;
+                  let diasColor = 'var(--muted)';
+                  let diasText = '—';
+                  if (d !== null) {
+                    diasText = d < 0 ? `${Math.abs(d)}d (expirado)` : `${d}d`;
+                    if (d < 0)        diasColor = 'var(--red)';
+                    else if (d <= 30) diasColor = 'var(--red)';
+                    else if (d <= 90) diasColor = 'var(--orange)';
+                    else              diasColor = 'var(--green)';
+                  }
+                  return(
+                    <tr key={emp.id+emp.company} style={{cursor:'pointer'}}
+                      onClick={()=>setSelEmp({id:emp.id,company:emp.company})}
+                      onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
+                      onMouseLeave={e=>e.currentTarget.style.background=''}>
+                      <td style={{color:'var(--muted)',fontWeight:500}}>{emp.id}</td>
+                      <td style={{fontWeight:600}}>{emp.name}</td>
+                      <td><Chip label={emp.company} type="gr"/></td>
+                      <td>{fmtDate(emp.admissionDate)}</td>
+                      <td style={{color:'var(--muted)'}}>{emp.contractEndDate||'—'}</td>
+                      <td style={{color:diasColor,fontWeight: d!==null ? 700 : 400}}>{diasText}</td>
+                      <td><Chip label={emp.contractStatus} type={emp.contractStatus==='Ativo'?'green':emp.contractStatus==='Inativo'?'red':'orange'}/></td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

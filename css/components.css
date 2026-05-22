@@ -202,6 +202,17 @@ tr.row-hidden:hover td     { background-color: #c7cdd4 !important; }
   text-align: left;
 }
 
+/* Contratos: tudo centrado excepto o nome do colaborador (2ª coluna). */
+.contratos-table table th,
+.contratos-table table td {
+  text-align: center;
+  vertical-align: middle;
+}
+.contratos-table table th:nth-child(2),
+.contratos-table table td:nth-child(2) {
+  text-align: left;
+}
+
 .show-hidden {
   display: flex;
   align-items: center;
