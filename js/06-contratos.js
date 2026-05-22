@@ -6,6 +6,7 @@ function ContratosScreen({data,company,onUpdate,readOnly,user,onAudit,onNav}){
   const [editEntry,setEditEntry]=useState(null);
   const [form,setForm]=useState({admissionDate:'',exitDate:'',contractType:'Efetivo',baseSalary:'',exitReason:'',notes:''});
   const [formErr,setFormErr]=useState('');
+  const [search,setSearch]=useState('');
   const allEmps=data?.employees||[];
   const CM={'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
   const emps=company==='all'?allEmps:allEmps.filter(e=>e.company===CM[company]);
@@ -66,15 +67,35 @@ function ContratosScreen({data,company,onUpdate,readOnly,user,onAudit,onNav}){
     return(yrs?yrs+'a ':'')+mos+'m';
   }
 
-  const sorted=[...emps].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  const sorted=useMemo(()=>{
+    const list=[...emps].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+    const q=search.trim().toLowerCase();
+    if(!q) return list;
+    return list.filter(e=>
+      (e.name||'').toLowerCase().includes(q) ||
+      String(e.id||'').includes(q) ||
+      (e.company||'').toLowerCase().includes(q) ||
+      (e.role||'').toLowerCase().includes(q)
+    );
+  },[emps,search]);
 
   return(
     <div>
       {!selEmp?(
         <div className="card cb" style={{padding:0,overflow:'hidden'}}>
-          <div style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',gap:10}}>
+          <div style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
             <div className="sec-t" style={{margin:0}}>Contratos</div>
-            <span style={{fontSize:12,color:'var(--muted)',marginLeft:'auto'}}>{sorted.length} colaborador{sorted.length!==1?'es':''}</span>
+            <input
+              type="search"
+              value={search}
+              onChange={e=>setSearch(e.target.value)}
+              placeholder="Pesquisar por nome, n.º, empresa ou função..."
+              className="fi"
+              style={{flex:'1 1 220px',maxWidth:340,padding:'5px 10px',fontSize:12}}
+            />
+            <span style={{fontSize:12,color:'var(--muted)',marginLeft:'auto'}}>
+              {search ? `${sorted.length} de ${emps.length}` : `${sorted.length} colaborador${sorted.length!==1?'es':''}`}
+            </span>
           </div>
           <div className="tw contratos-table">
             <table>
