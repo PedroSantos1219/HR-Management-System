@@ -1,3 +1,6 @@
+// Colaboradores: lista, ficha completa (multi-tab) e formulário de criação/edição.
+// EmpFormCtx é o context partilhado pelos inputs do formulário (SI, FV, etc).
+
 const EmpFormCtx=React.createContext(null);
 function SI({k,label,type='text',opts=null,span=false,ph=''}){
   const {form,set,readOnly}=React.useContext(EmpFormCtx);

@@ -1,3 +1,5 @@
+// EPIs: tab por colaborador e ecrã global com histórico de entregas.
+
 const EPI_ITEMS = [
   {id:'capacete',  label:'Capacete',           icon:'⛑'},
   {id:'colete',    label:'Colete Refletor',     icon:'🦺'},

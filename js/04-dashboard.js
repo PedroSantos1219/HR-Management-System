@@ -1,3 +1,5 @@
+// Dashboard inicial: cartões de estatísticas e alertas por módulo.
+
 function Dashboard({data,company,ferias,feriasConfig,onNav}){
   const {employees=[],inactive=[]}=data;
   const cm={'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};

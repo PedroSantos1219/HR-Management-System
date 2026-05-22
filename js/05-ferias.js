@@ -1,3 +1,5 @@
+// Mapa de férias: índice por empresa, ficha individual, configuração anual e PDF.
+
 const COMP_META={
   roupeta:  {label:'Roupeta',      color:'#C0392B', bg:'#fdecea'},
   roupeta2: {label:'Roupeta II',   color:'#2E86C1', bg:'#e8f4fc'},

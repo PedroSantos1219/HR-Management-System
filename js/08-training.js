@@ -1,3 +1,6 @@
+// Formação: categorias internas e externas, tab individual na ficha
+// do colaborador e ecrã global por sessão. Pit Evolution não tem CAM/ADR.
+
 const TRAIN_CATS = [
   {id:'sht',       label:'SHT — Segurança, Higiene e Saúde',         type:'interna', color:'1D6A39'},
   {id:'integracao',label:'Formação de Integração / Acolhimento',      type:'interna', color:'1D6A39'},

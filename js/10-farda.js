@@ -1,3 +1,5 @@
+// Fardas: tab individual, ecrã com lista de colaboradores e gestor de stock por tamanho.
+
 const FARDA_ITEMS = [
   {id:'casaco',         label:'Casaco',                icon:'🧥'},
   {id:'calcas',         label:'Calças',                icon:'👖'},

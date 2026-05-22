@@ -1,3 +1,7 @@
+// Centro de relatórios PDF (só admin). Construção do HTML embebido para
+// cada tipo de PDF acontece toda dentro deste componente para facilitar
+// ajustes de layout sem ter de mexer no PDF base.
+
 function RelatoriosScreen({data, company, evals, user}) {
   if (!user || user.role !== 'ADMIN') {
     return (

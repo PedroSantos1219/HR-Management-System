@@ -1,3 +1,5 @@
+// Lista de contratos por colaborador, com tipo, datas e atalhos para a ficha.
+
 function ContratosScreen({data,company,onUpdate,readOnly,user,onAudit,onNav}){
   const [selEmp,setSelEmp]=useState(null);
   const [showModal,setShowModal]=useState(false);

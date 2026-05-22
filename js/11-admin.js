@@ -1,3 +1,6 @@
+// Ecrãs de administração: gestão de utilizadores, backups da BD e
+// logs de segurança (capturas de ecrã e sessões activas).
+
 function UserManagement({user: currentUser}){
   const [users,setUsers]=React.useState([]);
   const [loading,setLoading]=React.useState(true);
