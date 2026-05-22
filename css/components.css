@@ -528,6 +528,19 @@ tr.row-hidden:hover td     { background-color: #c7cdd4 !important; }
 .gap-3 { gap: 12px; }
 .gap-4 { gap: 16px; }
 
+/* Crédito discreto no canto da app */
+.corner-credit {
+  position: fixed;
+  bottom: 6px;
+  right: 12px;
+  font-size: 10px;
+  color: rgba(0, 0, 0, .35);
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  letter-spacing: .3px;
+  pointer-events: none;
+  z-index: 1;
+}
+
 /* Bordas */
 .border-left-urgent { border-left: 4px solid #c0392b; }
 .border-left-warning { border-left: 4px solid #e67e22; }
