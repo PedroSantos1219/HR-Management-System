@@ -1,15 +1,37 @@
-# Configuração Apache — RH Manager
-# Garante que actualizações ao código (HTML, JS, CSS) chegam aos utilizadores
-# sem dependerem de Ctrl+F5. Imagens e fontes mantêm cache normal.
+# Apache rules for the HR Manager. Most of these are defensive — they
+# only matter if NTFS permissions on this folder also keep non-admins out.
 
+# Stop browsers caching HTML/JS/CSS. Without this, updates to the SPA
+# would need a Ctrl+F5 from each user after every deploy. Images and
+# fonts keep the default cache headers.
 <IfModule mod_headers.c>
     <FilesMatch "\.(html|js|css)$">
         Header set Cache-Control "no-cache, must-revalidate"
         Header set Pragma "no-cache"
     </FilesMatch>
+
+    # Minimal security headers. Nothing fancy — block iframes, force
+    # the declared content-type, and tell IE/Edge to obey the MIME.
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "same-origin"
 </IfModule>
 
-# Negar acesso directo a ficheiros sensíveis (config, base de dados, backups, .htaccess)
-<FilesMatch "(^\.htaccess|\.sqlite|\.sqlite-journal|\.sqlite-shm|\.sqlite-wal|\.bak|\.example\.php|config\.php)$">
+# Block direct download of sensitive files even if Apache's directory
+# listing were ever turned on. The .gitignore covers source control;
+# this covers the web side.
+<FilesMatch "(^\.htaccess|\.sqlite|\.sqlite-journal|\.sqlite-shm|\.sqlite-wal|\.bak|\.example\.php|config\.php|^\.git)$">
     Require all denied
 </FilesMatch>
+
+# Block any access to docs/ from the browser — it's only for the repo.
+RedirectMatch 404 ^/docs/.*$
+
+# Optional: restrict the whole app to the office LAN. Uncomment and
+# adjust the subnet to match your network. Useful belt-and-braces if
+# this server ever ends up reachable from outside the office.
+#
+# <RequireAll>
+#     Require ip 192.168.1.0/24
+#     Require ip 127.0.0.1
+# </RequireAll>
