@@ -42,6 +42,7 @@ loosely follows [Keep a Changelog](https://keepachangelog.com/).
   - `js/10-farda.js`
   - `js/11-admin.js` (users, backups, security logs)
   - `js/12-employees.js`
+  - `js/13-docs.js` (employee document tab)
 
 ### Fixed
 - API returns a clear 503 with a JSON message when `config.php` is
