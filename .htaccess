@@ -35,11 +35,12 @@
     Require all denied
 </FilesMatch>
 
-# Optional: restrict the whole app to the office LAN. Uncomment and
-# adjust the subnet to match your network. Useful belt-and-braces if
-# this server ever ends up reachable from outside the office.
-#
-# <RequireAll>
-#     Require ip 192.168.1.0/24
-#     Require ip 127.0.0.1
-# </RequireAll>
+# Restrict the whole app to the office LAN. This is an internal tool —
+# anything coming from outside 192.168.1.x has no business being here.
+# 127.0.0.1 is kept so the daily backup task (running on the server
+# itself) and any local cron still work.
+<RequireAny>
+    Require ip 192.168.1.0/24
+    Require ip 127.0.0.1
+    Require ip ::1
+</RequireAny>
