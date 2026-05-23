@@ -45,3 +45,11 @@ php_errorlog
 
 # Scripts de importação one-off (referenciam dados reais dos colaboradores)
 scripts/
+
+# Base de conhecimento da IA (manuais internos, guiões, regras
+# de cumprimento, dados específicos da Roupeta). Não vai para o repo.
+ai-knowledge/
+Guiao_*.pdf
+Guião_*.pdf
+*.docx
+*.doc
