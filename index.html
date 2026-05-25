@@ -945,7 +945,59 @@ function App(){
           })}</tbody>
         </table>`;
 
-    }else{
+    } else if (screen === 'motoristas') {
+      const drivers = emps.filter(e =>
+        (e.role || '').toLowerCase().includes('mot') && e.company !== 'Pit Evolution'
+      );
+      const eff = e => effectiveAvailability(e, ferias);
+      const isDispDriver = e => (eff(e) || '').toLowerCase().startsWith('dispon');
+      const disp   = drivers.filter(isDispDriver);
+      const indisp = drivers.filter(e => eff(e) && !isDispDriver(e));
+      const sem    = drivers.filter(e => !eff(e));
+
+      const renderTable = (list, withMotivo) => `
+        <table>
+          <thead>
+            <tr>
+              <th>N.º</th><th>Nome</th><th>Empresa</th><th>Função</th>
+              ${withMotivo ? '<th>Motivo</th>' : ''}
+            </tr>
+          </thead>
+          <tbody>${rows(list, (e, i) => `
+            <tr class="${i % 2 ? 'alt' : ''}">
+              <td>${e.id || '—'}</td>
+              <td class="bold">${e.name || '—'}</td>
+              <td>${e.company || '—'}</td>
+              <td class="small">${e.role || '—'}</td>
+              ${withMotivo ? `<td>${badge(eff(e), eff(e)==='Baixa'?'orange':eff(e)==='Seguro'?'gray':eff(e)==='Férias'?'green':'gray')}</td>` : ''}
+            </tr>`)}
+          </tbody>
+        </table>`;
+
+      body = `
+        <h2>Motoristas — ${drivers.length}</h2>
+        <div style="display:flex;gap:10px;margin-bottom:14px;font-size:12px">
+          <span><strong>${disp.length}</strong> disponíveis</span>
+          <span>·</span>
+          <span><strong>${indisp.length}</strong> indisponíveis</span>
+          ${sem.length ? `<span>·</span><span><strong>${sem.length}</strong> sem dado</span>` : ''}
+        </div>
+
+        <h3>Disponíveis (${disp.length})</h3>
+        ${renderTable(disp, false)}
+
+        <div class="section-break"></div>
+        <h3>Indisponíveis (${indisp.length})</h3>
+        ${renderTable(indisp, true)}
+
+        ${sem.length ? `
+          <div class="section-break"></div>
+          <h3>Sem disponibilidade definida (${sem.length})</h3>
+          ${renderTable(sem, false)}
+        ` : ''}
+      `;
+
+    } else {
       body=`<p style="text-align:center;padding:40px;color:#9ca3af">Exportação PDF não disponível para este módulo.</p>`;
     }
 
@@ -1190,7 +1242,7 @@ async function sharePdf(){
         </div>
         <div className="content">
           {screen==='dashboard'&&<Dashboard data={data} company={company} ferias={ferias} feriasConfig={feriasConfig} onNav={navigate} user={user} onUpdate={updateData}/>}
-          {screen==='motoristas'&&<MotoristasScreen data={data} company={company} onNav={navigate}/>}
+          {screen==='motoristas'&&<MotoristasScreen data={data} company={company} onNav={navigate} ferias={ferias}/>}
           {screen==='employees'&&<EmpScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} user={user} onAudit={audit} evals={evals} onSaveEval={saveEval} onDelEval={delEval} absences={absences} onSaveAbsence={saveAbsence} onDelAbsence={delAbsence} initSel={navTarget} ferias={ferias}/>}
           {screen==='sef'&&<SefScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit} onNav={navigate}/>}
           {screen==='medicina'&&<MedScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit}/>}

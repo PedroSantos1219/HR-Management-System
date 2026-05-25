@@ -1,16 +1,34 @@
 // Motoristas: lista filtrada por disponibilidade (Disponível / Indisponível).
-// Indisponível agrupa Seguro + Baixa + Licença com o motivo à frente.
+// Indisponível agrupa Seguro + Baixa + Licença + Férias actuais, com o motivo
+// à frente para se ver porque é que a pessoa não está na rua.
 
-function MotoristasScreen({data, company, onNav}){
+function MotoristasScreen({data, company, onNav, ferias}){
   const {employees=[]} = data;
+  const [filter, setFilter] = useState('all');
   const cm = {'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
   const emps = (company==='all' ? employees : employees.filter(e=>e.company===cm[company]))
     .filter(e => (e.role||'').toLowerCase().includes('mot') && e.company !== 'Pit Evolution');
 
-  const isDisp = e => (e.availability||'').toLowerCase().startsWith('dispon');
-  const disponiveis   = emps.filter(e => isDisp(e));
-  const indisponiveis = emps.filter(e => e.availability && !isDisp(e));
-  const semDado       = emps.filter(e => !e.availability);
+  // Disponibilidade efectiva: férias actuais sobrepõem-se ao campo availability,
+  // por isso usamos o helper do 00-helpers.js em vez de ler emp.availability directo.
+  const decorated = emps.map(e => ({...e, _eff: effectiveAvailability(e, ferias)}));
+  const isDisp = e => (e._eff||'').toLowerCase().startsWith('dispon');
+
+  const disponiveis   = decorated.filter(isDisp);
+  const indisponiveis = decorated.filter(e => e._eff && !isDisp(e));
+  const semDado       = decorated.filter(e => !e._eff);
+
+  // O que mostrar em cada secção, conforme o filtro escolhido.
+  const showDisp  = (filter==='all' || filter==='disponiveis') && disponiveis.length>0;
+  const showIndisp = (filter==='all' || filter==='indisponiveis' || ['baixa','seguro','ferias'].includes(filter));
+  const showSemDado = filter==='all' && semDado.length>0;
+
+  const indispShown = indisponiveis.filter(e => {
+    if(filter==='baixa')  return e._eff === 'Baixa';
+    if(filter==='seguro') return e._eff === 'Seguro';
+    if(filter==='ferias') return e._eff === 'Férias';
+    return true;
+  });
 
   function goTo(emp){
     onNav('employees', {id: emp.id, company: emp.company, _highlight: true});
@@ -23,13 +41,28 @@ function MotoristasScreen({data, company, onNav}){
         <td className="col-name">{emp.name}</td>
         <td><Chip label={emp.company} type="gr"/></td>
         <td className="col-muted">{emp.role}</td>
-        {badge && <td><Chip label={badge} type={badgeColor}/></td>}
+        {badge!==undefined && <td>{badge ? <Chip label={badge} type={badgeColor}/> : '—'}</td>}
       </tr>
     );
   }
 
+  const FILTERS = [
+    ['all',           'Todos'],
+    ['disponiveis',   'Disponíveis'],
+    ['indisponiveis', 'Indisponíveis'],
+    ['baixa',         'Baixa'],
+    ['seguro',        'Seguro'],
+    ['ferias',        'Férias'],
+  ];
+
   return (
     <div>
+
+      <div className="emp-filter-bar" style={{marginBottom:14}}>
+        {FILTERS.map(([k,lbl]) => (
+          <button key={k} className={`emp-filter-btn ${filter===k?'is-active':''}`} onClick={()=>setFilter(k)}>{lbl}</button>
+        ))}
+      </div>
 
       <div className="mot-summary">
         <div className="mot-stat mot-stat--green">
@@ -52,42 +85,45 @@ function MotoristasScreen({data, company, onNav}){
         </div>
       </div>
 
-      {/* Indisponíveis primeiro — é o que se quer ver imediatamente */}
-      {indisponiveis.length>0 && (
+      {showDisp && (
         <div className="mot-section">
-          <div className="mot-section__head mot-section__head--orange">
-            <span>Indisponíveis ({indisponiveis.length})</span>
+          <div className="mot-section__head mot-section__head--green">
+            <span>Disponíveis ({disponiveis.length})</span>
           </div>
           <table className="mot-table">
-            <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Função</th><th>Motivo</th></tr></thead>
+            <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Função</th></tr></thead>
             <tbody>
-              {indisponiveis.map(e => {
-                const motivo = e.availability;
-                const c = motivo==='Baixa' ? 'orange' : motivo==='Seguro' ? 'blue' : 'gr';
-                return <Row key={e.id+e.company} emp={e} badge={motivo} badgeColor={c}/>;
-              })}
+              {disponiveis.map(e => <Row key={e.id+e.company} emp={e}/>)}
             </tbody>
           </table>
         </div>
       )}
 
-      <div className="mot-section">
-        <div className="mot-section__head mot-section__head--green">
-          <span>Disponíveis ({disponiveis.length})</span>
+      {showIndisp && (
+        <div className="mot-section">
+          <div className="mot-section__head mot-section__head--orange">
+            <span>Indisponíveis ({indispShown.length})</span>
+          </div>
+          <table className="mot-table">
+            <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Função</th><th>Motivo</th></tr></thead>
+            <tbody>
+              {indispShown.length===0
+                ? <tr><td colSpan={5} className="mot-empty">Sem motoristas indisponíveis nesta categoria.</td></tr>
+                : indispShown.map(e => {
+                    const motivo = e._eff;
+                    const c = motivo==='Baixa' ? 'orange'
+                            : motivo==='Seguro' ? 'blue'
+                            : motivo==='Férias' ? 'green'
+                            : 'gr';
+                    return <Row key={e.id+e.company} emp={e} badge={motivo} badgeColor={c}/>;
+                  })
+              }
+            </tbody>
+          </table>
         </div>
-        <table className="mot-table">
-          <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Função</th></tr></thead>
-          <tbody>
-            {disponiveis.length===0
-              ? <tr><td colSpan={4} className="mot-empty">Sem motoristas disponíveis.</td></tr>
-              : disponiveis.map(e => <Row key={e.id+e.company} emp={e}/>)
-            }
-          </tbody>
-        </table>
-      </div>
+      )}
 
-      {/* Sem dado: motoristas que ainda não foram marcados */}
-      {semDado.length>0 && (
+      {showSemDado && (
         <div className="mot-section">
           <div className="mot-section__head mot-section__head--muted">
             Sem disponibilidade definida ({semDado.length})
