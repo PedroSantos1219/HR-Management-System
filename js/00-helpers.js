@@ -148,6 +148,25 @@ function Chip({label,type='gr'}){
 }
 // Só motoristas contam para validação de carta/CAM/tacógrafo/ADR.
 const isDriver = emp => /^mot/i.test(((emp&&emp.role)||'').trim());
+
+// Está actualmente de férias? Olha para o array de períodos com (empId, empCompany, startDate, endDate).
+// Considera "hoje" inclusivo nas duas pontas. Aceita ferias undefined.
+function isOnVacation(emp, ferias, today){
+  if(!emp || !ferias || !ferias.length) return false;
+  const t = today || new Date().toISOString().split('T')[0];
+  return ferias.some(f =>
+    f.empId === emp.id && f.empCompany === emp.company &&
+    f.startDate && f.startDate <= t &&
+    (!f.endDate || f.endDate >= t)
+  );
+}
+
+// Disponibilidade efectiva: férias sobrepõem-se a tudo (mesmo "Disponível"),
+// senão devolve o que está no campo. Devolve '' se nada se aplicar.
+function effectiveAvailability(emp, ferias){
+  if(isOnVacation(emp, ferias)) return 'Férias';
+  return emp.availability || '';
+}
 function ExpiryChip({date}){
   const d=daysTo(date);
   if(d===null||!date) return <span className="badge badge--neutral">—</span>;

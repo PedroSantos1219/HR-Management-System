@@ -220,7 +220,7 @@ function AusenciasTab({emp,absences,readOnly,user,onSaveAbsence,onDelAbsence,onA
   );
 }
 
-function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive,user,evals,onSaveEval,onDelEval,absences,onSaveAbsence,onDelAbsence,onAudit}){
+function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive,user,evals,onSaveEval,onDelEval,absences,onSaveAbsence,onDelAbsence,onAudit,ferias}){
   const [tab,setTab]=useState('info');
   const [showEvalModal,setShowEvalModal]=useState(false);
   const [ef,setEf]=useState({type:'',date:new Date().toISOString().split('T')[0],notes:'',nextAction:'',nextDate:''});
@@ -374,11 +374,12 @@ function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive
           <div style={{fontSize:12,color:'var(--muted)'}}>{emp.role} · {emp.company} · #{emp.id}</div>
           <div style={{display:'flex',gap:5,marginTop:3,flexWrap:'wrap'}}>
             <Chip label={emp.contractStatus} type={emp.contractStatus==='Ativo'?'green':emp.contractStatus?.includes('baixa')?'orange':'gr'}/>
-            {emp.availability && (
-              (emp.availability||'').toLowerCase().startsWith('dispon')
-                ? <Chip label="Disponível" type="green"/>
-                : <span title={emp.availability}><Chip label={`Indisponível · ${emp.availability}`} type="orange"/></span>
-            )}
+            {(()=>{
+              const eff = effectiveAvailability(emp, ferias);
+              if(!eff) return null;
+              if(eff.toLowerCase().startsWith('dispon')) return <Chip label="Disponível" type="green"/>;
+              return <span title={eff}><Chip label={`Indisponível · ${eff}`} type="orange"/></span>;
+            })()}
             {emp.app==='SIM'&&<Chip label="App" type="blue"/>}
           </div>
         </div>
@@ -517,7 +518,7 @@ function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive
   );
 }
 
-function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval,onDelEval,absences,onSaveAbsence,onDelAbsence,initSel}){
+function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval,onDelEval,absences,onSaveAbsence,onDelAbsence,initSel,ferias}){
   const {employees=[],inactive=[]}=data;
   const [search,setSearch]=useState('');
   const [sf,setSf]=useState('all');
@@ -537,15 +538,15 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
 
   const compMap={'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
   const todayStr=new Date().toISOString().split('T')[0];
-  // Ausente = ausência sem data de fim ou cuja data de fim ainda não chegou.
-  const isAbsent=e=>(absences||[]).some(a=>a.empId===e.id&&a.empCompany===e.company&&(a.indefinite||!a.endDate||a.endDate>=todayStr));
   const filtered=useMemo(()=>{
     let l=filterEmps(archive?inactive:employees, company);
-    if(sf==='ausencia') l=l.filter(isAbsent);
-    else if(sf!=='all') l=l.filter(e=>e.contractStatus?.toLowerCase().includes(sf));
+    if(sf==='baixa')   l=l.filter(e=>(e.availability||'').toLowerCase()==='baixa');
+    else if(sf==='seguro')  l=l.filter(e=>(e.availability||'').toLowerCase()==='seguro');
+    else if(sf==='ferias')  l=l.filter(e=>isOnVacation(e, ferias, todayStr));
+    else if(sf==='ativo')   l=l.filter(e=>(e.contractStatus||'').toLowerCase()==='ativo');
     if(search){const s=search.toLowerCase();l=l.filter(e=>e.name?.toLowerCase().includes(s)||e.id?.includes(s)||e.nif?.includes(s));}
     return l;
-  },[employees,inactive,company,search,sf,archive,absences]);
+  },[employees,inactive,company,search,sf,archive,ferias]);
 
   function handleSave(f){
     let ne=[...employees],ni=[...inactive];
@@ -602,9 +603,9 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
             {!readOnly&&!archive&&<button className="btn bp btn-sm" style={{marginLeft:'auto'}} onClick={()=>{setEditEmp({id:'new'});setShowForm(true);}}>+</button>}
           </div>
           <input className="fi" style={{marginBottom:6}} placeholder="Nome, NIF, n.º..." value={search} onChange={e=>setSearch(e.target.value)}/>
-          <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
-            {[['all','Todos'],['ativo','Ativo'],['ausencia','Ausências'],['seguro','Seguro'],['férias','Férias']].map(([s,lbl])=>(
-              <button key={s} className={`btn btn-sm ${sf===s?'bp':'bs'}`} style={{padding:'2px 7px',fontSize:'10px'}} onClick={()=>setSf(s)}>{lbl}</button>
+          <div className="emp-filter-bar">
+            {[['all','Todos'],['ativo','Ativo'],['baixa','Baixa'],['seguro','Seguro'],['ferias','Férias']].map(([s,lbl])=>(
+              <button key={s} className={`emp-filter-btn ${sf===s?'is-active':''}`} onClick={()=>setSf(s)}>{lbl}</button>
             ))}
           </div>
         </div>
@@ -630,7 +631,7 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
       <div ref={detailRef} className="card" style={{padding:16,overflow:'auto'}}>
         {!sel?<div className="empty" style={{paddingTop:70}}>Seleccione um colaborador</div>:
         <>{isMobile&&<button className="btn bs btn-sm" style={{marginBottom:8,display:'flex',alignItems:'center',gap:4}} onClick={()=>setSel(null)}>← Voltar</button>}
-        <EmpDetail emp={sel} readOnly={readOnly} isInactive={archive} user={user} evals={evals} onSaveEval={onSaveEval} onDelEval={onDelEval} absences={absences} onSaveAbsence={onSaveAbsence} onDelAbsence={onDelAbsence} onAudit={onAudit}
+        <EmpDetail emp={sel} readOnly={readOnly} isInactive={archive} user={user} evals={evals} onSaveEval={onSaveEval} onDelEval={onDelEval} absences={absences} onSaveAbsence={onSaveAbsence} onDelAbsence={onDelAbsence} onAudit={onAudit} ferias={ferias}
           onEdit={!readOnly?()=>{setEditEmp(sel);setShowForm(true);}:null}
           onDeactivate={!readOnly&&!archive?()=>setExitModal(sel):null}
           onReturn={!readOnly&&archive?()=>setReturnModal(sel):null}

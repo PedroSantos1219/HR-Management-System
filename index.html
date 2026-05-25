@@ -1193,7 +1193,7 @@ async function sharePdf(){
         <div className="content">
           {screen==='dashboard'&&<Dashboard data={data} company={company} ferias={ferias} feriasConfig={feriasConfig} onNav={navigate} user={user} onUpdate={updateData}/>}
           {screen==='motoristas'&&<MotoristasScreen data={data} company={company} onNav={navigate}/>}
-          {screen==='employees'&&<EmpScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} user={user} onAudit={audit} evals={evals} onSaveEval={saveEval} onDelEval={delEval} absences={absences} onSaveAbsence={saveAbsence} onDelAbsence={delAbsence} initSel={navTarget}/>}
+          {screen==='employees'&&<EmpScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} user={user} onAudit={audit} evals={evals} onSaveEval={saveEval} onDelEval={delEval} absences={absences} onSaveAbsence={saveAbsence} onDelAbsence={delAbsence} initSel={navTarget} ferias={ferias}/>}
           {screen==='sef'&&<SefScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit} onNav={navigate}/>}
           {screen==='medicina'&&<MedScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit}/>}
           {screen==='diuturnidades'&&<DiutScreen data={data} company={company} onUpdate={updateData} readOnly={readOnly} onAudit={audit}/>}

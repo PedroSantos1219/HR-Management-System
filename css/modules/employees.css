@@ -39,6 +39,40 @@
   border-left: 3px solid var(--blue);
 }
 
+/* Barra de filtros (Todos / Ativo / Baixa / Seguro / Férias) */
+.emp-filter-bar {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.emp-filter-btn {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 11px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .12s, color .12s, border-color .12s, transform .1s;
+}
+.emp-filter-btn:hover {
+  background: var(--bg);
+  color: var(--text);
+  border-color: var(--muted);
+}
+.emp-filter-btn.is-active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: white;
+}
+.emp-filter-btn.is-active:hover {
+  filter: brightness(1.08);
+}
+.emp-filter-btn:active {
+  transform: translateY(1px);
+}
+
 /* Bloco de estatísticas no topo do dashboard */
 .stats {
   display: flex;
