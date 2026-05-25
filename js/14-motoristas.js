@@ -41,10 +41,23 @@ function MotoristasScreen({data, company, onNav, ferias}){
         <td className="col-name">{emp.name}</td>
         <td><Chip label={emp.company} type="gr"/></td>
         <td className="col-muted">{emp.role}</td>
-        {badge!==undefined && <td>{badge ? <Chip label={badge} type={badgeColor}/> : '—'}</td>}
+        <td>{badge ? <Chip label={badge} type={badgeColor}/> : <span className="col-muted">—</span>}</td>
       </tr>
     );
   }
+
+  const cols = (
+    <colgroup>
+      <col className="col-id"/>
+      <col className="col-nome"/>
+      <col className="col-emp"/>
+      <col className="col-func"/>
+      <col className="col-mot"/>
+    </colgroup>
+  );
+  const tableHead = (
+    <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Função</th><th>Motivo</th></tr></thead>
+  );
 
   const FILTERS = [
     ['all',           'Todos'],
@@ -91,7 +104,8 @@ function MotoristasScreen({data, company, onNav, ferias}){
             <span>Disponíveis ({disponiveis.length})</span>
           </div>
           <table className="mot-table">
-            <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Função</th></tr></thead>
+            {cols}
+            {tableHead}
             <tbody>
               {disponiveis.map(e => <Row key={e.id+e.company} emp={e}/>)}
             </tbody>
@@ -105,7 +119,8 @@ function MotoristasScreen({data, company, onNav, ferias}){
             <span>Indisponíveis ({indispShown.length})</span>
           </div>
           <table className="mot-table">
-            <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Função</th><th>Motivo</th></tr></thead>
+            {cols}
+            {tableHead}
             <tbody>
               {indispShown.length===0
                 ? <tr><td colSpan={5} className="mot-empty">Sem motoristas indisponíveis nesta categoria.</td></tr>
@@ -129,7 +144,8 @@ function MotoristasScreen({data, company, onNav, ferias}){
             Sem disponibilidade definida ({semDado.length})
           </div>
           <table className="mot-table">
-            <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Função</th></tr></thead>
+            {cols}
+            {tableHead}
             <tbody>{semDado.map(e => <Row key={e.id+e.company} emp={e}/>)}</tbody>
           </table>
         </div>
