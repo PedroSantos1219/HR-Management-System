@@ -148,21 +148,25 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
           <div className="dash-sec">
             <div className="dash-sec-label">
               <span>Motoristas</span>
-              {isAdmin && (
+              {/* Meta é global (toda a organização), por isso só faz sentido
+                  comparar Disponíveis vs Meta quando o filtro é "Todas". */}
+              {isAdmin && company==='all' && (
                 <button className="meta-btn" onClick={changeMeta} title="Definir meta de disponíveis">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="22" x2="4" y2="15"/><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1"/></svg>
                   <span>Meta</span>
                 </button>
               )}
             </div>
-            <div className={`stat stat--click ${motoristasAccent}`} onClick={()=>onNav('motoristas')}>
-              <div className={`stat-n ${motoristasNumColor}`}>
+            <div className={`stat stat--click ${company==='all' ? motoristasAccent : 'stat--accent-blue'}`} onClick={()=>onNav('motoristas')}>
+              <div className={`stat-n ${company==='all' ? motoristasNumColor : ''}`}>
                 {disponiveis}
-                {meta>0 && <span className="stat-n-sub"> / {meta}</span>}
+                {company==='all' && meta>0 && <span className="stat-n-sub"> / {meta}</span>}
               </div>
               <div className="stat-l">Disponíveis</div>
               <div className="stat-s">
-                {meta>0 ? (metaOk ? 'meta atingida' : `faltam ${faltam}`) : `de ${motoristas.length} motoristas`}
+                {company==='all' && meta>0
+                  ? (metaOk ? 'meta atingida' : `faltam ${faltam}`)
+                  : `de ${motoristas.length} motoristas`}
               </div>
             </div>
           </div>

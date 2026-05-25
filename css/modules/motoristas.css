@@ -7,6 +7,45 @@
   margin-bottom: 16px;
 }
 
+/* Toolbar: filtros à esquerda, stats compactas à direita. */
+.mot-toolbar {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.mot-toolbar__filters {
+  flex: 1;
+  min-width: 220px;
+}
+.mot-summary--compact {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+}
+.mot-summary--compact .mot-stat {
+  padding: 4px 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+.mot-summary--compact .mot-stat__value {
+  font-size: 15px;
+  line-height: 1.1;
+}
+.mot-summary--compact .mot-stat__label {
+  margin-top: 0;
+  font-size: 10px;
+}
+.mot-summary--compact .mot-stat:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 .mot-stat {
   background: white;
   border: 1px solid var(--border);

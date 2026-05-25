@@ -80,30 +80,31 @@ function MotoristasScreen({data, company, onNav, ferias, initContext}){
         </div>
       )}
 
-      <div className="emp-filter-bar" style={{marginBottom:14}}>
-        {FILTERS.map(([k,lbl]) => (
-          <button key={k} className={`emp-filter-btn ${filter===k?'is-active':''}`} onClick={()=>setFilter(k)}>{lbl}</button>
-        ))}
-      </div>
-
-      <div className="mot-summary">
-        <div className="mot-stat mot-stat--green">
-          <div className="mot-stat__label">Disponíveis</div>
-          <div className="mot-stat__value mot-stat__value--green">{disponiveis.length}</div>
+      <div className="mot-toolbar">
+        <div className="emp-filter-bar mot-toolbar__filters">
+          {FILTERS.map(([k,lbl]) => (
+            <button key={k} className={`emp-filter-btn ${filter===k?'is-active':''}`} onClick={()=>setFilter(k)}>{lbl}</button>
+          ))}
         </div>
-        <div className="mot-stat mot-stat--orange">
-          <div className="mot-stat__label">Indisponíveis</div>
-          <div className="mot-stat__value mot-stat__value--orange">{indisponiveis.length}</div>
-        </div>
-        {semDado.length>0 && (
-          <div className="mot-stat mot-stat--muted">
-            <div className="mot-stat__label">Sem dado</div>
-            <div className="mot-stat__value mot-stat__value--muted">{semDado.length}</div>
+        <div className="mot-summary mot-summary--compact">
+          <div className="mot-stat mot-stat--green">
+            <div className="mot-stat__value mot-stat__value--green">{disponiveis.length}</div>
+            <div className="mot-stat__label">Disponíveis</div>
           </div>
-        )}
-        <div className="mot-stat mot-stat--blue">
-          <div className="mot-stat__label">Total</div>
-          <div className="mot-stat__value">{emps.length}</div>
+          <div className="mot-stat mot-stat--orange">
+            <div className="mot-stat__value mot-stat__value--orange">{indisponiveis.length}</div>
+            <div className="mot-stat__label">Indisponíveis</div>
+          </div>
+          {semDado.length>0 && (
+            <div className="mot-stat mot-stat--muted">
+              <div className="mot-stat__value mot-stat__value--muted">{semDado.length}</div>
+              <div className="mot-stat__label">Sem dado</div>
+            </div>
+          )}
+          <div className="mot-stat mot-stat--blue">
+            <div className="mot-stat__value">{emps.length}</div>
+            <div className="mot-stat__label">Total</div>
+          </div>
         </div>
       </div>
 

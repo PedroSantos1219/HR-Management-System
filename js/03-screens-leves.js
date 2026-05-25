@@ -65,13 +65,13 @@ function CartasConducaoScreen({data,company,onUpdate,readOnly,onAudit,onNav,init
         tr.carta-hl-blink   td { animation: carta-hl-blink 1s ease-in-out 0s 3; }
         tr.carta-hl-grayed  td { background-color: #e5e7eb !important; transition: background-color .8s ease; }
       `}}/>
-      <div style={{display:'flex',gap:8,marginBottom:10,alignItems:'center',flexWrap:'wrap'}}>
+      <div style={{display:'flex',gap:10,marginBottom:10,alignItems:'center',flexWrap:'wrap'}}>
         <span style={{fontWeight:700,fontSize:14}}>Cartas de Condução</span>
-        <div className="rh-search" style={{marginLeft:'auto'}}><span className="rh-search__ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+        <div className="rh-search"><span className="rh-search__ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Pesquisar colaborador..." className="fi rh-search__inp"/>
         </div>
         {hiddenCount>0&&company!=='escritorio'&&(
-          <label className="show-hidden">
+          <label className="show-hidden" style={{marginLeft:'auto'}}>
             <input type="checkbox" checked={showHidden} onChange={e=>setShowHidden(e.target.checked)}/>
             Mostrar ocultos
           </label>
@@ -308,10 +308,6 @@ function AniversariosScreen({data,company}){
     return{bg:'#eafaf1',border:'#27AE60',txt:'#1E8449',label:`${d} dias`};
   }
 
-  const today=filtered.filter(e=>e.daysLeft===0).length;
-  const soon=filtered.filter(e=>e.daysLeft>0&&e.daysLeft<=5).length;
-  const month=filtered.filter(e=>e.daysLeft>0&&e.daysLeft<=30).length;
-
   function fmtBirthday(s){
     if(!s)return'—';
     const d=new Date(s);if(isNaN(d))return s;
@@ -326,12 +322,6 @@ function AniversariosScreen({data,company}){
     return`${a} → ${next}`;
   }
 
-  const stats = [
-    {l:'Hoje',            v:today,           c:'#E74C3C', bg:'#fdecea'},
-    {l:'Próximos 5 dias', v:soon,            c:'#E67E22', bg:'#fff4e5'},
-    {l:'Este mês (30d)',  v:month,           c:'#F1C40F', bg:'#fffde7'},
-    {l:'Total visíveis',  v:filtered.length, c:'#27AE60', bg:'#eafaf1'},
-  ];
   const legend = [
     {c:'#E74C3C', bg:'#fdecea', l:'≤ 5 dias (ou hoje)'},
     {c:'#E67E22', bg:'#fff4e5', l:'≤ 15 dias'},
@@ -340,24 +330,18 @@ function AniversariosScreen({data,company}){
   ];
   return(
     <div>
-      <div className="aniv-stats">
-        {stats.map(s=>(
-          <div key={s.l} className="card aniv-stat" style={{'--c':s.c, background:s.bg}}>
-            <div className="aniv-stat__label">{s.l}</div>
-            <div className="aniv-stat__value">{s.v}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="card cb aniv-search">
-        <input className="fi aniv-search__inp" placeholder="Pesquisar colaborador…"
-          value={search} onChange={e=>setSearch(e.target.value)}/>
-      </div>
-
-      <div className="aniv-legend">
-        {legend.map(x=>(
-          <span key={x.l} className="aniv-legend__chip" style={{'--c':x.c, '--c-bg':x.bg}}>{x.l}</span>
-        ))}
+      <div style={{display:'flex',gap:10,marginBottom:14,alignItems:'center',flexWrap:'wrap'}}>
+        <span style={{fontWeight:700,fontSize:14}}>Aniversários</span>
+        <div className="rh-search">
+          <span className="rh-search__ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input className="fi rh-search__inp" placeholder="Pesquisar colaborador..."
+            value={search} onChange={e=>setSearch(e.target.value)}/>
+        </div>
+        <div className="aniv-legend" style={{marginLeft:'auto'}}>
+          {legend.map(x=>(
+            <span key={x.l} className="aniv-legend__chip" style={{'--c':x.c, '--c-bg':x.bg}}>{x.l}</span>
+          ))}
+        </div>
       </div>
 
       <div className="card cb" style={{overflow:'hidden'}}>
