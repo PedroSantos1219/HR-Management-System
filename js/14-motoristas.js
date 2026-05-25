@@ -57,7 +57,6 @@ function MotoristasScreen({data, company, onNav}){
         <div className="mot-section">
           <div className="mot-section__head mot-section__head--orange">
             <span>Indisponíveis ({indisponiveis.length})</span>
-            <span className="mot-section__hint">com motivo à direita</span>
           </div>
           <table className="mot-table">
             <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Função</th><th>Motivo</th></tr></thead>

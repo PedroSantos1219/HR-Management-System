@@ -1160,12 +1160,10 @@ async function sharePdf(){
               <div className="co-pills" title={dTitle}
                    style={disabled?{opacity:.45,pointerEvents:'none'}:undefined}>
                 {[
-                  {k:'all',        l:'Todas',         c:'#1a0d0d'},
-                  {k:'escritorio', l:'Escritório',    c:'#C0392B'},
-                  {k:'roupeta',    l:'Roupeta',       c:'#9b2335'},
-                  {k:'roupeta2',   l:'Roupeta II',    c:'#9b2335'},
-                  {k:'arlize',     l:'Arlize',        c:'#1A5276'},
-                  {k:'pit',        l:'Pit Evolution', c:'#4B5320'},
+                  {k:'all',        l:'Todas',      c:'#1a0d0d'},
+                  {k:'roupeta',    l:'Roupeta',    c:'#9b2335'},
+                  {k:'roupeta2',   l:'Roupeta II', c:'#9b2335'},
+                  {k:'arlize',     l:'Arlize',     c:'#1A5276'},
                 ].map(({k,l,c})=>(
                   <button key={k} onClick={()=>setCompany(k)}
                     className={`co-pill ${company===k?'active':''}`}
