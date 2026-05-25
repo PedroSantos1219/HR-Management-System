@@ -1,0 +1,109 @@
+/* Ecrã de motoristas: 3-4 caixas pequenas no topo + listas indisponíveis/disponíveis. */
+
+.mot-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.mot-stat {
+  background: white;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  text-align: center;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.mot-stat:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,0,0,.06);
+}
+.mot-stat--green  { border-left-color: var(--green); }
+.mot-stat--orange { border-left-color: var(--orange); }
+.mot-stat--blue   { border-left-color: var(--blue); }
+.mot-stat--muted  { border-left-color: var(--muted); }
+
+.mot-stat__label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+.mot-stat__value {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.mot-stat__value--green  { color: var(--green); }
+.mot-stat__value--orange { color: var(--orange); }
+.mot-stat__value--muted  { color: var(--muted); }
+
+/* Bloco com cabeçalho colorido + tabela */
+.mot-section {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.mot-section__head {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 12.5px;
+}
+.mot-section__head--orange { background: var(--orbg); color: var(--orange); }
+.mot-section__head--green  { background: var(--grbg); color: var(--green); }
+.mot-section__head--muted  { background: var(--bg);   color: var(--muted); }
+.mot-section__hint {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.mot-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.mot-table th,
+.mot-table td {
+  padding: 7px 10px;
+  font-size: 12.5px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.mot-table tbody tr:last-child td { border-bottom: none; }
+.mot-table th {
+  background: var(--bg);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  color: var(--muted);
+}
+.mot-table tbody tr {
+  cursor: pointer;
+  transition: background .1s;
+}
+.mot-table tbody tr:hover {
+  background: var(--bg);
+}
+.mot-table .col-name {
+  text-align: left;
+  font-weight: 600;
+}
+.mot-table .col-muted { color: var(--muted); }
+.mot-empty {
+  padding: 22px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}

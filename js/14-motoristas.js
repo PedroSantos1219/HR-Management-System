@@ -7,23 +7,22 @@ function MotoristasScreen({data, company, onNav}){
   const emps = (company==='all' ? employees : employees.filter(e=>e.company===cm[company]))
     .filter(e => (e.role||'').toLowerCase().includes('mot') && e.company !== 'Pit Evolution');
 
-  const disponiveis  = emps.filter(e => (e.availability||'').toLowerCase() === 'disponível' || (e.availability||'').toLowerCase() === 'disponivel');
-  const indisponiveis = emps.filter(e => {
-    const a = (e.availability||'').toLowerCase();
-    return a && a !== 'disponível' && a !== 'disponivel';
-  });
-  const semDado = emps.filter(e => !e.availability);
+  const isDisp = e => (e.availability||'').toLowerCase().startsWith('dispon');
+  const disponiveis   = emps.filter(e => isDisp(e));
+  const indisponiveis = emps.filter(e => e.availability && !isDisp(e));
+  const semDado       = emps.filter(e => !e.availability);
+
+  function goTo(emp){
+    onNav('employees', {id: emp.id, company: emp.company, _highlight: true});
+  }
 
   function Row({emp, badge, badgeColor}){
     return (
-      <tr style={{cursor:'pointer'}}
-        onClick={()=>onNav('employees',{id:emp.id, company:emp.company, _highlight:true})}
-        onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
-        onMouseLeave={e=>e.currentTarget.style.background=''}>
-        <td style={{color:'var(--muted)',fontWeight:500}}>{emp.id}</td>
-        <td style={{fontWeight:600}}>{emp.name}</td>
+      <tr onClick={()=>goTo(emp)}>
+        <td className="col-muted">{emp.id}</td>
+        <td className="col-name">{emp.name}</td>
         <td><Chip label={emp.company} type="gr"/></td>
-        <td style={{color:'var(--muted)'}}>{emp.role}</td>
+        <td className="col-muted">{emp.role}</td>
         {badge && <td><Chip label={badge} type={badgeColor}/></td>}
       </tr>
     );
@@ -31,81 +30,76 @@ function MotoristasScreen({data, company, onNav}){
 
   return (
     <div>
-      {/* Resumo */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:10,marginBottom:18}}>
-        <div className="card" style={{padding:14,borderLeft:'4px solid var(--green)'}}>
-          <div style={{fontSize:10,color:'var(--muted)',fontWeight:700,textTransform:'uppercase',letterSpacing:.5,marginBottom:4}}>Disponíveis</div>
-          <div style={{fontSize:28,fontWeight:800,color:'var(--green)'}}>{disponiveis.length}</div>
+
+      <div className="mot-summary">
+        <div className="mot-stat mot-stat--green">
+          <div className="mot-stat__label">Disponíveis</div>
+          <div className="mot-stat__value mot-stat__value--green">{disponiveis.length}</div>
         </div>
-        <div className="card" style={{padding:14,borderLeft:'4px solid var(--orange)'}}>
-          <div style={{fontSize:10,color:'var(--muted)',fontWeight:700,textTransform:'uppercase',letterSpacing:.5,marginBottom:4}}>Indisponíveis</div>
-          <div style={{fontSize:28,fontWeight:800,color:'var(--orange)'}}>{indisponiveis.length}</div>
+        <div className="mot-stat mot-stat--orange">
+          <div className="mot-stat__label">Indisponíveis</div>
+          <div className="mot-stat__value mot-stat__value--orange">{indisponiveis.length}</div>
         </div>
         {semDado.length>0 && (
-          <div className="card" style={{padding:14,borderLeft:'4px solid var(--muted)'}}>
-            <div style={{fontSize:10,color:'var(--muted)',fontWeight:700,textTransform:'uppercase',letterSpacing:.5,marginBottom:4}}>Sem disponibilidade</div>
-            <div style={{fontSize:28,fontWeight:800,color:'var(--muted)'}}>{semDado.length}</div>
+          <div className="mot-stat mot-stat--muted">
+            <div className="mot-stat__label">Sem dado</div>
+            <div className="mot-stat__value mot-stat__value--muted">{semDado.length}</div>
           </div>
         )}
-        <div className="card" style={{padding:14}}>
-          <div style={{fontSize:10,color:'var(--muted)',fontWeight:700,textTransform:'uppercase',letterSpacing:.5,marginBottom:4}}>Total de motoristas</div>
-          <div style={{fontSize:28,fontWeight:800}}>{emps.length}</div>
+        <div className="mot-stat mot-stat--blue">
+          <div className="mot-stat__label">Total</div>
+          <div className="mot-stat__value">{emps.length}</div>
         </div>
       </div>
 
       {/* Indisponíveis primeiro — é o que se quer ver imediatamente */}
       {indisponiveis.length>0 && (
-        <div className="card" style={{padding:0,overflow:'hidden',marginBottom:18}}>
-          <div style={{padding:'10px 16px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',gap:10,background:'var(--orbg)'}}>
-            <div style={{fontWeight:700,fontSize:13,color:'var(--orange)'}}>Indisponíveis ({indisponiveis.length})</div>
-            <span style={{fontSize:11,color:'var(--muted)'}}>com motivo à direita</span>
+        <div className="mot-section">
+          <div className="mot-section__head mot-section__head--orange">
+            <span>Indisponíveis ({indisponiveis.length})</span>
+            <span className="mot-section__hint">com motivo à direita</span>
           </div>
-          <div className="tw">
-            <table>
-              <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Função</th><th>Motivo</th></tr></thead>
-              <tbody>
-                {indisponiveis.map(e=>{
-                  const motivo = e.availability;
-                  const c = motivo==='Baixa'?'orange':motivo==='Seguro'?'blue':'gr';
-                  return <Row key={e.id+e.company} emp={e} badge={motivo} badgeColor={c}/>;
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Disponíveis */}
-      <div className="card" style={{padding:0,overflow:'hidden',marginBottom:18}}>
-        <div style={{padding:'10px 16px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',gap:10,background:'var(--grbg)'}}>
-          <div style={{fontWeight:700,fontSize:13,color:'var(--green)'}}>Disponíveis ({disponiveis.length})</div>
-        </div>
-        <div className="tw">
-          <table>
-            <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Função</th></tr></thead>
+          <table className="mot-table">
+            <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Função</th><th>Motivo</th></tr></thead>
             <tbody>
-              {disponiveis.length===0 ? (
-                <tr><td colSpan={4} style={{padding:24,textAlign:'center',color:'var(--muted)'}}>Sem motoristas disponíveis.</td></tr>
-              ) : disponiveis.map(e=><Row key={e.id+e.company} emp={e}/>)}
+              {indisponiveis.map(e => {
+                const motivo = e.availability;
+                const c = motivo==='Baixa' ? 'orange' : motivo==='Seguro' ? 'blue' : 'gr';
+                return <Row key={e.id+e.company} emp={e} badge={motivo} badgeColor={c}/>;
+              })}
             </tbody>
           </table>
         </div>
+      )}
+
+      <div className="mot-section">
+        <div className="mot-section__head mot-section__head--green">
+          <span>Disponíveis ({disponiveis.length})</span>
+        </div>
+        <table className="mot-table">
+          <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Função</th></tr></thead>
+          <tbody>
+            {disponiveis.length===0
+              ? <tr><td colSpan={4} className="mot-empty">Sem motoristas disponíveis.</td></tr>
+              : disponiveis.map(e => <Row key={e.id+e.company} emp={e}/>)
+            }
+          </tbody>
+        </table>
       </div>
 
-      {/* Sem dado (escritório com role motorista por engano, ou nunca preenchido) */}
+      {/* Sem dado: motoristas que ainda não foram marcados */}
       {semDado.length>0 && (
-        <div className="card" style={{padding:0,overflow:'hidden'}}>
-          <div style={{padding:'10px 16px',borderBottom:'1px solid var(--border)',background:'var(--bg)'}}>
-            <div style={{fontWeight:700,fontSize:13,color:'var(--muted)'}}>Sem disponibilidade definida ({semDado.length})</div>
+        <div className="mot-section">
+          <div className="mot-section__head mot-section__head--muted">
+            Sem disponibilidade definida ({semDado.length})
           </div>
-          <div className="tw">
-            <table>
-              <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Função</th></tr></thead>
-              <tbody>{semDado.map(e=><Row key={e.id+e.company} emp={e}/>)}</tbody>
-            </table>
-          </div>
+          <table className="mot-table">
+            <thead><tr><th>N.º</th><th>Colaborador</th><th>Empresa</th><th>Função</th></tr></thead>
+            <tbody>{semDado.map(e => <Row key={e.id+e.company} emp={e}/>)}</tbody>
+          </table>
         </div>
       )}
+
     </div>
   );
 }
