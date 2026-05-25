@@ -536,6 +536,16 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
     document.querySelector('.content')?.scrollTo({top:0,behavior:'instant'});
   },[sel?.id,sel?.company]);
 
+  // Quando o utilizador vem de outro ecrã (ex.: clicou num motorista), o
+  // useState inicial já tinha disparado e o sel não acompanha. Este efeito
+  // sincroniza sempre que o initSel muda.
+  useEffect(()=>{
+    if(!initSel) return;
+    if(initSel.id === sel?.id && initSel.company === sel?.company) return;
+    setSel(initSel);
+    if(initSel.goToArchive) setArchive(true);
+  },[initSel?.id, initSel?.company, initSel?.goToArchive]);
+
   const compMap={'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
   const todayStr=new Date().toISOString().split('T')[0];
   const filtered=useMemo(()=>{
