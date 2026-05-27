@@ -43,6 +43,11 @@ php_errorlog
 # Notas locais
 *.local.md
 
+# Documentação interna (deploy, onboarding) — fica só na pasta
+docs/DEPLOY_IT.html
+docs/DEPLOY_IT.md
+docs/DEV_ONBOARDING.md
+
 # Scripts de importação one-off (referenciam dados reais dos colaboradores)
 scripts/
 

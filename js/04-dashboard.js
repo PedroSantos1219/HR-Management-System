@@ -31,8 +31,8 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
       const nd=nextDiut(emp),dd=daysTo(nd); if(dd!==null&&dd>=0&&dd<=45) diut.push({...emp,days:dd,nextDate:nd});
       const cd=daysTo(emp.ccExpiry); if(cd!==null&&cd<=60) cc.push({...emp,days:cd});
       const ad=daysTo(emp.adrExpiry); if(ad!==null&&ad<=60) adr.push({...emp,days:ad});
-      // Contratos a termo certo perto de acabar (90 dias) — a Tatiana
-      // precisa de avisar com a antecedência legal mínima.
+      // Contratos a termo certo perto de acabar (90 dias) — para
+      // avisar com a antecedência legal mínima.
       const isTermo = (emp.contractEndDate||'').toLowerCase().includes('termo');
       if(isTermo && emp.endDate){
         const td = daysTo(emp.endDate);

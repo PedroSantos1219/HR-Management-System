@@ -75,7 +75,7 @@ function LoginScreen({onLogin}){
         <form onSubmit={go} className="container-login-form">
           <div style={{marginBottom:'16px'}}>
             <div className="fl" style={{marginBottom:'6px'}}>Email</div>
-            <input type="email" value={email} onChange={e=>{setEmail(e.target.value);setErr('');}} className="fi" placeholder="utilizador@roupeta.com" autoComplete="email" required/>
+            <input type="email" value={email} onChange={e=>{setEmail(e.target.value);setErr('');}} className="fi" placeholder="utilizador@empresa.com" autoComplete="email" required/>
           </div>
           <div style={{marginBottom:'16px'}}>
             <div className="fl" style={{marginBottom:'6px'}}>Password</div>
@@ -101,7 +101,7 @@ function LoginScreen({onLogin}){
           </div>
           <div style={{marginBottom:'16px'}}>
             <div className="fl" style={{marginBottom:'6px'}}>Email</div>
-            <input type="email" value={forgotEmail} onChange={e=>{setForgotEmail(e.target.value);setErr('');}} className="fi" placeholder="utilizador@roupeta.com" autoComplete="email" required/>
+            <input type="email" value={forgotEmail} onChange={e=>{setForgotEmail(e.target.value);setErr('');}} className="fi" placeholder="utilizador@empresa.com" autoComplete="email" required/>
           </div>
           {err&&<div style={{color:'#C0392B',fontSize:'13px',marginBottom:'12px',background:'#fdecea',borderRadius:'8px',padding:'8px 12px'}}>{err}</div>}
           {info&&<div style={{color:'#1E7E34',fontSize:'13px',marginBottom:'12px',background:'#e6f4ea',borderRadius:'8px',padding:'8px 12px'}}>{info}</div>}

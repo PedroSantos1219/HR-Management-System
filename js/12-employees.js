@@ -79,7 +79,7 @@ function EmpModal({emp,onSave,onClose,readOnly}){
           <div className="sec-t">Contactos e Dados Fiscais</div>
           <div className="fg">
             <SI k="personalPhone" label="Telefone Pessoal" ph="ex: 912 345 678"/>
-            <SI k="email" label="E-mail" ph="ex: nome@roupeta.com"/>
+            <SI k="email" label="E-mail" ph="ex: nome@empresa.com"/>
             <SI k="companyPhone" label="Telefone Empresa" ph="ex: 913 000 000"/>
             <SI k="iban" label="IBAN" ph="PT50 0000 0000 0000 0000 0000 0"/>
             <SI k="nif" label="NIF" ph="ex: 123456789"/>

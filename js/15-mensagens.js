@@ -117,7 +117,7 @@ function MensagensScreen({data, company, user, onAudit}){
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [previewIdx, setPreviewIdx] = useState(0);
-  const [canal, setCanal] = useState('whatsapp'); // 'whatsapp' | 'email' | 'both'
+  const [canal, setCanal] = useState('whatsapp');
   const [sendStatus, setSendStatus] = useState(null);
 
   const filtered = useMemo(()=>{
@@ -210,10 +210,8 @@ function MensagensScreen({data, company, user, onAudit}){
     {n:4, l:'Enviar'},
   ];
 
-  // ===== Render =====
   return (
     <div>
-      {/* Stepper */}
       <div className="msg-stepper">
         {steps.map((s, i) => (
           <React.Fragment key={s.n}>
@@ -237,7 +235,6 @@ function MensagensScreen({data, company, user, onAudit}){
         )}
       </div>
 
-      {/* STEP 1 — Tipo */}
       {step===1 && (
         <div>
           <div style={{fontSize:13,color:'var(--muted)',marginBottom:16}}>Escolhe o tipo de comunicação. O template é só um ponto de partida — podes editar tudo a seguir.</div>
@@ -255,7 +252,6 @@ function MensagensScreen({data, company, user, onAudit}){
         </div>
       )}
 
-      {/* STEP 2 — Destinatários */}
       {step===2 && (
         <div>
           <div className="msg-step-head">
@@ -302,7 +298,6 @@ function MensagensScreen({data, company, user, onAudit}){
         </div>
       )}
 
-      {/* STEP 3 — Mensagem */}
       {step===3 && (
         <div className="msg-edit-grid">
           <div>
@@ -363,7 +358,6 @@ function MensagensScreen({data, company, user, onAudit}){
         </div>
       )}
 
-      {/* STEP 4 — Enviar */}
       {step===4 && (
         <div>
           <div className="msg-step-head" style={{marginBottom:18}}>

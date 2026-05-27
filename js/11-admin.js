@@ -184,7 +184,7 @@ function UserManagement({user: currentUser}){
                 </div>
                 <div className="fg">
                   <label className="fl">Email</label>
-                  <input className="fi" type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} required autoComplete="off" placeholder="ex: ana.silva@roupeta.com"/>
+                  <input className="fi" type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} required autoComplete="off" placeholder="ex: nome@empresa.com"/>
                 </div>
                 <div className="fg">
                   <label className="fl">Password inicial</label>
