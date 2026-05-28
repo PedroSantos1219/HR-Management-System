@@ -34,9 +34,8 @@ const initials = name => {
   const p=name.trim().split(' ');
   return p.length===1?p[0][0].toUpperCase():(p[0][0]+p[p.length-1][0]).toUpperCase();
 };
-// Companies são carregadas em runtime via initCompanies() — populadas pelo
-// servidor a partir de config.php. Objects mutáveis (Object.assign) para que
-// referências feitas noutros ficheiros JS continuem válidas.
+// Vêm do config.php via initCompanies(). Mutáveis para as refs
+// noutros ficheiros não partirem.
 const COMP_COLORS = {};
 const COMPANY_NAME = {};
 let APP_COMPANIES = [];
@@ -51,7 +50,6 @@ function initCompanies(arr){
 }
 function companyNames(){ return APP_COMPANIES.map(c => c.name); }
 function isFabrilCompany(name){ return !!APP_COMPANIES.find(c => c.name === name && c.isFabril); }
-function fabrilCompanyName(){ const c = APP_COMPANIES.find(c => c.isFabril); return c ? c.name : ''; }
 
 // Empresas marcadas como fabris têm staff operativo — não contam como escritório.
 const isOffice = emp => {

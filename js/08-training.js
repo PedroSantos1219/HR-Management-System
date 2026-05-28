@@ -13,8 +13,11 @@ const TRAIN_CATS = [
 ];
 
 // Empresas fabris não conduzem — exclui CAM/CQC e ADR.
-const isFabrilCo = co => isFabrilCompany(co) || !!(APP_COMPANIES.find(c => c.key===co && c.isFabril));
-const trainCatsFor = co => isFabrilCo(co) ? TRAIN_CATS.filter(c=>c.id!=='cam'&&c.id!=='adr') : TRAIN_CATS;
+// co pode vir como name (Roupeta) ou key da pill (roupeta).
+const trainCatsFor = co => {
+  const name = COMPANY_NAME[co] || co;
+  return isFabrilCompany(name) ? TRAIN_CATS.filter(c=>c.id!=='cam'&&c.id!=='adr') : TRAIN_CATS;
+};
 
 function EmpTrainingTab({emp, readOnly, user, onAudit}) {
   const [records, setRecords] = useState([]);
