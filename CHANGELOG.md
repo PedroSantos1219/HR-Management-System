@@ -20,6 +20,15 @@ loosely follows [Keep a Changelog](https://keepachangelog.com/).
 - CI and license badges in the README.
 - MIT `LICENSE` file.
 - This `CHANGELOG.md`.
+- `config['companies']`: the list of operating entities (name, slug,
+  color, `isFabril` flag) now drives every dropdown, chart, filter pill
+  and PDF header. Loaded into the frontend on `check_session`/`login`
+  via `initCompanies()`.
+- `config['excel_files']`: filenames of the Excel templates served by
+  the Excel Manager — out of the codebase now.
+- `docs/screenshots/` with seven captures of a fictional dataset
+  (anonymised as `Empresa 1–4`). Linked from the README in both EN and
+  PT sections.
 
 ### Changed
 - README rewritten in English with a short Portuguese summary.
@@ -29,6 +38,11 @@ loosely follows [Keep a Changelog](https://keepachangelog.com/).
   text headings render cleanly in Outlook and other strict clients.
 - Dashboard hides SEF, seniority bonuses, driving licences and ADR cards
   when the company filter targets a factory-only company (`isFabril`).
+- Product renamed to **HR Management** across titles, header logo, PDF
+  footers and email subjects.
+- Generic placeholder logo (SVG) in `css/assets/Logo-header.svg`.
+- Hardcoded `'Pit Evolution'` checks replaced by the `isFabril` flag
+  read from `APP_COMPANIES`.
 
 ### Refactored
 - index.html went from one giant file to a thin shell that loads
