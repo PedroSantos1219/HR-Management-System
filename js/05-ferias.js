@@ -299,7 +299,7 @@ function FeriasScreen({data,ferias,feriasConfig,onSaveFerias,onSaveConfig,readOn
       </tr>`).join('');
     return`<div style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;color:#1f2a37;max-width:860px;margin:0 auto">
       <div style="background:linear-gradient(135deg,${accent},${accent}cc);color:white;padding:18px 24px;border-radius:10px 10px 0 0;display:flex;justify-content:space-between;align-items:center">
-        <div><div style="font-size:16px;font-weight:800">Ficha de Férias — ${year}</div><div style="font-size:10px;opacity:.7;margin-top:3px">HR Manager · ${today}</div></div>
+        <div><div style="font-size:16px;font-weight:800">Ficha de Férias — ${year}</div><div style="font-size:10px;opacity:.7;margin-top:3px">HR Management · ${today}</div></div>
         <div style="text-align:right;font-size:10px;opacity:.8">${emp.company}</div>
       </div>
       <div style="border:1px solid #e0e0e0;border-top:none;border-radius:0 0 10px 10px;padding:20px 24px">
@@ -329,7 +329,7 @@ function FeriasScreen({data,ferias,feriasConfig,onSaveFerias,onSaveConfig,readOn
         </table>
         ${cfgForm.observacoes?`<div style="margin-top:16px;padding:12px;background:#f9fafb;border-radius:8px;border:1px solid #e0e0e0"><span style="font-size:10px;font-weight:700;text-transform:uppercase;color:#9ca3af">Observações:</span><div style="margin-top:4px;font-size:12px">${cfgForm.observacoes}</div></div>`:''}
         <div style="margin-top:20px;padding-top:12px;border-top:1px solid #f0f0f0;display:flex;justify-content:space-between;font-size:10px;color:#9ca3af">
-          <span>HR Manager</span><span>Gerado em ${today}</span>
+          <span>HR Management</span><span>Gerado em ${today}</span>
         </div>
       </div>
     </div>`;

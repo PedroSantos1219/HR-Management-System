@@ -167,7 +167,7 @@ hr.sep{border:none;border-top:1px solid #e8e8e8;margin:16px 0;}
   function rowCls(d){const m={vencido:'b-vencido',critico:'b-critico',atencao:'b-atencao',ok:'b-ok','sem-data':'b-semdata'};return m[urgLabel(d)]||'';}
 
   function pdfWrap(title,subtitle,bodyHtml){
-    const compName = _cm ? _cm.name : 'HR Manager';
+    const compName = _cm ? _cm.name : 'HR Management';
     return `<div class="pdf-header">
       ${pdfCompHeader()}
       <div class="pdf-header-info"><h1>${title}</h1><p>${subtitle || (compName + ' &middot; Gest\u00e3o RH')}</p></div>
@@ -178,7 +178,7 @@ hr.sep{border:none;border-top:1px solid #e8e8e8;margin:16px 0;}
       <div class="pdf-meta-item"><strong>${_compLabel}</strong>Empresa</div>
     </div>
     ${bodyHtml}
-    <div class="footer-pdf">Gerado em ${todayFmt} &middot; ${generatedBy} &middot; ${compName} &mdash; HR Manager</div>`;
+    <div class="footer-pdf">Gerado em ${todayFmt} &middot; ${generatedBy} &middot; ${compName} &mdash; HR Management</div>`;
   }
 
   function pdfTable(cols,rows,urgDKey){
@@ -599,7 +599,7 @@ hr.sep{border:none;border-top:1px solid #e8e8e8;margin:16px 0;}
         `Snapshot integral RH — ${todayFmt}`,
         `<div class="section">
            <div class="section-title">Sum&aacute;rio do Backup</div>
-           <div class="section-note">${sections.length} sec&ccedil;&otilde;es inclu&iacute;das. Cada sec&ccedil;&atilde;o corresponde a um m&oacute;dulo do HR Manager.</div>
+           <div class="section-note">${sections.length} sec&ccedil;&otilde;es inclu&iacute;das. Cada sec&ccedil;&atilde;o corresponde a um m&oacute;dulo do HR Management.</div>
            <table>
              <thead><tr><th style="width:32px">#</th><th>M&oacute;dulo</th><th style="text-align:right;width:90px">Registos</th></tr></thead>
              <tbody>${summaryHtml}</tbody>
@@ -614,7 +614,7 @@ hr.sep{border:none;border-top:1px solid #e8e8e8;margin:16px 0;}
   }
 
   if (printOverlay!==null){
-    const shareText=`${pdfTitle}\nEmpresa: ${_compLabel}\nGerado em ${todayFmt} por ${generatedBy}\n\nHR Manager`;
+    const shareText=`${pdfTitle}\nEmpresa: ${_compLabel}\nGerado em ${todayFmt} por ${generatedBy}\n\nHR Management`;
     const enc=encodeURIComponent(shareText);
     return(
       <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:9999,background:'white',overflowY:'auto'}}>

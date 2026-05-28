@@ -72,7 +72,7 @@ Defender Firewall with Advanced Security):
 4. Action: **Allow the connection**
 5. Profile: tick **Domain** and **Private** (leave **Public** off — you
    do not want this open on coffee-shop wifi)
-6. Name: something obvious like `XAMPP Apache (HR Manager)`
+6. Name: something obvious like `XAMPP Apache (HR Management)`
 
 ## 6. Test from another machine
 

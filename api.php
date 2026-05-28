@@ -145,21 +145,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         readfile($p);
         exit;
     }
+    $xls = $GLOBALS['app_config']['excel_files'] ?? [];
+    $mainFile   = $xls['main']   ?? 'BASE DE DADOS.xlsm';
+    $fabrilFile = $xls['fabril'] ?? 'BASE DE DADOS - FABRIL.xlsx';
+    $feriasFile = $xls['ferias'] ?? 'MARCACAO DE FERIAS.xlsx';
     $excelActions = [
         'get_excel_template' => [
-            'file' => 'BASE DE DADOS ROUPETA E RII.xlsm',
+            'file' => $mainFile,
             'mime' => 'application/vnd.ms-excel.sheet.macroEnabled.12',
-            'name' => 'BASE DE DADOS ROUPETA E RII.xlsm',
+            'name' => $mainFile,
         ],
         'get_pit_template' => [
-            'file' => 'BASE DE DADOS - COLABORADORES PIT EVOLUTION.xlsx',
+            'file' => $fabrilFile,
             'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'name' => 'BASE DE DADOS - COLABORADORES PIT EVOLUTION.xlsx',
+            'name' => $fabrilFile,
         ],
         'get_ferias_template' => [
-            'file' => 'MARCAÇÃO DE FÉRIAS - 2024_.xlsx',
+            'file' => $feriasFile,
             'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'name' => 'MARCAÇÃO DE FÉRIAS - 2024_.xlsx',
+            'name' => $feriasFile,
         ],
     ];
 
@@ -808,10 +812,11 @@ try {
             break;
 
         case 'get_file_sizes':
+            $xls = $GLOBALS['app_config']['excel_files'] ?? [];
             $xlsFiles = [
-                'roupeta' => 'BASE DE DADOS ROUPETA E RII.xlsm',
-                'pit'     => 'BASE DE DADOS - COLABORADORES PIT EVOLUTION.xlsx',
-                'ferias'  => 'MARCAÇÃO DE FÉRIAS - 2024_.xlsx',
+                'roupeta' => $xls['main']   ?? 'BASE DE DADOS.xlsm',
+                'pit'     => $xls['fabril'] ?? 'BASE DE DADOS - FABRIL.xlsx',
+                'ferias'  => $xls['ferias'] ?? 'MARCACAO DE FERIAS.xlsx',
             ];
             $sizes = [];
             foreach ($xlsFiles as $k => $f) {
@@ -1450,7 +1455,7 @@ function sendVerificationEmail(string $email, string $username, string $token): 
     }
 
     $verifyLink = $appUrl . '/api.php?action=verify_email&token=' . urlencode($token);
-    $appName    = htmlspecialchars((string)($smtp['from_name'] ?? 'HR Manager'));
+    $appName    = htmlspecialchars((string)($smtp['from_name'] ?? 'HR Management'));
     $userEsc    = htmlspecialchars($username);
 
     $html = '<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><style>
@@ -1496,7 +1501,7 @@ function sendPasswordResetEmail(string $email, string $username, string $token):
     }
 
     $resetLink = $appUrl . '/index.html#reset=' . urlencode($token);
-    $appName   = htmlspecialchars((string)($smtp['from_name'] ?? 'HR Manager'));
+    $appName   = htmlspecialchars((string)($smtp['from_name'] ?? 'HR Management'));
     $userEsc   = htmlspecialchars($username);
 
     $html = '<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><style>
@@ -1540,7 +1545,7 @@ function sendAdminActionCodeEmail(string $email, string $username, string $code,
         return false;
     }
 
-    $appName = htmlspecialchars((string)($smtp['from_name'] ?? 'HR Manager'));
+    $appName = htmlspecialchars((string)($smtp['from_name'] ?? 'HR Management'));
     $userEsc = htmlspecialchars($username);
     $descEsc = htmlspecialchars($description);
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HR Manager</title>
+<title>HR Management</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -1067,7 +1067,7 @@ function App(){
     }
 
     const html=`<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8">
-<title>${title} — HR Manager</title>
+<title>${title} — HR Management</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
 <style>${PDF_CSS}</style></head><body>
 <div class="share-bar no-print">
@@ -1088,13 +1088,13 @@ ${['sef','medicina','diuturnidades','cartas','ferias'].includes(screen)?`
 </div>`:''}
 <div id="pdf-content">
 <div class="pdf-header">
-  <div><h1>${title}</h1><div class="sub">HR Manager · ${todayFmt}</div></div>
+  <div><h1>${title}</h1><div class="sub">HR Management · ${todayFmt}</div></div>
   <div class="right"><div class="pill">${compLabel}</div><div>${today}</div></div>
 </div>
 <div class="wrap">${body}</div>
 </div>
 <div class="pdf-footer">
-  <span>HR Manager</span>
+  <span>HR Management</span>
   <span>${title} · ${compLabel}</span>
   <span>Gerado em ${todayFmt}</span>
 </div>
@@ -1208,7 +1208,7 @@ async function sharePdf(){
     <div className="app">
       <div className={`sb${sbOpen?" sb-open":""}`}>
         <div className="sb-logo" onClick={()=>navigate('dashboard')} title="Ir para o Dashboard" style={{cursor:'pointer'}}>
-          <img src="css/assets/Logo-header.svg" alt="HR Manager" className="sb-logo-img"/>
+          <img src="css/assets/Logo-header.svg" alt="HR Management" className="sb-logo-img"/>
           <div className="sb-logo-t">Gest&#xe3;o RH</div>
         </div>
         <div className="sb-sec">
@@ -1297,7 +1297,7 @@ async function sharePdf(){
           })()}
           <div className="tb-right">
 
-            <img src="css/assets/Logo-header.svg" alt="HR Manager" title="Início" onClick={()=>navigate('dashboard')} style={{height:'28px',cursor:'pointer',filter:'brightness(0) invert(1)',opacity:.7,transition:'opacity .2s'}} onMouseOver={e=>e.currentTarget.style.opacity=1} onMouseOut={e=>e.currentTarget.style.opacity=.7}/>
+            <img src="css/assets/Logo-header.svg" alt="HR Management" title="Início" onClick={()=>navigate('dashboard')} style={{height:'28px',cursor:'pointer',filter:'brightness(0) invert(1)',opacity:.7,transition:'opacity .2s'}} onMouseOver={e=>e.currentTarget.style.opacity=1} onMouseOut={e=>e.currentTarget.style.opacity=.7}/>
             <span style={{fontSize:11,color:'var(--green)',display:'flex',alignItems:'center',gap:4}}><span>●</span>Base de dados</span>
             <span style={{fontSize:11,color:'var(--muted)'}}>{new Date().toLocaleDateString('pt-PT',{day:'2-digit',month:'short',year:'numeric'})}</span>
             {!['audit','users','relatorios','dashboard','backups','aniversarios','security_logs'].includes(screen)&&(

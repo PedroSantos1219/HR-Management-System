@@ -1,4 +1,4 @@
-# Apache rules for the HR Manager. Most of these are defensive — they
+# Apache rules for the HR Management. Most of these are defensive — they
 # only matter if NTFS permissions on this folder also keep non-admins out.
 
 # Stop browsers caching HTML/JS/CSS. Without this, updates to the SPA

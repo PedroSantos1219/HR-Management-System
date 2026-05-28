@@ -12,7 +12,7 @@ return [
         'username'  => 'rh@example.com',
         'password'  => 'gmail-app-password-here',   // Gmail: generate at myaccount.google.com/apppasswords
         'from'      => 'rh@example.com',
-        'from_name' => 'HR Manager',
+        'from_name' => 'HR Management',
     ],
 
     'app' => [
@@ -30,6 +30,14 @@ return [
         ['key' => 'emp2', 'name' => 'Empresa 2', 'color' => '#9b2335', 'isFabril' => false],
         ['key' => 'emp3', 'name' => 'Empresa 3', 'color' => '#1A5276', 'isFabril' => false],
         ['key' => 'emp4', 'name' => 'Empresa 4', 'color' => '#4B5320', 'isFabril' => true ],
+    ],
+
+    // Nomes dos ficheiros Excel originais (na raiz do servidor). Usados
+    // pelo Gestor Excel para servir downloads/templates.
+    'excel_files' => [
+        'main'   => 'BASE DE DADOS.xlsm',
+        'fabril' => 'BASE DE DADOS - FABRIL.xlsx',
+        'ferias' => 'MARCACAO DE FERIAS.xlsx',
     ],
 
     // Emails (lowercase) with super-admin privileges: can see Security Logs

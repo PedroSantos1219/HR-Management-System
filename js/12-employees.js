@@ -61,7 +61,7 @@ function EmpModal({emp,onSave,onClose,readOnly}){
             <SI k="contractEndDate" label="Tipo Contrato" opts={['Efetivo','Termo Certo','Indeterminado']}/>
             <SI k="trialEndDate" label="Fim Período Experimental" type="date"/>
             <SI k="secondContractEnd" label="Fim 2.º Contrato" type="date"/>
-            <SI k="app" label="App (4Miga)" opts={['SIM','NÃO']}/>
+            <SI k="app" label="Acesso à App" opts={['SIM','NÃO']}/>
           </div>
           <hr className="divider"/>
           <div className="sec-t">Dados Pessoais</div>
@@ -439,13 +439,13 @@ function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive
         ${dr('Pr\u00f3x. Consulta',fmtDate(nm)+eb(nm))}
         ${dr('Periodicidade',ageOf(emp.birthDate)>=50?'Anual (\u226550 anos)':'Bienal (&lt;50 anos)')}
       </table>
-      <div class="ft">Ficha de colaborador &mdash; ${emp.name} &mdash; Gerado em ${todayFmt} &mdash; ${_ecm.name} &mdash; HR Manager</div>`;
+      <div class="ft">Ficha de colaborador &mdash; ${emp.name} &mdash; Gerado em ${todayFmt} &mdash; ${_ecm.name} &mdash; HR Management</div>`;
     return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${empPdfCSS()}</style></head><body>${bodyHtml}</body></html>`;
   }
 
   function buildShareText(){
     const today=new Date().toLocaleDateString('pt-PT');
-    return `Ficha de Colaborador — ${emp.name}\nEmpresa: ${emp.company}\nFun\u00e7\u00e3o: ${emp.role||'—'}\nEstado: ${emp.contractStatus||'—'}\nAdmiss\u00e3o: ${fmtDate(emp.admissionDate)}\nNIF: ${emp.nif||'—'}\nTelefone: ${emp.companyPhone||emp.personalPhone||'—'}\n\nGerado em ${today} via HR Manager`;
+    return `Ficha de Colaborador — ${emp.name}\nEmpresa: ${emp.company}\nFun\u00e7\u00e3o: ${emp.role||'—'}\nEstado: ${emp.contractStatus||'—'}\nAdmiss\u00e3o: ${fmtDate(emp.admissionDate)}\nNIF: ${emp.nif||'—'}\nTelefone: ${emp.companyPhone||emp.personalPhone||'—'}\n\nGerado em ${today} via HR Management`;
   }
 
   function FV({label,val,expiry=false}){
@@ -515,7 +515,7 @@ function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive
                 <span
                   className={`emp-id-pill${canEdit?' is-editable':''}`}
                   style={{color:co}}
-                  title={canEdit?'Clica para alterar (n.º ligado à 4Miga)':'N.º do colaborador'}
+                  title={canEdit?'Clica para alterar o n.º do colaborador':'N.º do colaborador'}
                   onClick={canEdit?()=>{setIdVal(emp.id||'');setIdEdit(true);setIdErr(null);}:undefined}>
                   <span className="emp-id-pill__lbl">N.º</span>
                   <span className="emp-id-pill__num">{emp.id||'—'}</span>
@@ -721,7 +721,7 @@ function BulkEditModal({count,onApply,onClose}){
               </select></div>
             <div className="field"><div className="fl">Ordenado Base (€)</div>
               <input className="fi" value={f.baseSalary} onChange={e=>set('baseSalary',e.target.value)} placeholder="(manter) — ex: 1014.02"/></div>
-            <div className="field"><div className="fl">App (4Miga)</div>
+            <div className="field"><div className="fl">Acesso à App</div>
               <select className="fi" value={f.app} onChange={e=>set('app',e.target.value)}>
                 <option value="">(manter)</option>
                 <option>SIM</option><option>NÃO</option>
