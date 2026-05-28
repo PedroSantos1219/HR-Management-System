@@ -28,7 +28,7 @@ loosely follows [Keep a Changelog](https://keepachangelog.com/).
 - Email templates no longer contain decorative unicode emoji — plain
   text headings render cleanly in Outlook and other strict clients.
 - Dashboard hides SEF, seniority bonuses, driving licences and ADR cards
-  when the company filter is set to Pit Evolution.
+  when the company filter targets a factory-only company (`isFabril`).
 
 ### Refactored
 - index.html went from one giant file to a thin shell that loads
@@ -49,7 +49,7 @@ loosely follows [Keep a Changelog](https://keepachangelog.com/).
   missing, instead of failing later with an opaque PHP notice.
 
 ### Removed
-- Hard-coded `forceActive` migration for legacy Arlize IDs in
+- Hard-coded `forceActive` migration for legacy IDs in
   `applyDataMigrations()` — it was undoing manual deactivations every
   time the page loaded.
 

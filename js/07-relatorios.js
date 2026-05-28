@@ -111,13 +111,8 @@ function RelatoriosScreen({data, company, evals, user}) {
   const logoUrl = baseUrl + 'css/assets/Logo-header.svg';
   const generatedBy = user?.name || 'RH';
 
-  const _CMETA = {
-    'Roupeta':      {name:'Transportes Roupeta',    color:'#C0392B', logo:'roupeta'},
-    'Roupeta II':   {name:'Transportes Roupeta II', color:'#1A5276', logo:'roupeta'},
-    'Arlize':       {name:'Arlize Transportes',     color:'#1A85C2', logo:'arlize'},
-    'Pit Evolution':{name:'Pit Evolution',           color:'#4B5320', logo:'pit'},
-  };
-  const _cm     = (company !== 'all' && _CMETA[company]) ? _CMETA[company] : null;
+  const _co = company !== 'all' ? APP_COMPANIES.find(c => c.key === company) : null;
+  const _cm = _co ? {name:_co.name, color:_co.color, logo:''} : null;
   const _accent = _cm ? _cm.color : '#C0392B';
   const _compLabel = 'Todas as empresas';
 
@@ -172,7 +167,7 @@ hr.sep{border:none;border-top:1px solid #e8e8e8;margin:16px 0;}
   function rowCls(d){const m={vencido:'b-vencido',critico:'b-critico',atencao:'b-atencao',ok:'b-ok','sem-data':'b-semdata'};return m[urgLabel(d)]||'';}
 
   function pdfWrap(title,subtitle,bodyHtml){
-    const compName = _cm ? _cm.name : 'Transportes Roupeta';
+    const compName = _cm ? _cm.name : 'HR Manager';
     return `<div class="pdf-header">
       ${pdfCompHeader()}
       <div class="pdf-header-info"><h1>${title}</h1><p>${subtitle || (compName + ' &middot; Gest\u00e3o RH')}</p></div>
@@ -183,7 +178,7 @@ hr.sep{border:none;border-top:1px solid #e8e8e8;margin:16px 0;}
       <div class="pdf-meta-item"><strong>${_compLabel}</strong>Empresa</div>
     </div>
     ${bodyHtml}
-    <div class="footer-pdf">Gerado em ${todayFmt} &middot; ${generatedBy} &middot; ${compName} &mdash; RH Manager</div>`;
+    <div class="footer-pdf">Gerado em ${todayFmt} &middot; ${generatedBy} &middot; ${compName} &mdash; HR Manager</div>`;
   }
 
   function pdfTable(cols,rows,urgDKey){
@@ -604,7 +599,7 @@ hr.sep{border:none;border-top:1px solid #e8e8e8;margin:16px 0;}
         `Snapshot integral RH — ${todayFmt}`,
         `<div class="section">
            <div class="section-title">Sum&aacute;rio do Backup</div>
-           <div class="section-note">${sections.length} sec&ccedil;&otilde;es inclu&iacute;das. Cada sec&ccedil;&atilde;o corresponde a um m&oacute;dulo do RH Manager.</div>
+           <div class="section-note">${sections.length} sec&ccedil;&otilde;es inclu&iacute;das. Cada sec&ccedil;&atilde;o corresponde a um m&oacute;dulo do HR Manager.</div>
            <table>
              <thead><tr><th style="width:32px">#</th><th>M&oacute;dulo</th><th style="text-align:right;width:90px">Registos</th></tr></thead>
              <tbody>${summaryHtml}</tbody>
@@ -619,7 +614,7 @@ hr.sep{border:none;border-top:1px solid #e8e8e8;margin:16px 0;}
   }
 
   if (printOverlay!==null){
-    const shareText=`${pdfTitle}\nEmpresa: ${_compLabel}\nGerado em ${todayFmt} por ${generatedBy}\n\nRH Manager — Transportes Roupeta`;
+    const shareText=`${pdfTitle}\nEmpresa: ${_compLabel}\nGerado em ${todayFmt} por ${generatedBy}\n\nHR Manager`;
     const enc=encodeURIComponent(shareText);
     return(
       <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:9999,background:'white',overflowY:'auto'}}>
@@ -774,7 +769,7 @@ hr.sep{border:none;border-top:1px solid #e8e8e8;margin:16px 0;}
       <SecCard title="Colaboradores" icon="👥"
         description="Lista detalhada dos colaboradores da empresa seleccionada. Permite gerar três tipos de PDF: Dados Gerais (nome, função, contrato), Dados Financeiros (NIF, NISS, IBAN, ordenado — confidencial) e listagem combinada de Ativos + Inativos. Pode ainda escolher manualmente um subconjunto de colaboradores.">
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(170px,1fr))',gap:8,marginBottom:14}}>
-          {['Roupeta','Roupeta II','Arlize','Pit Evolution'].map(c=>{
+          {companyNames().map(c=>{
             const n=allActive.filter(e=>e.company===c).length, tot=allActive.length||1;
             return(
               <div key={c} style={{display:'flex',alignItems:'center',gap:8}}>

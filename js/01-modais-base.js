@@ -29,6 +29,7 @@ function LoginScreen({onLogin}){
       if(u){
         window.__sec.csrf = u.csrf || '';
         window.__sec.securityVersion = u.securityVersion || 0;
+        if(u.companies) initCompanies(u.companies);
       }
       await appendAudit({user:u.username,role:u.role,action:'login',details:'Sessão iniciada'});
       onLogin(u);
@@ -66,7 +67,7 @@ function LoginScreen({onLogin}){
   return(
     <div className="container-login">
       <div style={{textAlign:'center',color:'white'}}>
-        <img src="css/assets/Logo-header.svg" alt="Transportes Roupeta" style={{height:'72px',display:'block',margin:'0 auto 14px',filter:'brightness(0) invert(1)'}}/>
+        <img src="css/assets/Logo-header.svg" alt="HR Manager" style={{height:'72px',display:'block',margin:'0 auto 14px',filter:'brightness(0) invert(1)'}}/>
         <div style={{fontSize:'24px',fontWeight:'800',letterSpacing:'2px'}}>TRANSPORTES ROUPETA</div>
         <div style={{fontSize:'12px',color:'rgba(255,255,255,.45)',marginTop:'5px'}}>Gestão de Recursos Humanos</div>
       </div>
@@ -143,7 +144,7 @@ function LoginScreen({onLogin}){
         </form>
       )}
 
-      <div style={{fontSize:'10px',color:'rgba(255,255,255,.22)'}}>Transportes Roupeta · Roupeta II · Arlize · Pit Evolution &middot; {new Date().getFullYear()}</div>
+      <div style={{fontSize:'10px',color:'rgba(255,255,255,.22)'}}>HR Manager &middot; {new Date().getFullYear()}</div>
     </div>
   );
 }

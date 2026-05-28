@@ -1,17 +1,24 @@
 // Mapa de férias: índice por empresa, ficha individual, configuração anual e PDF.
 
-const COMP_META={
-  roupeta:  {label:'Roupeta',      color:'#C0392B', bg:'#fdecea'},
-  roupeta2: {label:'Roupeta II',   color:'#2E86C1', bg:'#e8f4fc'},
-  arlize:   {label:'Arlize',       color:'#1D6A39', bg:'#e6f4ec'},
-  pit:      {label:'Pit Evolution', color:'#7D3C98', bg:'#f3e8fb'},
-};
-const CO_KEY={'Roupeta':'roupeta','Roupeta II':'roupeta2','Arlize':'arlize','Pit Evolution':'pit'};
+// Tom claro do hex (#rrggbb) para usar como background do pill da empresa.
+function _lighten(hex){
+  const h = (hex||'').replace('#','');
+  if(h.length!==6) return '#eee';
+  const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
+  const m = v => Math.round(v + (255 - v)*0.88).toString(16).padStart(2,'0');
+  return `#${m(r)}${m(g)}${m(b)}`;
+}
+function compMeta(key){
+  const co = APP_COMPANIES.find(c => c.key === key);
+  if(!co) return {label:key, color:'#555', bg:'#eee'};
+  return {label: co.name, color: co.color||'#555', bg: _lighten(co.color||'#888')};
+}
+function coKey(name){ return (APP_COMPANIES.find(c => c.name === name) || {}).key; }
 const DIREITO_DIAS=22;
 
 function FeriasScreen({data,ferias,feriasConfig,onSaveFerias,onSaveConfig,readOnly,user,onAudit,company,initSel,onNav}){
   const year=new Date().getFullYear();
-  const CO_MAP={'all':'all','roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
+  const CO_MAP = company==='all' ? 'all' : (COMPANY_NAME[company] || 'all');
   const [search,setSearch]=React.useState('');
   const [selEmp,setSelEmp]=React.useState(initSel||null);
   const [showModal,setShowModal]=React.useState(false);
@@ -31,7 +38,7 @@ function FeriasScreen({data,ferias,feriasConfig,onSaveFerias,onSaveConfig,readOn
 
   const {employees:allEmps=[],inactive:inactiveEmps=[]}=data||{};
   const employees=allEmps.filter(e=>e.status!=='inactive');
-  const COMP_ORDER=['Roupeta','Roupeta II','Arlize','Pit Evolution'];
+  const COMP_ORDER=companyNames();
 
   function countDays(s,e){
     if(!s||!e)return 0;
@@ -60,8 +67,7 @@ function FeriasScreen({data,ferias,feriasConfig,onSaveFerias,onSaveConfig,readOn
   const enriched=React.useMemo(()=>employees.map(e=>{
     const cfg=getConfig(e.id,e.company);
     const used=usedDays(e.id,e.company);
-    const key=CO_KEY[e.company]||'roupeta';
-    return{...e,used,disponivel:DIREITO_DIAS-used,config:cfg,meta:COMP_META[key]||{label:e.company,color:'#555',bg:'#eee'}};
+    return{...e,used,disponivel:DIREITO_DIAS-used,config:cfg,meta:compMeta(coKey(e.company))};
   }),[employees,ferias,feriasConfig,year]);
 
   React.useEffect(()=>{
@@ -74,7 +80,7 @@ function FeriasScreen({data,ferias,feriasConfig,onSaveFerias,onSaveConfig,readOn
 
   function filterList(list){
     return list.filter(e=>{
-      const coName=CO_MAP[company]||'all';
+      const coName=CO_MAP;
       const coOk=coName==='all'||e.company===coName;
       return coOk && nameMatches(e.name, search);
     });
@@ -223,7 +229,7 @@ function FeriasScreen({data,ferias,feriasConfig,onSaveFerias,onSaveConfig,readOn
               </tr></thead>
               <tbody>
                 {Object.entries(byComp).map(([co,emps])=>{
-                  const meta=COMP_META[CO_KEY[co]]||{color:'#555'};
+                  const meta=compMeta(coKey(co));
                   return[
                     <tr key={'grp-'+co}>
                       <td colSpan={4} style={{padding:'6px 12px',background:'var(--bg)',borderTop:'2px solid '+meta.color,borderBottom:'1px solid var(--border)'}}>
@@ -293,7 +299,7 @@ function FeriasScreen({data,ferias,feriasConfig,onSaveFerias,onSaveConfig,readOn
       </tr>`).join('');
     return`<div style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;color:#1f2a37;max-width:860px;margin:0 auto">
       <div style="background:linear-gradient(135deg,${accent},${accent}cc);color:white;padding:18px 24px;border-radius:10px 10px 0 0;display:flex;justify-content:space-between;align-items:center">
-        <div><div style="font-size:16px;font-weight:800">Ficha de Férias — ${year}</div><div style="font-size:10px;opacity:.7;margin-top:3px">Transportes Roupeta · RH Manager · ${today}</div></div>
+        <div><div style="font-size:16px;font-weight:800">Ficha de Férias — ${year}</div><div style="font-size:10px;opacity:.7;margin-top:3px">HR Manager · ${today}</div></div>
         <div style="text-align:right;font-size:10px;opacity:.8">${emp.company}</div>
       </div>
       <div style="border:1px solid #e0e0e0;border-top:none;border-radius:0 0 10px 10px;padding:20px 24px">
@@ -323,7 +329,7 @@ function FeriasScreen({data,ferias,feriasConfig,onSaveFerias,onSaveConfig,readOn
         </table>
         ${cfgForm.observacoes?`<div style="margin-top:16px;padding:12px;background:#f9fafb;border-radius:8px;border:1px solid #e0e0e0"><span style="font-size:10px;font-weight:700;text-transform:uppercase;color:#9ca3af">Observações:</span><div style="margin-top:4px;font-size:12px">${cfgForm.observacoes}</div></div>`:''}
         <div style="margin-top:20px;padding-top:12px;border-top:1px solid #f0f0f0;display:flex;justify-content:space-between;font-size:10px;color:#9ca3af">
-          <span>Transportes Roupeta — RH Manager</span><span>Gerado em ${today}</span>
+          <span>HR Manager</span><span>Gerado em ${today}</span>
         </div>
       </div>
     </div>`;

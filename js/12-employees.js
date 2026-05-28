@@ -19,7 +19,7 @@ function SI({k,label,type='text',opts=null,span=false,ph=''}){
 function EmpModal({emp,onSave,onClose,readOnly}){
   const isNew=!emp.id||emp.id==='new';
   const [f,setF]=useState(()=>{
-    const init={id:'',app:'SIM',company:'Roupeta',name:'',role:'Mot. Veic. Pesados',contractStatus:'Ativo',admissionDate:'',contractEndDate:'Efetivo',trialEndDate:'',secondContractEnd:'',birthplace:'',nationality:'Portuguesa',birthDate:'',personalPhone:'',email:'',companyPhone:'',ccNumber:'',ccExpiry:'',nif:'',niss:'',address:'',education:'',maritalStatus:'',incomeHolder:'1',dependents:'0',driverLicense:'',driverLicenseExpiry:'',camExpiry:'',tachographCardExpiry:'',adrExpiry:'',iban:'',baseSalary:'',diuturnidasCount:'0',lastMedicalConsult:'',sefExpiry:'',sefSentWhatsapp:false,medicalNotes:'',status:'active',...emp};
+    const init={id:'',app:'SIM',company:(APP_COMPANIES[0]?.name||''),name:'',role:'Mot. Veic. Pesados',contractStatus:'Ativo',admissionDate:'',contractEndDate:'Efetivo',trialEndDate:'',secondContractEnd:'',birthplace:'',nationality:'Portuguesa',birthDate:'',personalPhone:'',email:'',companyPhone:'',ccNumber:'',ccExpiry:'',nif:'',niss:'',address:'',education:'',maritalStatus:'',incomeHolder:'1',dependents:'0',driverLicense:'',driverLicenseExpiry:'',camExpiry:'',tachographCardExpiry:'',adrExpiry:'',iban:'',baseSalary:'',diuturnidasCount:'0',lastMedicalConsult:'',sefExpiry:'',sefSentWhatsapp:false,medicalNotes:'',status:'active',...emp};
     // Para colaboradores antigos só com admissão preenchida, sugere o
     // fim do período experimental (admissão + 90 dias).
     if(init.admissionDate && !init.trialEndDate){
@@ -52,7 +52,7 @@ function EmpModal({emp,onSave,onClose,readOnly}){
           <div className="sec-t">Identificação e Contrato</div>
           <div className="fg">
             <SI k="id" label="N.º Funcionário" ph="ex: 1234"/>
-            <SI k="company" label="Empresa" opts={['Roupeta','Roupeta II','Arlize','Pit Evolution']}/>
+            <SI k="company" label="Empresa" opts={companyNames()}/>
             <SI k="name" label="Nome Completo" span ph="Nome próprio e apelidos"/>
             <SI k="role" label="Função" ph="ex: Mot. Veic. Pesados"/>
             <SI k="contractStatus" label="Estado" opts={['Ativo','De baixa','De seguro','Férias','Suspenso','Inativo']}/>
@@ -363,13 +363,8 @@ function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive
     return()=>{ clearTimeout(t); document.removeEventListener('click',close); };
   },[showShare]);
 
-  const _empCMETA = {
-    'Roupeta':      {name:'Transportes Roupeta',    color:'#C0392B', logo:'roupeta'},
-    'Roupeta II':   {name:'Transportes Roupeta II', color:'#1A5276', logo:'roupeta'},
-    'Arlize':       {name:'Arlize Transportes',     color:'#1A85C2', logo:'arlize'},
-    'Pit Evolution':{name:'Pit Evolution',           color:'#4B5320', logo:'pit'},
-  };
-  const _ecm = _empCMETA[emp.company] || _empCMETA['Roupeta'];
+  const _empCMETA = Object.fromEntries(APP_COMPANIES.map(c => [c.name, {name:c.name, color:c.color||'#1a0d0d', logo:''}]));
+  const _ecm = _empCMETA[emp.company] || {name:emp.company||'', color:'#1a0d0d', logo:''};
   const _eAccent = _ecm.color;
 
   function empPdfCSS(){
@@ -444,13 +439,13 @@ function EmpDetail({emp,onEdit,onDeactivate,onReturn,onClose,readOnly,isInactive
         ${dr('Pr\u00f3x. Consulta',fmtDate(nm)+eb(nm))}
         ${dr('Periodicidade',ageOf(emp.birthDate)>=50?'Anual (\u226550 anos)':'Bienal (&lt;50 anos)')}
       </table>
-      <div class="ft">Ficha de colaborador &mdash; ${emp.name} &mdash; Gerado em ${todayFmt} &mdash; ${_ecm.name} &mdash; RH Manager</div>`;
+      <div class="ft">Ficha de colaborador &mdash; ${emp.name} &mdash; Gerado em ${todayFmt} &mdash; ${_ecm.name} &mdash; HR Manager</div>`;
     return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${empPdfCSS()}</style></head><body>${bodyHtml}</body></html>`;
   }
 
   function buildShareText(){
     const today=new Date().toLocaleDateString('pt-PT');
-    return `Ficha de Colaborador — ${emp.name}\nEmpresa: ${emp.company}\nFun\u00e7\u00e3o: ${emp.role||'—'}\nEstado: ${emp.contractStatus||'—'}\nAdmiss\u00e3o: ${fmtDate(emp.admissionDate)}\nNIF: ${emp.nif||'—'}\nTelefone: ${emp.companyPhone||emp.personalPhone||'—'}\n\nGerado em ${today} via RH Manager`;
+    return `Ficha de Colaborador — ${emp.name}\nEmpresa: ${emp.company}\nFun\u00e7\u00e3o: ${emp.role||'—'}\nEstado: ${emp.contractStatus||'—'}\nAdmiss\u00e3o: ${fmtDate(emp.admissionDate)}\nNIF: ${emp.nif||'—'}\nTelefone: ${emp.companyPhone||emp.personalPhone||'—'}\n\nGerado em ${today} via HR Manager`;
   }
 
   function FV({label,val,expiry=false}){
@@ -808,7 +803,7 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
     if(initSel.goToArchive) setArchive(true);
   },[initSel?.id, initSel?.company, initSel?.goToArchive]);
 
-  const compMap={'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
+  const compMap = COMPANY_NAME;
   const todayStr=new Date().toISOString().split('T')[0];
   const empCount=filterEmps(employees, company).length;
   const inactCount=filterEmps(inactive, company).length;
@@ -830,8 +825,8 @@ function EmpScreen({data,company,onUpdate,readOnly,user,onAudit,evals,onSaveEval
       return false;
     });
     if(search){const s=search.trim();l=l.filter(e=>nameMatches(e.name,s)||e.id?.includes(s)||e.nif?.includes(s));}
-    // Pit Evolution sempre por último; restantes pela ordem natural Roupeta → II → Arlize.
-    const ORDER={'Roupeta':1,'Roupeta II':2,'Arlize':3,'Pit Evolution':99};
+    // Empresas fabris sempre por último; restantes pela ordem da config.
+    const ORDER = Object.fromEntries(APP_COMPANIES.map((c,i) => [c.name, c.isFabril ? 99 : i+1]));
     l=[...l].sort((a,b)=>{
       const oa=ORDER[a.company]||50, ob=ORDER[b.company]||50;
       if(oa!==ob) return oa-ob;

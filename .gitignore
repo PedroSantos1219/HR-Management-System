@@ -1,8 +1,5 @@
 # BD com dados pessoais (NIF, IBAN, salários)
-rh_manager.sqlite
-rh_manager.sqlite-journal
-rh_manager.sqlite-shm
-rh_manager.sqlite-wal
+rh_manager.sqlite*
 *.db
 *.db-journal
 
@@ -52,7 +49,7 @@ docs/DEV_ONBOARDING.md
 scripts/
 
 # Base de conhecimento da IA (manuais internos, guiões, regras
-# de cumprimento, dados específicos da Roupeta). Não vai para o repo.
+# de cumprimento, dados internos). Não vai para o repo.
 ai-knowledge/
 Guiao_*.pdf
 Guião_*.pdf

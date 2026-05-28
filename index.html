@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RH Manager · Transportes Roupeta</title>
+<title>HR Manager</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -14,7 +14,7 @@
 </head>
 <body>
 <div id="root"></div>
-<div class="corner-credit">Made in Roupeta, by Pikachu</div>
+<div class="corner-credit">Made by Pedro Santos</div>
 <script>
 const SEED = {"employees":[],"inactive":[],"feriasYear":(new Date()).getFullYear(),"ferias":[],"feriasConfig":[],"absences":[]};
 </script>
@@ -213,10 +213,11 @@ function App(){
   const [sbOpen,setSbOpen]=useState(false);
   const isMobile=useMobile();
 
-  // Pit Evolution não tem SEF, diuturnidades nem cartas — se o user estiver num deles e
-  // mudar o filtro para Pit, redirecciona para o dashboard.
+  // Empresas fabris não têm SEF, diuturnidades nem cartas; se o filtro estiver
+  // nessa empresa e o ecrã não se aplicar, volta ao dashboard.
   useEffect(()=>{
-    if(company==='pit' && ['sef','diuturnidades','cartas'].includes(screen)){
+    const fab = APP_COMPANIES.find(c => c.isFabril);
+    if(fab && company===fab.key && ['sef','diuturnidades','cartas'].includes(screen)){
       setScreen('dashboard');
     }
   },[company,screen]);
@@ -260,6 +261,7 @@ function App(){
         }else if(u){
           window.__sec.csrf = u.csrf || '';
           window.__sec.securityVersion = u.securityVersion || 0;
+          if(u.companies) initCompanies(u.companies);
           setUser(u);
           const d=await loadData();
           const lf=d?.ferias||[];
@@ -616,9 +618,8 @@ function App(){
     const allEmps=data?.employees||[];
     const inactive=data?.inactive||[];
     const title=sTitles[screen]||screen;
-    const CM={'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
-    const emps=company==='all'?allEmps:allEmps.filter(e=>e.company===CM[company]);
-    const compLabel=company==='all'?'Todas as empresas':CM[company]||'Todas';
+    const emps=company==='all'?allEmps:allEmps.filter(e=>e.company===COMPANY_NAME[company]);
+    const compLabel=company==='all'?'Todas as empresas':COMPANY_NAME[company]||'Todas';
 
     function dc(d){
       if(d===null)return'—';
@@ -1011,7 +1012,7 @@ function App(){
 
     } else if (screen === 'motoristas') {
       const drivers = emps.filter(e =>
-        (e.role || '').toLowerCase().includes('mot') && e.company !== 'Pit Evolution'
+        (e.role || '').toLowerCase().includes('mot') && !isFabrilCompany(e.company)
       );
       const eff = e => effectiveAvailability(e, ferias);
       const isDispDriver = e => (eff(e) || '').toLowerCase().startsWith('dispon');
@@ -1066,7 +1067,7 @@ function App(){
     }
 
     const html=`<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8">
-<title>${title} — RH Manager</title>
+<title>${title} — HR Manager</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
 <style>${PDF_CSS}</style></head><body>
 <div class="share-bar no-print">
@@ -1087,13 +1088,13 @@ ${['sef','medicina','diuturnidades','cartas','ferias'].includes(screen)?`
 </div>`:''}
 <div id="pdf-content">
 <div class="pdf-header">
-  <div><h1>${title}</h1><div class="sub">Transportes Roupeta · RH Manager · ${todayFmt}</div></div>
+  <div><h1>${title}</h1><div class="sub">HR Manager · ${todayFmt}</div></div>
   <div class="right"><div class="pill">${compLabel}</div><div>${today}</div></div>
 </div>
 <div class="wrap">${body}</div>
 </div>
 <div class="pdf-footer">
-  <span>Transportes Roupeta — RH Manager</span>
+  <span>HR Manager</span>
   <span>${title} · ${compLabel}</span>
   <span>Gerado em ${todayFmt}</span>
 </div>
@@ -1194,12 +1195,11 @@ async function sharePdf(){
   const readOnly=user.role==='READER';
   const isAdmin=user.role==='ADMIN';
   const {employees=[],inactive=[]}=data;
-  const cm={'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
   const cEmps=filterEmps(employees, company);
   const sSef=cEmps.filter(e=>daysTo(e.sefExpiry)!==null&&daysTo(e.sefExpiry)<=60).length;
   const sMed=cEmps.filter(e=>{const nm=nextMed(e);return nm&&daysTo(nm)!==null&&daysTo(nm)<=60;}).length;
   const sDiut=cEmps.filter(e=>{const nd=nextDiut(e);return nd&&daysTo(nd)!==null&&daysTo(nd)>=0&&daysTo(nd)<=45;}).length;
-  const coLabel={'all':'Todas','roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evo'}[company];
+  const coLabel = company==='all' ? 'Todas' : (COMPANY_NAME[company] || 'Todas');
   const sCartas=cEmps.filter(e=>e.driverLicenseExpiry&&daysTo(e.driverLicenseExpiry)!==null&&daysTo(e.driverLicenseExpiry)<=90).length;
   const sAniversarios=cEmps.filter(e=>daysToBirthday(e.birthDate)===0).length;
   const sTitles={dashboard:'Dashboard',users:'Gestão de Utilizadores',employees:'Colaboradores',sef:'SEF / Portos',medicina:'Medicina do Trabalho',diuturnidades:'Diuturnidades',formacao:'Formação Contínua',contratos:'Contratos',mensagens:'Mensagens',relatorios:'Relatórios',audit:'Logs',epi:'Controlo de EPIs',fardas:'Controlo de Fardas',ferias:'Férias',cartas:'Cartas de Condução',avaliacao:'Avaliações',aniversarios:'Aniversários',backups:'Backups da Base de Dados'};
@@ -1208,7 +1208,7 @@ async function sharePdf(){
     <div className="app">
       <div className={`sb${sbOpen?" sb-open":""}`}>
         <div className="sb-logo" onClick={()=>navigate('dashboard')} title="Ir para o Dashboard" style={{cursor:'pointer'}}>
-          <img src="css/assets/Logo-header.svg" alt="Transportes Roupeta" className="sb-logo-img"/>
+          <img src="css/assets/Logo-header.svg" alt="HR Manager" className="sb-logo-img"/>
           <div className="sb-logo-t">Gest&#xe3;o RH</div>
         </div>
         <div className="sb-sec">
@@ -1275,14 +1275,11 @@ async function sharePdf(){
             const allPills = [
               {k:'all',        l:'Todas',         c:'#1a0d0d'},
               {k:'escritorio', l:'Escritório',    c:'#C0392B'},
-              {k:'roupeta',    l:'Roupeta',       c:'#9b2335'},
-              {k:'roupeta2',   l:'Roupeta II',    c:'#9b2335'},
-              {k:'arlize',     l:'Arlize',        c:'#1A5276'},
-              {k:'pit',        l:'Pit Evolution', c:'#4B5320'},
+              ...APP_COMPANIES.map(co => ({k:co.key, l:co.name, c:co.color||'#1a0d0d', isFabril:!!co.isFabril})),
             ];
-            // Pit não tem motoristas e Escritório é staff, não condução.
+            // Empresas fabris não têm motoristas, escritório é staff.
             const pills = screen==='motoristas'
-              ? allPills.filter(p => !['escritorio','pit'].includes(p.k))
+              ? allPills.filter(p => p.k!=='escritorio' && !p.isFabril)
               : allPills;
             return (
               <div className="co-pills" title={dTitle}
@@ -1300,7 +1297,7 @@ async function sharePdf(){
           })()}
           <div className="tb-right">
 
-            <img src="css/assets/Logo-header.svg" alt="Roupeta" title="Início" onClick={()=>navigate('dashboard')} style={{height:'28px',cursor:'pointer',filter:'brightness(0) invert(1)',opacity:.7,transition:'opacity .2s'}} onMouseOver={e=>e.currentTarget.style.opacity=1} onMouseOut={e=>e.currentTarget.style.opacity=.7}/>
+            <img src="css/assets/Logo-header.svg" alt="HR Manager" title="Início" onClick={()=>navigate('dashboard')} style={{height:'28px',cursor:'pointer',filter:'brightness(0) invert(1)',opacity:.7,transition:'opacity .2s'}} onMouseOver={e=>e.currentTarget.style.opacity=1} onMouseOut={e=>e.currentTarget.style.opacity=.7}/>
             <span style={{fontSize:11,color:'var(--green)',display:'flex',alignItems:'center',gap:4}}><span>●</span>Base de dados</span>
             <span style={{fontSize:11,color:'var(--muted)'}}>{new Date().toLocaleDateString('pt-PT',{day:'2-digit',month:'short',year:'numeric'})}</span>
             {!['audit','users','relatorios','dashboard','backups','aniversarios','security_logs'].includes(screen)&&(

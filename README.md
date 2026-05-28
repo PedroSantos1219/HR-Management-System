@@ -8,6 +8,8 @@ contracts, documents, PPE and uniform stock, training, vacations, plus
 reminders for medical exams and driving licences. Runs on a single XAMPP
 install in the office, served over the local network.
 
+![Dashboard](docs/screenshots/01-dashboard.png)
+
 ## Stack
 
 - React 18 + Babel Standalone, loaded straight from a CDN. JSX is
@@ -89,10 +91,31 @@ MIT — see [`LICENSE`](./LICENSE).
 
 ---
 
+### 🇵🇹 Imagens da aplicação
+
+Capturas com dados fictícios (empresas anonimizadas como "Empresa 1–4"
+e colaboradores gerados aleatoriamente):
+
+| Dashboard | Colaboradores |
+|---|---|
+| ![Dashboard](docs/screenshots/01-dashboard.png) | ![Colaboradores](docs/screenshots/02-colaboradores.png) |
+
+| Novo Colaborador | Diuturnidades |
+|---|---|
+| ![Novo Colaborador](docs/screenshots/03-novo-colaborador.png) | ![Diuturnidades](docs/screenshots/04-diuturnidades.png) |
+
+| Aniversários | Contratos |
+|---|---|
+| ![Aniversários](docs/screenshots/05-aniversarios.png) | ![Contratos](docs/screenshots/06-contratos.png) |
+
+| Utilizadores |
+|---|
+| ![Utilizadores](docs/screenshots/07-utilizadores.png) |
+
 ### 🇵🇹 Resumo
 
 Aplicação interna de gestão de RH para uma pequena transportadora.
 Corre em XAMPP local servido na rede interna do escritório. PHP 8 +
 SQLite + React 18 carregado via CDN, sem build step. Edita o
-`config.php` (SMTP, super_admins, default_users) e abre no browser
-através do XAMPP.
+`config.php` (SMTP, super_admins, default_users, lista de empresas) e
+abre no browser através do XAMPP.

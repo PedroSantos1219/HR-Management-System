@@ -12,7 +12,7 @@ return [
         'username'  => 'rh@example.com',
         'password'  => 'gmail-app-password-here',   // Gmail: generate at myaccount.google.com/apppasswords
         'from'      => 'rh@example.com',
-        'from_name' => 'RH Manager',
+        'from_name' => 'HR Manager',
     ],
 
     'app' => [
@@ -20,6 +20,16 @@ return [
         // The backend also auto-detects this from the request host, so this is
         // mainly a safety net for scripts that run outside a browser (e.g. cron).
         'url' => 'http://localhost',
+    ],
+
+    // 'name' is what gets stored in employees.company and shown in the UI.
+    // 'key' is the slug used in the filter pills. 'isFabril' marks a company
+    // with no driving rules (no SEF, no CAM, no tachograph card).
+    'companies' => [
+        ['key' => 'emp1', 'name' => 'Empresa 1', 'color' => '#9b2335', 'isFabril' => false],
+        ['key' => 'emp2', 'name' => 'Empresa 2', 'color' => '#9b2335', 'isFabril' => false],
+        ['key' => 'emp3', 'name' => 'Empresa 3', 'color' => '#1A5276', 'isFabril' => false],
+        ['key' => 'emp4', 'name' => 'Empresa 4', 'color' => '#4B5320', 'isFabril' => true ],
     ],
 
     // Emails (lowercase) with super-admin privileges: can see Security Logs

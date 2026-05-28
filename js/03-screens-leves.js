@@ -240,7 +240,7 @@ function AniversariosScreen({data,company}){
 
   function defaultMsg(name){
     const first = (name||'').split(' ')[0]||'';
-    return `Olá ${first}!\n\nA Transportes Roupeta deseja-lhe um Feliz Aniversário! 🎂\n\nQue tenha um dia maravilhoso e um ano cheio de alegrias e conquistas.\n\nUm forte abraço da equipa!`;
+    return `Olá ${first}!\n\nDesejamos-lhe um Feliz Aniversário! 🎂\n\nQue tenha um dia maravilhoso e um ano cheio de alegrias e conquistas.\n\nUm forte abraço da equipa!`;
   }
 
   function openShare(emp){

@@ -1,5 +1,5 @@
 // Formação: categorias internas e externas, tab individual na ficha
-// do colaborador e ecrã global por sessão. Pit Evolution não tem CAM/ADR.
+// do colaborador e ecrã global por sessão. Empresas fabris não têm CAM/ADR.
 
 const TRAIN_CATS = [
   {id:'sht',       label:'SHT — Segurança, Higiene e Saúde',         type:'interna', color:'1D6A39'},
@@ -12,16 +12,16 @@ const TRAIN_CATS = [
   {id:'ext_outra', label:'Outra Formação Externa',                    type:'externa', color:'1A5276'},
 ];
 
-// Pit Evolution não é transportadora — exclui CAM/CQC e ADR.
-const isPitCompany = co => co==='Pit Evolution' || co==='pit';
-const trainCatsFor = co => isPitCompany(co) ? TRAIN_CATS.filter(c=>c.id!=='cam'&&c.id!=='adr') : TRAIN_CATS;
+// Empresas fabris não conduzem — exclui CAM/CQC e ADR.
+const isFabrilCo = co => isFabrilCompany(co) || !!(APP_COMPANIES.find(c => c.key===co && c.isFabril));
+const trainCatsFor = co => isFabrilCo(co) ? TRAIN_CATS.filter(c=>c.id!=='cam'&&c.id!=='adr') : TRAIN_CATS;
 
 function EmpTrainingTab({emp, readOnly, user, onAudit}) {
   const [records, setRecords] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [yr, setYr] = useState(String(new Date().getFullYear()));
   const [form, setForm] = useState({
-    category:'sht', description:'', entity:'Transportes Roupeta',
+    category:'sht', description:'', entity:'',
     date: new Date().toISOString().split('T')[0], hours:'8', certified:'Sim', certNumber:'', notes:'', responsible:''
   });
 
@@ -54,7 +54,7 @@ function EmpTrainingTab({emp, readOnly, user, onAudit}) {
     setRecords(updated); await saveTrainingStore(updated);
     onAudit&&onAudit(`Registou formação "${rec.categoryLabel}" para ${emp.name} (${rec.hours}h, ${fmtDate(rec.date)})`, 'formacao');
     setShowForm(false);
-    setForm({category:'sht',description:'',entity:'Transportes Roupeta',date:new Date().toISOString().split('T')[0],hours:'8',certified:'Sim',certNumber:'',notes:'',responsible:''});
+    setForm({category:'sht',description:'',entity:'',date:new Date().toISOString().split('T')[0],hours:'8',certified:'Sim',certNumber:'',notes:'',responsible:''});
   }
 
   async function delRecord(id) {
@@ -195,7 +195,7 @@ function EmpTrainingTab({emp, readOnly, user, onAudit}) {
 
 function TrainingScreen({data, company, readOnly, user, onAudit}) {
   const {employees=[]} = data;
-  const cm = {'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
+  const cm = COMPANY_NAME;
 
   const [records, setRecords] = useState([]);
   const [yr, setYr] = useState(String(new Date().getFullYear()));
@@ -304,7 +304,7 @@ function TrainingScreen({data, company, readOnly, user, onAudit}) {
         empId:emp.id, empName:emp.name, empCompany:emp.company,
         trainingName: form.trainingName,
         type: cat?.type || form.type,
-        entity: form.type==='interna'?'Transportes Roupeta':(form.entity||''),
+        entity: form.type==='interna'?'Interna':(form.entity||''),
         startDate: form.startDate,
         endDate: form.endDate||form.startDate,
         date: form.endDate||form.startDate, // backward compat
@@ -546,7 +546,7 @@ function TrainingScreen({data, company, readOnly, user, onAudit}) {
                 <div className="fl" style={{marginBottom:8,fontWeight:700}}>Tipo de Formação <span style={{color:'var(--red)'}}>*</span></div>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
                   {[
-                    {k:'interna', icon:'🏢', label:'INTERNA', desc:'Realizada pela Roupeta', bg:'#FDEDEC', border:'#C0392B', color:'#C0392B'},
+                    {k:'interna', icon:'🏢', label:'INTERNA', desc:'Realizada internamente', bg:'#FDEDEC', border:'#C0392B', color:'#C0392B'},
                     {k:'externa', icon:'🎓', label:'EXTERNA', desc:'Realizada por entidade externa', bg:'#F4ECF7', border:'#7D3C98', color:'#7D3C98'},
                   ].map(opt=>(
                     <div key={opt.k} onClick={()=>setForm(f=>{

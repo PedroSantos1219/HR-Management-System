@@ -5,9 +5,8 @@
 function MotoristasScreen({data, company, onNav, ferias, initContext}){
   const {employees=[]} = data;
   const [filter, setFilter] = useState('all');
-  const cm = {'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
-  const emps = (company==='all' ? employees : employees.filter(e=>e.company===cm[company]))
-    .filter(e => (e.role||'').toLowerCase().includes('mot') && e.company !== 'Pit Evolution');
+  const emps = (company==='all' ? employees : employees.filter(e=>e.company===COMPANY_NAME[company]))
+    .filter(e => (e.role||'').toLowerCase().includes('mot') && !isFabrilCompany(e.company));
 
   // Disponibilidade efectiva: férias actuais sobrepõem-se ao campo availability,
   // por isso usamos o helper do 00-helpers.js em vez de ler emp.availability directo.

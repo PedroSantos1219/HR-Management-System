@@ -566,6 +566,7 @@ try {
                 'isSuper'         => isSuperAdmin($u['email']),
                 'csrf'            => function_exists('csrfTokenGet') ? csrfTokenGet() : '',
                 'securityVersion' => function_exists('getSecurityVersion') ? getSecurityVersion($db) : 1,
+                'companies'       => $GLOBALS['app_config']['companies'] ?? [],
             ]);
             break;
 
@@ -646,6 +647,7 @@ try {
                 'isSuper'         => isSuperAdmin($u['email']),
                 'csrf'            => function_exists('csrfTokenGet') ? csrfTokenGet() : '',
                 'securityVersion' => function_exists('getSecurityVersion') ? getSecurityVersion($db) : 1,
+                'companies'       => $GLOBALS['app_config']['companies'] ?? [],
             ]);
             break;
 
@@ -1448,7 +1450,7 @@ function sendVerificationEmail(string $email, string $username, string $token): 
     }
 
     $verifyLink = $appUrl . '/api.php?action=verify_email&token=' . urlencode($token);
-    $appName    = htmlspecialchars((string)($smtp['from_name'] ?? 'RH Manager'));
+    $appName    = htmlspecialchars((string)($smtp['from_name'] ?? 'HR Manager'));
     $userEsc    = htmlspecialchars($username);
 
     $html = '<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><style>
@@ -1494,7 +1496,7 @@ function sendPasswordResetEmail(string $email, string $username, string $token):
     }
 
     $resetLink = $appUrl . '/index.html#reset=' . urlencode($token);
-    $appName   = htmlspecialchars((string)($smtp['from_name'] ?? 'RH Manager'));
+    $appName   = htmlspecialchars((string)($smtp['from_name'] ?? 'HR Manager'));
     $userEsc   = htmlspecialchars($username);
 
     $html = '<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><style>
@@ -1538,7 +1540,7 @@ function sendAdminActionCodeEmail(string $email, string $username, string $code,
         return false;
     }
 
-    $appName = htmlspecialchars((string)($smtp['from_name'] ?? 'RH Manager'));
+    $appName = htmlspecialchars((string)($smtp['from_name'] ?? 'HR Manager'));
     $userEsc = htmlspecialchars($username);
     $descEsc = htmlspecialchars($description);
 

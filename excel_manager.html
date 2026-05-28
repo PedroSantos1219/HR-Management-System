@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gestor Excel · RH Manager</title>
+  <title>Gestor Excel · HR Manager</title>
   <link rel="stylesheet" href="css/base/variables.css">
   <link rel="stylesheet" href="css/excel-manager.css">
 </head>
@@ -13,7 +13,7 @@
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">&#x1F69B;</div>
-    <h2>RH Manager</h2>
+    <h2>HR Manager</h2>
     <p>Gestor de Ficheiros Excel</p>
     <div id="login-err"></div>
     <input id="l-email" type="email" placeholder="Email" autocomplete="username">
@@ -28,7 +28,7 @@
     <div class="hd-icon">&#x1F4CA;</div>
     <div>
       <div class="hd-t">Gestor de Ficheiros Excel</div>
-      <div class="hd-s">Transportes Roupeta &mdash; RH Manager</div>
+      <div class="hd-s">HR Manager</div>
     </div>
   </div>
   <div class="hd-nav">
@@ -63,10 +63,10 @@
       <div class="card-icon">&#x1F4C8;</div>
       <div class="card-title">Exportar BD → Excel</div>
       <div class="card-desc">
-        Preenche o template <strong>BASE DE DADOS ROUPETA E RII</strong> com todos os colaboradores actuais da aplicação e descarrega o ficheiro.
+        Preenche o template <strong>BASE DE DADOS</strong> com todos os colaboradores actuais da aplicação e descarrega o ficheiro.
       </div>
       <div class="card-footer">
-        <span class="card-badge badge-green">Roupeta + RII + Arlize</span>
+        <span class="card-badge badge-green">Empresas principais</span>
         <button class="btn btn-green" onclick="exportMainExcel(this)">
           <span>&#x2B07;</span> Exportar
         </button>
@@ -117,14 +117,14 @@
       </thead>
       <tbody>
         <tr>
-          <td class="file-name">&#x1F4CA; BASE DE DADOS ROUPETA E RII.xlsm</td>
+          <td class="file-name">&#x1F4CA; BASE DE DADOS PRINCIPAL.xlsm</td>
           <td><span class="card-badge badge-green">BD Principal</span></td>
           <td class="file-size" id="size-roupeta">—</td>
           <td><button class="btn btn-green" onclick="downloadTemplate('roupeta')">&#x2B07; Download</button></td>
         </tr>
         <tr>
-          <td class="file-name">&#x1F4CA; BASE DE DADOS - COLABORADORES PIT EVOLUTION.xlsx</td>
-          <td><span class="card-badge badge-blue">Pit Evolution</span></td>
+          <td class="file-name">&#x1F4CA; BASE DE DADOS - FABRIL.xlsx</td>
+          <td><span class="card-badge badge-blue">Fabril</span></td>
           <td class="file-size" id="size-pit">—</td>
           <td><button class="btn btn-blue" onclick="downloadTemplate('pit')">&#x2B07; Download</button></td>
         </tr>
@@ -462,8 +462,10 @@ async function exportMainExcel(btn) {
       ws[ref] = {t: typeof value === 'number' ? 'n' : 's', v: value};
     }
 
-    const ws = wb.Sheets['BD- Roupeta,Roupeta II e Ar'];
-    if (!ws) throw new Error('Folha "BD- Roupeta,Roupeta II e Ar" não encontrada no template.');
+    // Ajustar o nome da folha à do template real, se necessário.
+    const SHEET_NAME = 'BD';
+    const ws = wb.Sheets[SHEET_NAME] || wb.Sheets[wb.SheetNames[0]];
+    if (!ws) throw new Error(`Folha "${SHEET_NAME}" não encontrada no template.`);
 
     // Limpar linhas antigas (linha 16 em diante)
     for (let r = 16; r < 516; r++) {
@@ -532,7 +534,7 @@ async function exportMainExcel(btn) {
 
     const blob = new Blob([window.XLSX.write(wb, {type:'array', bookType:'xlsx'})],
       {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-    triggerDownload(blob, `BD_Roupeta_${today()}.xlsx`);
+    triggerDownload(blob, `BD_${today()}.xlsx`);
     toast(`Excel exportado com sucesso — ${employees.length} colaboradores.`, 'ok');
   } catch(e) {
     toast('Erro ao exportar: ' + e.message, 'err');
@@ -568,7 +570,7 @@ async function exportModule(module, btn) {
           'Telefone': e.personalPhone, 'Email': e.email,
           'Tel. Empresa': e.companyPhone, 'Morada': e.address,
           'IBAN': e.iban, 'Ordenado Base': e.baseSalary,
-          'App 4Miga': e.app
+          'App': e.app
         }));
         const ws = window.XLSX.utils.json_to_sheet(rows);
         window.XLSX.utils.book_append_sheet(wb, ws, 'Colaboradores');

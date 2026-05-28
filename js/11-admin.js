@@ -391,7 +391,7 @@ function BackupsScreen({user, onAfterRestore}){
       <div style={{background:'#fef3c7',border:'1px solid #fcd34d',borderRadius:8,padding:'12px 14px',marginBottom:18,fontSize:12,color:'#92400e',lineHeight:1.5}}>
         <strong>Como funciona o restauro:</strong> ao clicar em <em>Restaurar</em>, é primeiro criado um <strong>snapshot pré-restauro</strong> com o estado actual da BD. Só depois o backup escolhido substitui a BD activa. Se algo correr mal, basta restaurar o snapshot pré-restauro mais recente para voltar ao ponto de partida.<br/>
         <strong>Tarefa diária (Windows):</strong> Task Scheduler → todos os dias às 23:59 com&nbsp;
-        <code style={{background:'rgba(0,0,0,.08)',padding:'1px 6px',borderRadius:4,fontFamily:'Consolas,monospace'}}>{'C:\\xampp\\php\\php.exe "C:\\xampp\\htdocs\\Projeto RH Roupeta\\backup_cron.php"'}</code>.
+        <code style={{background:'rgba(0,0,0,.08)',padding:'1px 6px',borderRadius:4,fontFamily:'Consolas,monospace'}}>{'C:\\xampp\\php\\php.exe "C:\\xampp\\htdocs\\HR-Management-System\\backup_cron.php"'}</code>.
         Backups com mais de 30 dias são removidos automaticamente.
       </div>
 

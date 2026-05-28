@@ -2,13 +2,12 @@
 
 function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
   const {employees=[],inactive=[]}=data;
-  const cm={'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
   const emps=filterEmps(employees, company);
   const cy=new Date().getFullYear();
   const isAdmin = user?.role === 'ADMIN';
 
-  // Disponibilidade dos motoristas (Pit não conta — não tem este conceito).
-  const motoristas = emps.filter(e => (e.role||'').toLowerCase().includes('mot') && e.company !== 'Pit Evolution');
+  // Disponibilidade dos motoristas (empresas fabris não têm este conceito).
+  const motoristas = emps.filter(e => (e.role||'').toLowerCase().includes('mot') && !isFabrilCompany(e.company));
   const disponiveis = motoristas.filter(e => (e.availability||'').toLowerCase().startsWith('dispon')).length;
   const meta = parseInt(data.motoristasMetaDisponiveis) || 0;
   const faltam = meta > 0 ? Math.max(0, meta - disponiveis) : 0;
@@ -86,18 +85,17 @@ function Dashboard({data,company,ferias,feriasConfig,onNav,user,onUpdate}){
     motoristas: emps.filter(e=>e.role?.toLowerCase().includes('mot')).length,
   };
   const totalAlerts = alerts.sef.length+alerts.med.length+alerts.diut.length+alerts.cc.length+alerts.adr.length+alerts.cartas.length+alerts.contratos.length+alerts.efetivacao.length;
-  // Pit é fábrica, por isso o equivalente aos motoristas são operários.
-  // Para o escritório da Pit conta-se só direção/admin/qualidade; os técnicos
-  // (que são a maioria) ficam no operário.
-  const officePit = e => /diretor|gerent|chef|admin|financ|contab|escrit|qualid/.test((e.role||'').toLowerCase());
-  const byComp = ['Roupeta','Roupeta II','Arlize','Pit Evolution'].map(name => {
+  // Em empresas fabris o equivalente aos motoristas são operários; o
+  // "escritório" da fábrica só conta direção/admin/qualidade, técnicos vão para operário.
+  const officeFabril = e => /diretor|gerent|chef|admin|financ|contab|escrit|qualid/.test((e.role||'').toLowerCase());
+  const byComp = companyNames().map(name => {
     const list = employees.filter(e => e.company === name);
-    const isPit = name === 'Pit Evolution';
-    const office = list.filter(isPit ? officePit : isOffice).length;
-    const field  = isPit
-      ? list.filter(e => !officePit(e)).length
+    const fabril = isFabrilCompany(name);
+    const office = list.filter(fabril ? officeFabril : isOffice).length;
+    const field  = fabril
+      ? list.filter(e => !officeFabril(e)).length
       : list.filter(e => /^mot/i.test(e.role||'')).length;
-    return { n: name, c: list.length, office, field, fieldLabel: isPit ? 'operários' : 'motoristas' };
+    return { n: name, c: list.length, office, field, fieldLabel: fabril ? 'operários' : 'motoristas' };
   });
 
   const motoristasAccent = meta>0 ? (metaOk?'stat--accent-green':'stat--accent-red') : 'stat--accent-blue';

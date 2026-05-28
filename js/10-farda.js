@@ -236,7 +236,7 @@ function FardaTab({emp, readOnly, user, onAudit, onStockChange}) {
 
 function FardaScreen({data, company, readOnly, user, onAudit}) {
   const {employees=[]} = data;
-  const cm = {'roupeta':'Roupeta','roupeta2':'Roupeta II','arlize':'Arlize','pit':'Pit Evolution'};
+  const cm = COMPANY_NAME;
   const emps = filterEmps(employees, company);
   const [selEmp, setSelEmp] = useState(null);
   const [filterMissing, setFilterMissing] = useState(false);
@@ -555,10 +555,7 @@ function FardaStockScreen({stock, onChange, onBack, readOnly, onAudit}){
         <span style={{fontSize:11,color:'var(--muted)'}}>Clica num colaborador abaixo para gerir as suas peças</span>
         <select className="fi" value={companyF} onChange={e=>setCompanyF(e.target.value)} style={{marginLeft:'auto',padding:'4px 10px',fontSize:12,width:160}}>
           <option value="all">Todas as empresas</option>
-          <option value="Roupeta">Roupeta</option>
-          <option value="Roupeta II">Roupeta II</option>
-          <option value="Arlize">Arlize</option>
-          <option value="Pit Evolution">Pit Evolution</option>
+          {companyNames().map(n => <option key={n} value={n}>{n}</option>)}
         </select>
         <input className="fi" placeholder="Pesquisar colaborador..." value={empSearch} onChange={e=>setEmpSearch(e.target.value)} style={{padding:'4px 10px',fontSize:12,width:200}}/>
       </div>
